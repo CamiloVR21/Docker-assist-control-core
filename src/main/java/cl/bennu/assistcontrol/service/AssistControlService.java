@@ -1,8 +1,11 @@
 package cl.bennu.assistcontrol.service;
 
 import cl.bennu.assistcontrol.domain.Commune;
+import cl.bennu.assistcontrol.domain.Company;
 import cl.bennu.assistcontrol.domain.query.CommuneQuery;
+import cl.bennu.assistcontrol.domain.query.CompanyQuery;
 import cl.bennu.assistcontrol.mapper.CommuneMapper;
+import cl.bennu.assistcontrol.mapper.CompanyMapper;
 import cl.bennu.commons.exception.NoDataException;
 import cl.bennu.commons.exception.UniqueException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,6 +19,7 @@ import java.util.List;
 public class AssistControlService {
 
     private @Inject CommuneMapper communeMapper;
+    private @Inject CompanyMapper companyMapper;
 
     public Commune getCommuneById(String token, Long communeId) {
         return communeMapper.get(communeId);
@@ -65,5 +69,70 @@ public class AssistControlService {
     public void deleteCommune(String token, Long communeId) {
         communeMapper.delete(communeId);
     }
+
+    //COMPANY
+
+    public Company getCompanyById(String token, Long companyId) {
+        return companyMapper.get(companyId);
+    }
+    public List<Company> getAllCompany(String token) {
+        return companyMapper.getAll();
+    }
+    public List<Company> findCompanyByQuery(String token, CompanyQuery query) {
+        return companyMapper.findByQuery(query);
+    }
+    public void saveCompany(String token, Company company, String method) throws NoDataException, UniqueException {
+        validateCompany(token, company, method);
+
+        if (company.getId() == null) {
+            companyMapper.insert(company);
+        } else {
+            companyMapper.update(company);
+        }
+    }
+
+    private void validateCompany(String token, Company company, String method) throws NoDataException, UniqueException {
+        // Validaciones comunes
+        if (company.getCode() == null || StringUtils.isBlank(company.getCode())) {
+            throw new NoDataException("No se especificó el campo codigo");
+        }
+        if (company.getAddress() == null || StringUtils.isBlank(company.getAddress())) {
+            throw new NoDataException("No se especificó el campo direccion");
+        }
+        if (company.getCommuneId() == null) {
+            throw new NoDataException("No se especificó el campo comuna");
+        }
+
+        CompanyQuery query = new CompanyQuery();
+        query.setCode(company.getCode());
+        Company companyDB = companyMapper.getByQuery(query);
+
+        if (HttpMethod.POST.equalsIgnoreCase(method)) {
+
+            if (company.getId() != null) {
+                throw new NoDataException("El campo id debe ser nulo");
+            }
+            if (companyDB != null) {
+                throw new UniqueException("La compañía ya existe");
+            }
+        } else {
+
+            if (company.getId() == null) {
+                throw new NoDataException("No se especificó el campo id");
+            }
+            if (companyDB != null && !companyDB.getId().equals(company.getId())) {
+                throw new UniqueException("La compañía ya existe");
+            }
+        }
+    }
+    public Company deleteCompanyById(String token, Long companyId) throws NoDataException {
+        Company company = companyMapper.get(companyId);
+        if (company == null) {
+            throw new NoDataException("No se encontró la compañía con el id especificado");
+        }
+        companyMapper.delete(companyId);
+        return company;
+    }
+
 
 }
