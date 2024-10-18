@@ -100,7 +100,6 @@ CREATE TABLE branch (
 	, FOREIGN KEY (company_id) REFERENCES company(id)
 );
 
-
 CREATE TABLE job_type (
 	id INTEGER NOT NULL
 
@@ -151,7 +150,6 @@ CREATE TABLE job_scheduler (
 	, FOREIGN KEY (job_type_id) REFERENCES job_type(id)
 );
 
-
 CREATE TABLE employee (
     id SERIAL NOT NULL
     , branch_id INTEGER NOT NULL
@@ -188,23 +186,3 @@ CREATE TABLE employee (
 	, FOREIGN KEY (marital_status_id) REFERENCES marital_status(id)
 	, FOREIGN KEY (contract_type_id) REFERENCES contract_type(id)
 );
-INSERT INTO gender (id, name) VALUES (2, 'Femenino');
-INSERT INTO gender (id, name) VALUES (1, 'Masculino');
-INSERT INTO marital_status (id, name) VALUES (1,'Casado');
-INSERT INTO marital_status (id, name) VALUES (2,'Viudo');
-INSERT INTO marital_status (id, name) VALUES (3,'Divorciado');
-INSERT INTO contract_type (id, name) VALUES (1,'Fijo');
-INSERT INTO contract_type (id, name) VALUES (2,'Indefinido');
-INSERT INTO contract_type (id, name) VALUES (3,'Obra');
-INSERT INTO job_type (id, name) VALUES (1,'Developer');
-INSERT INTO job_type (id, name) VALUES (2,'Devops');
-INSERT INTO job_type (id, name) VALUES (3,'QA');
-INSERT INTO job_type (id, name) VALUES (4,'Proyect Manager');
-
---DROP TABLE IF EXISTS employee;
---DROP TABLE IF EXISTS job_scheduler;
---DROP TABLE IF EXISTS job_type;
---DROP TABLE IF EXISTS branch;
---DROP TABLE IF EXISTS company;
---DROP TABLE IF EXISTS commune;
-
