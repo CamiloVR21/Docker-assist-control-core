@@ -2,8 +2,11 @@ package cl.bennu.assistcontrol.service;
 
 import cl.bennu.assistcontrol.domain.Commune;
 import cl.bennu.assistcontrol.domain.Company;
+import cl.bennu.assistcontrol.domain.Branch;
 import cl.bennu.assistcontrol.domain.query.CommuneQuery;
 import cl.bennu.assistcontrol.domain.query.CompanyQuery;
+import cl.bennu.assistcontrol.domain.query.BranchQuery;
+import cl.bennu.assistcontrol.mapper.BranchMapper;
 import cl.bennu.assistcontrol.mapper.CommuneMapper;
 import cl.bennu.assistcontrol.mapper.CompanyMapper;
 import cl.bennu.commons.exception.NoDataException;
@@ -23,6 +26,9 @@ public class AssistControlService {
 
     @Inject
     private CompanyMapper companyMapper;
+
+    @Inject
+    private BranchMapper branchMapper;
 
     public Commune getCommuneById(String token, Long communeId) {
         return communeMapper.get(communeId);
@@ -106,6 +112,7 @@ public class AssistControlService {
         }
     }
 
+
     private void validateCompany(String token, Company company, String method) throws NoDataException, UniqueException {
         // Validaciones comunes
         if (company.getCode() == null || StringUtils.isBlank(company.getCode())) {
@@ -150,4 +157,71 @@ public class AssistControlService {
         companyMapper.delete(companyId);
         return company;
     }
+    // BRANCH
+
+    public Branch getBranchyById(String token, Long branchId) {
+        return branchMapper.get(branchId);
+    }
+
+    public List<Branch> getAllBranch(String token) {
+        return branchMapper.getAll();
+    }
+
+    public List<Branch> findBranchByQuery(String token, BranchQuery query) {
+        return branchMapper.findByQuery(query);
+    }
+
+    public void saveBranch(String token, Branch branch, String method) throws NoDataException, UniqueException {
+        validateBranch(token, branch, method);
+
+        if (branch.getId() == null) {
+            branchMapper.insert(branch);
+        } else {
+            branchMapper.update(branch);
+        }
+    }
+
+    private void validateBranch(String token, Branch branch, String method) throws NoDataException, UniqueException {
+        // Validaciones comunes Branch
+        if (branch.getName() == null || StringUtils.isBlank(branch.getName())) {
+            throw new NoDataException("No se especificó el campo nombre");
+        }
+        if (branch.getAddress() == null || StringUtils.isBlank(branch.getAddress())) {
+            throw new NoDataException("No se especificó el campo direccion");
+        }
+        if (branch.getCompanyId() == null) {
+            throw new NoDataException("No se especificó el campo compañia");
+        }
+
+
+        BranchQuery query = new BranchQuery();
+        query.setName(branch.getName());
+        Branch branchDB = branchMapper.getByQuery(query);
+
+        if (HttpMethod.POST.equalsIgnoreCase(method)) {
+            if (branch.getId() != null) {
+                throw new NoDataException("El campo id debe ser nulo");
+            }
+            if (branchDB != null) {
+                throw new UniqueException("La compañía ya existe");
+            }
+        } else {
+            if (branch.getId() == null) {
+                throw new NoDataException("No se especificó el campo id");
+            }
+            if (branchDB != null && !branchDB.getId().equals(branch.getId())) {
+                throw new UniqueException("La compañía ya existe");
+            }
+        }
+    }
+
+    public Branch deleteBranchById(String token, Long branchId) throws NoDataException {
+        Branch branch = branchMapper.get(branchId);
+        if (branch == null) {
+            throw new NoDataException("No se encontró la compañía con el id especificado");
+        }
+        branchMapper.delete(branchId);
+        return branch;
+    }
+
 }

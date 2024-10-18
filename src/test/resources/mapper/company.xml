@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cl.bennu.assistcontrol.mapper.CompanyMapper">
+<mapper namespace="cl.bennu.assistcontrol.mapper.CompanyMapperTest">
 
-    <resultMap id="companyMap" type="cl.bennu.assistcontrol.domain.Company">
+    <resultMap id="companyMap" type="cl.bennu.assistcontrol.domain.CompanyTest">
         <result property="id" column="id"/>
         <result property="communeId" column="commune_id"/>
         <result property="code" column="code"/>
@@ -48,7 +48,7 @@
     </select>
 
     <select id="findByQuery" resultMap="companyMap"
-            parameterType="cl.bennu.assistcontrol.domain.query.CompanyQuery">
+            parameterType="cl.bennu.assistcontrol.domain.query.CompanyQueryTest">
         <include refid="sqlCompany"/>
         <!-- @formatter:off -->
         WHERE 1 = 1
@@ -96,7 +96,7 @@
     </select>
 
     <select id="getByQuery" resultMap="companyMap"
-            parameterType="cl.bennu.assistcontrol.domain.query.CompanyQuery">
+            parameterType="cl.bennu.assistcontrol.domain.query.CompanyQueryTest">
         <include refid="sqlCompany"/>
         <!-- @formatter:off -->
         WHERE 1 = 1
@@ -136,12 +136,12 @@
         <!-- @formatter:on -->
     </select>
 
-    <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.Company">
+    <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.CompanyTest">
         INSERT INTO company (commune_id, code, name, address, phone, alias, giro, email, geolocation, selfie, lag)
         VALUES (#{communeId}, #{code}, #{name}, #{address}, #{phone}, #{alias}, #{giro}, #{email}, #{geolocation}, #{selfie}, #{lag})
     </insert>
 
-    <update id="update" parameterType="cl.bennu.assistcontrol.domain.Company">
+    <update id="update" parameterType="cl.bennu.assistcontrol.domain.CompanyTest">
         UPDATE company
         SET commune_id = #{communeId},
         code = #{code},

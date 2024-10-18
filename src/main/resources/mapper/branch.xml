@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cl.bennu.assistcontrol.mapper.BranchMapper">
+
+    <resultMap id="branchMap" type="cl.bennu.assistcontrol.domain.Branch">
+        <result property="id" column="id"/>
+        <result property="companyId" column="company_id"/>
+        <result property="name" column="name"/>
+        <result property="address" column="address"/>
+        <result property="phone" column="phone"/>
+        <result property="alias" column="alias"/>
+        <result property="active" column="active"/>
+    </resultMap>
+
+    <sql id="sqlBranch">
+        <!-- @formatter:off -->
+        SELECT b.id
+        , b.company_id
+        , b.name
+        , b.address
+        , b.phone
+        , b.alias
+        , b.active
+        FROM branch b
+        <!-- @formatter:on -->
+    </sql>
+
+    <select id="getAll" resultMap="branchMap">
+        <include refid="sqlBranch"/>
+    </select>
+
+    <select id="get" resultMap="branchMap" parameterType="java.lang.Long">
+        <include refid="sqlBranch"/>
+        <!-- @formatter:off -->
+        WHERE b.id = #{id}
+        <!-- @formatter:on -->
+    </select>
+
+    <select id="findByQuery" resultMap="branchMap"
+            parameterType="cl.bennu.assistcontrol.domain.query.BranchQuery">
+        <include refid="sqlBranch"/>
+        <!-- @formatter:off -->
+        WHERE 1 = 1
+        <if test="companyId != null">
+            AND c.commune_id = #{communeId}
+        </if>
+        <if test="name != null">
+            <bind name="_name" value="'%' + name + '%'"/>
+            AND c.name LIKE #{_name}
+        </if>
+        <if test="address != null">
+            <bind name="_address" value="'%' + address + '%'"/>
+            AND c.address LIKE #{_address}
+        </if>
+        <if test="phone != null">
+            <bind name="_phone" value="'%' + phone + '%'"/>
+            AND c.phone LIKE #{_phone}
+        </if>
+        <if test="alias != null">
+            <bind name="_alias" value="'%' + alias + '%'"/>
+            AND c.alias LIKE #{_alias}
+        </if>
+        <if test="active != null">
+            AND c.active = #{active}
+        </if>
+        <!-- @formatter:on -->
+    </select>
+
+    <select id="getByQuery" resultMap="branchMap"
+            parameterType="cl.bennu.assistcontrol.domain.query.BranchQuery">
+        <include refid="sqlBranch"/>
+        <!-- @formatter:off -->
+        WHERE 1 = 1
+        <if test="id != null">
+            AND c.id = #{id}
+        </if>
+        <if test="name != null">
+            AND c.name = #{name}
+        </if>
+        <if test="address != null">
+            AND c.address = #{address}
+        </if>
+        <if test="phone != null">
+            AND c.phone = #{phone}
+        </if>
+        <if test="alias != null">
+            AND c.alias = #{alias}
+        </if>
+        <if test="active != null">
+            AND c.active = #{active}
+        </if>
+        <!-- @formatter:on -->
+    </select>
+
+    <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.Branch">
+        INSERT INTO branch (company_id, name, address, phone, alias,active)
+        VALUES (#{companyId}, #{name}, #{address}, #{phone}, #{alias}, #{active})
+    </insert>
+
+    <update id="update" parameterType="cl.bennu.assistcontrol.domain.Branch">
+        UPDATE branch
+        SET branch_id = #{branchId},
+        name = #{name},
+        address = #{address},
+        phone = #{phone},
+        alias = #{alias},
+        active = #{active}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM branch WHERE id = #{id}
+    </delete>
+
+</mapper>
