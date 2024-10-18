@@ -18,8 +18,11 @@ import java.util.List;
 @ApplicationScoped
 public class AssistControlService {
 
-    private @Inject CommuneMapper communeMapper;
-    private @Inject CompanyMapper companyMapper;
+    @Inject
+    private CommuneMapper communeMapper;
+
+    @Inject
+    private CompanyMapper companyMapper;
 
     public Commune getCommuneById(String token, Long communeId) {
         return communeMapper.get(communeId);
@@ -45,9 +48,12 @@ public class AssistControlService {
 
     private void validate(String token, Commune commune, String method) throws NoDataException, UniqueException {
         // validaciones comunes
-        if (commune.getName() == null || StringUtils.isBlank(commune.getName()))
+        if (commune.getName() == null || StringUtils.isBlank(commune.getName())) {
             throw new NoDataException("No se especificó el campo nombre");
-        if (commune.getCityId() == null) throw new NoDataException("No se especificó el campo ciudad");
+        }
+        if (commune.getCityId() == null) {
+            throw new NoDataException("No se especificó el campo ciudad");
+        }
 
         CommuneQuery query = new CommuneQuery();
         query.setName(commune.getName());
@@ -55,14 +61,20 @@ public class AssistControlService {
 
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
             // validaciones especificas de insert
-            if (commune.getId() != null) throw new NoDataException("El campo id debe ser nulo");
-            if (communeDB != null) throw new UniqueException("El tramo de riesgo ya existe");
+            if (commune.getId() != null) {
+                throw new NoDataException("El campo id debe ser nulo");
+            }
+            if (communeDB != null) {
+                throw new UniqueException("El tramo de riesgo ya existe");
+            }
         } else {
             // validaciones especificas de update
-            if (commune.getId() == null) throw new NoDataException("No se especificó el campo id");
-
-            if (!communeDB.getId().equals(commune.getId()))
+            if (commune.getId() == null) {
+                throw new NoDataException("No se especificó el campo id");
+            }
+            if (communeDB != null && !communeDB.getId().equals(commune.getId())) {
                 throw new UniqueException("El tramo de riesgo ya existe");
+            }
         }
     }
 
@@ -70,17 +82,20 @@ public class AssistControlService {
         communeMapper.delete(communeId);
     }
 
-    //COMPANY
+    // COMPANY
 
     public Company getCompanyById(String token, Long companyId) {
         return companyMapper.get(companyId);
     }
+
     public List<Company> getAllCompany(String token) {
         return companyMapper.getAll();
     }
+
     public List<Company> findCompanyByQuery(String token, CompanyQuery query) {
         return companyMapper.findByQuery(query);
     }
+
     public void saveCompany(String token, Company company, String method) throws NoDataException, UniqueException {
         validateCompany(token, company, method);
 
@@ -96,6 +111,9 @@ public class AssistControlService {
         if (company.getCode() == null || StringUtils.isBlank(company.getCode())) {
             throw new NoDataException("No se especificó el campo codigo");
         }
+        if (company.getName() == null || StringUtils.isBlank(company.getName())) {
+            throw new NoDataException("No se especificó el campo nombre");
+        }
         if (company.getAddress() == null || StringUtils.isBlank(company.getAddress())) {
             throw new NoDataException("No se especificó el campo direccion");
         }
@@ -108,7 +126,6 @@ public class AssistControlService {
         Company companyDB = companyMapper.getByQuery(query);
 
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
-
             if (company.getId() != null) {
                 throw new NoDataException("El campo id debe ser nulo");
             }
@@ -116,7 +133,6 @@ public class AssistControlService {
                 throw new UniqueException("La compañía ya existe");
             }
         } else {
-
             if (company.getId() == null) {
                 throw new NoDataException("No se especificó el campo id");
             }
@@ -125,6 +141,7 @@ public class AssistControlService {
             }
         }
     }
+
     public Company deleteCompanyById(String token, Long companyId) throws NoDataException {
         Company company = companyMapper.get(companyId);
         if (company == null) {
@@ -133,6 +150,4 @@ public class AssistControlService {
         companyMapper.delete(companyId);
         return company;
     }
-
-
 }

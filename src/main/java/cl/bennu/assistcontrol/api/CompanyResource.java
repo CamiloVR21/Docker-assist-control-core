@@ -39,10 +39,12 @@ public class CompanyResource extends BaseResource {
     public Response find(@HeaderParam("Authorization") String token
             , @QueryParam("commune-id") Long communeId
             , @QueryParam("code") String code
+            , @QueryParam("name") String name
             , @QueryParam("address") String address) {
         CompanyQuery query = new CompanyQuery();
         query.setCommuneId(communeId);
         query.setCode(code);
+        query.setName(name);
         query.setAddress(address);
 
         List<Company> companies = assistControlService.findCompanyByQuery(token, query);
