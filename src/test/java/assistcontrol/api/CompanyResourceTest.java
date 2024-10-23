@@ -1,8 +1,10 @@
 package assistcontrol.api;
 
 import cl.bennu.assistcontrol.api.CompanyResource;
+import cl.bennu.assistcontrol.domain.Branch;
 import cl.bennu.assistcontrol.domain.Company;
 import cl.bennu.assistcontrol.domain.query.CompanyQuery;
+import cl.bennu.assistcontrol.request.SaveCompanyRequest;
 import cl.bennu.assistcontrol.service.AssistControlService;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -60,8 +61,10 @@ class CompanyResourceTest {
 
     @Test
     void insertCompanyWithInvalidTokenThrowsException() throws Exception {
-        doThrow(new RuntimeException("Invalid token")).when(assistControlService).saveCompany(anyString(), any(Company.class), anyString());
+        SaveCompanyRequest saveCompanyRequest = new SaveCompanyRequest();
+        doThrow(new RuntimeException("Invalid token")).when(assistControlService).saveCompany(anyString(), any(SaveCompanyRequest.class), anyString());
 
-        assertThrows(RuntimeException.class, () -> companyResource.insert("invalidToken", new Company()));
+        assertThrows(RuntimeException.class, () -> companyResource.insert("invalidToken", saveCompanyRequest));
     }
+
 }

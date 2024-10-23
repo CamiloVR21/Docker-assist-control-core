@@ -1,8 +1,10 @@
 package cl.bennu.assistcontrol.api;
 
 import cl.bennu.assistcontrol.api.base.BaseResource;
+import cl.bennu.assistcontrol.domain.Branch;
 import cl.bennu.assistcontrol.domain.Company;
 import cl.bennu.assistcontrol.domain.query.CompanyQuery;
+import cl.bennu.assistcontrol.request.SaveCompanyRequest;
 import cl.bennu.assistcontrol.service.AssistControlService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -53,19 +55,20 @@ public class CompanyResource extends BaseResource {
 
     @SneakyThrows
     @POST
-    public Response insert(@HeaderParam("Authorization") String token, Company company) {
-        assistControlService.saveCompany(token, company, HttpMethod.POST);
-        return Response.status(Response.Status.CREATED).entity(company).build();
+    public Response insert(@HeaderParam("Authorization") String token, SaveCompanyRequest request) {
+        assistControlService.saveCompany(token, request, HttpMethod.POST);
+        return Response.status(Response.Status.CREATED).entity(request.getCompany()).build();
     }
 
     @SneakyThrows
     @PUT
     @Path("/{id}")
-    public Response update(@HeaderParam("Authorization") String token, @PathParam("id") Long id, Company company) {
-        company.setId(id);
-        assistControlService.saveCompany(token, company, HttpMethod.PUT);
-        return Response.ok(company).build();
+    public Response update(@HeaderParam("Authorization") String token, @PathParam("id") Long id, SaveCompanyRequest request) {
+        request.getCompany().setId(id);
+        assistControlService.saveCompany(token, request, HttpMethod.PUT);
+        return Response.ok(request.getCompany()).build();
     }
+
 
     @SneakyThrows
     @DELETE

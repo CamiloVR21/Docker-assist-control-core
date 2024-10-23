@@ -12,13 +12,11 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @RegisterForReflection
-public class Branch extends BaseDomain implements Serializable {
 
-    private Long companyId;
-    private String name;
-    private String address;
-    private String phone;
-    private String alias;
-    private Boolean active;
+public class City extends BaseDomain implements Serializable{
+
+        private Long countryId;
+        private String name;
+
 
 }

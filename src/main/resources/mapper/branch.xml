@@ -43,26 +43,26 @@
         <!-- @formatter:off -->
         WHERE 1 = 1
         <if test="companyId != null">
-            AND c.commune_id = #{communeId}
+            AND b.company_id = #{companyId}
         </if>
         <if test="name != null">
             <bind name="_name" value="'%' + name + '%'"/>
-            AND c.name LIKE #{_name}
+            AND b.name LIKE #{_name}
         </if>
         <if test="address != null">
             <bind name="_address" value="'%' + address + '%'"/>
-            AND c.address LIKE #{_address}
+            AND b.address LIKE #{_address}
         </if>
         <if test="phone != null">
             <bind name="_phone" value="'%' + phone + '%'"/>
-            AND c.phone LIKE #{_phone}
+            AND b.phone LIKE #{_phone}
         </if>
         <if test="alias != null">
             <bind name="_alias" value="'%' + alias + '%'"/>
-            AND c.alias LIKE #{_alias}
+            AND b.alias LIKE #{_alias}
         </if>
         <if test="active != null">
-            AND c.active = #{active}
+            AND b.active = #{active}
         </if>
         <!-- @formatter:on -->
     </select>
@@ -73,34 +73,34 @@
         <!-- @formatter:off -->
         WHERE 1 = 1
         <if test="id != null">
-            AND c.id = #{id}
+            AND b.id = #{id}
         </if>
         <if test="name != null">
-            AND c.name = #{name}
+            AND b.name = #{name}
         </if>
         <if test="address != null">
-            AND c.address = #{address}
+            AND b.address = #{address}
         </if>
         <if test="phone != null">
-            AND c.phone = #{phone}
+            AND b.phone = #{phone}
         </if>
         <if test="alias != null">
-            AND c.alias = #{alias}
+            AND b.alias = #{alias}
         </if>
         <if test="active != null">
-            AND c.active = #{active}
+            AND b.active = #{active}
         </if>
         <!-- @formatter:on -->
     </select>
 
-    <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.Branch">
+    <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.Branch" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO branch (company_id, name, address, phone, alias,active)
         VALUES (#{companyId}, #{name}, #{address}, #{phone}, #{alias}, #{active})
     </insert>
 
     <update id="update" parameterType="cl.bennu.assistcontrol.domain.Branch">
         UPDATE branch
-        SET branch_id = #{branchId},
+        SET company_id = #{companyId},
         name = #{name},
         address = #{address},
         phone = #{phone},

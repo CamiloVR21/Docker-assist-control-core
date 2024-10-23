@@ -11,3 +11,6 @@ INSERT INTO job_type (id, name) VALUES (1,'Developer');
 INSERT INTO job_type (id, name) VALUES (2,'Devops');
 INSERT INTO job_type (id, name) VALUES (3,'QA');
 INSERT INTO job_type (id, name) VALUES (4,'Proyect Manager');
+INSERT INTO country (id, name, nationality) VALUES (1, 'Chile', 'Chilena');
+INSERT INTO city (id, country_id, name) VALUES (1, 1,'Santiago')
+INSERT INTO commune (id, city_id, name, sii_code, tgr_code) VALUES (1, 1, 'El Bosque', NULL, NULL);

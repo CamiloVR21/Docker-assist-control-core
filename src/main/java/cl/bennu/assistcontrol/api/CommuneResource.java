@@ -42,7 +42,6 @@ public class CommuneResource extends BaseResource {
             , @PathParam("tgr-code") String tgrCode) {
         CommuneQuery query = new CommuneQuery();
         query.setCityId(cityId);
-        query.setCityId(cityId);
         query.setTgrCode(tgrCode);
         query.setSiiCode(siiCode);
 
@@ -52,7 +51,6 @@ public class CommuneResource extends BaseResource {
 
     @SneakyThrows
     @POST
-    @Path("/-/by-params")
     public Response insert(@HeaderParam("Authorization") String token, Commune commune) {
         assistControlService.saveCommune(token, commune, HttpMethod.POST);
         return Response.ok(commune).build();

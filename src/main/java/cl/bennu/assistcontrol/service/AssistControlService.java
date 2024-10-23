@@ -1,14 +1,9 @@
 package cl.bennu.assistcontrol.service;
 
-import cl.bennu.assistcontrol.domain.Commune;
-import cl.bennu.assistcontrol.domain.Company;
-import cl.bennu.assistcontrol.domain.Branch;
-import cl.bennu.assistcontrol.domain.query.CommuneQuery;
-import cl.bennu.assistcontrol.domain.query.CompanyQuery;
-import cl.bennu.assistcontrol.domain.query.BranchQuery;
-import cl.bennu.assistcontrol.mapper.BranchMapper;
-import cl.bennu.assistcontrol.mapper.CommuneMapper;
-import cl.bennu.assistcontrol.mapper.CompanyMapper;
+import cl.bennu.assistcontrol.domain.*;
+import cl.bennu.assistcontrol.domain.query.*;
+import cl.bennu.assistcontrol.mapper.*;
+import cl.bennu.assistcontrol.request.SaveCompanyRequest;
 import cl.bennu.commons.exception.NoDataException;
 import cl.bennu.commons.exception.UniqueException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -30,6 +25,12 @@ public class AssistControlService {
     @Inject
     private BranchMapper branchMapper;
 
+    @Inject
+    private CityMapper cityMapper;
+
+    @Inject
+    private CountryMapper countryMapper;
+
     public Commune getCommuneById(String token, Long communeId) {
         return communeMapper.get(communeId);
     }
@@ -43,7 +44,7 @@ public class AssistControlService {
     }
 
     public void saveCommune(String token, Commune commune, String method) throws NoDataException, UniqueException {
-        validate(token, commune, method);
+        validateCommune(token, commune, method);
 
         if (commune.getId() == null) {
             communeMapper.insert(commune);
@@ -52,7 +53,7 @@ public class AssistControlService {
         }
     }
 
-    private void validate(String token, Commune commune, String method) throws NoDataException, UniqueException {
+    private void validateCommune(String token, Commune commune, String method) throws NoDataException, UniqueException {
         // validaciones comunes
         if (commune.getName() == null || StringUtils.isBlank(commune.getName())) {
             throw new NoDataException("No se especificó el campo nombre");
@@ -102,7 +103,11 @@ public class AssistControlService {
         return companyMapper.findByQuery(query);
     }
 
-    public void saveCompany(String token, Company company, String method) throws NoDataException, UniqueException {
+    public void saveCompany(String token, SaveCompanyRequest saveCompanyRequest, String method) throws NoDataException, UniqueException {
+        Company company = saveCompanyRequest.getCompany();
+        Branch branch = saveCompanyRequest.getBranch();
+        Boolean sucursalRaiz = saveCompanyRequest.getSucursalRaiz();
+
         validateCompany(token, company, method);
 
         if (company.getId() == null) {
@@ -110,16 +115,42 @@ public class AssistControlService {
         } else {
             companyMapper.update(company);
         }
+
+        Long companyId = company.getId();
+        if (companyId == null) {
+            throw new NoDataException("Error al guardar la compañía: no se pudo generar un ID.");
+        }
+
+        if (Boolean.FALSE.equals(sucursalRaiz)) {
+            branch.setName(company.getName());
+            branch.setAddress(company.getAddress());
+            branch.setPhone(company.getPhone());
+            branch.setCompanyId(companyId);
+            branch.setActive(false);
+            saveBranch(token, branch, HttpMethod.POST);
+        } else if (Boolean.TRUE.equals(branch.getActive())) {
+            branch.setCompanyId(companyId);
+            if (branch.getId() == null) {
+                saveBranch(token, branch, HttpMethod.POST);
+            } else {
+                saveBranch(token, branch, HttpMethod.PUT);
+            }
+        }
     }
+
+
+
+
 
 
     private void validateCompany(String token, Company company, String method) throws NoDataException, UniqueException {
         // Validaciones comunes
+
         if (company.getCode() == null || StringUtils.isBlank(company.getCode())) {
             throw new NoDataException("No se especificó el campo codigo");
         }
         if (company.getName() == null || StringUtils.isBlank(company.getName())) {
-            throw new NoDataException("No se especificó el campo nombre");
+            throw new NoDataException("No se especificó el campo nombre compañia");
         }
         if (company.getAddress() == null || StringUtils.isBlank(company.getAddress())) {
             throw new NoDataException("No se especificó el campo direccion");
@@ -149,14 +180,27 @@ public class AssistControlService {
         }
     }
 
+
     public Company deleteCompanyById(String token, Long companyId) throws NoDataException {
         Company company = companyMapper.get(companyId);
         if (company == null) {
-            throw new NoDataException("No se encontró la compañía con el id especificado");
+            throw new NoDataException("No se encontró la compañía con el ID especificado: " + companyId);
         }
+
+        BranchQuery branchQuery = new BranchQuery();
+        branchQuery.setCompanyId(companyId);
+
+        List<Branch> branches = findBranchByQuery(token, branchQuery);
+        if (branches != null && !branches.isEmpty()) {
+            throw new NoDataException("No se puede eliminar la compañía porque tiene sucursales asociadas.");
+        }
+
         companyMapper.delete(companyId);
         return company;
     }
+
+
+
     // BRANCH
 
     public Branch getBranchyById(String token, Long branchId) {
@@ -182,17 +226,21 @@ public class AssistControlService {
     }
 
     private void validateBranch(String token, Branch branch, String method) throws NoDataException, UniqueException {
-        // Validaciones comunes Branch
-        if (branch.getName() == null || StringUtils.isBlank(branch.getName())) {
-            throw new NoDataException("No se especificó el campo nombre");
-        }
-        if (branch.getAddress() == null || StringUtils.isBlank(branch.getAddress())) {
-            throw new NoDataException("No se especificó el campo direccion");
-        }
-        if (branch.getCompanyId() == null) {
-            throw new NoDataException("No se especificó el campo compañia");
-        }
 
+        if (Boolean.TRUE.equals(branch.getActive())) {
+            if (branch.getName() == null || StringUtils.isBlank(branch.getName())) {
+                throw new NoDataException("No se especificó el campo nombre sucursal");
+            }
+            if (branch.getAddress() == null || StringUtils.isBlank(branch.getAddress())) {
+                throw new NoDataException("No se especificó el campo direccion");
+            }
+            if (branch.getCompanyId() == null) {
+                throw new NoDataException("No se especificó el campo compañia");
+            }
+            if (branch.getPhone() == null) {
+                throw new NoDataException("No se especificó el campo telefono");
+            }
+        }
 
         BranchQuery query = new BranchQuery();
         query.setName(branch.getName());
@@ -203,17 +251,15 @@ public class AssistControlService {
                 throw new NoDataException("El campo id debe ser nulo");
             }
             if (branchDB != null) {
-                throw new UniqueException("La compañía ya existe");
+                throw new UniqueException("La sucursal ya existe");
             }
         } else {
-            if (branch.getId() == null) {
-                throw new NoDataException("No se especificó el campo id");
-            }
             if (branchDB != null && !branchDB.getId().equals(branch.getId())) {
-                throw new UniqueException("La compañía ya existe");
+                throw new UniqueException("La sucursal ya existe");
             }
         }
     }
+
 
     public Branch deleteBranchById(String token, Long branchId) throws NoDataException {
         Branch branch = branchMapper.get(branchId);
@@ -222,6 +268,126 @@ public class AssistControlService {
         }
         branchMapper.delete(branchId);
         return branch;
+    }
+
+    // CITY *******************************************************************************************************
+
+    public City getCityById(String token, Long cityId) {
+        return cityMapper.get(cityId);
+    }
+
+    public List<City> getAllCity(String token) {
+        return cityMapper.getAll();
+    }
+
+    public List<City> findCityByQuery(String token, CityQuery query) {
+        return cityMapper.findByQuery(query);
+    }
+
+    public void saveCity(String token, City city, String method) throws NoDataException, UniqueException {
+        validateCity(token, city, method);
+
+        if (city.getId() == null) {
+            cityMapper.insert(city);
+        } else {
+            cityMapper.update(city);
+        }
+    }
+
+    private void validateCity(String token, City city, String method) throws NoDataException, UniqueException {
+        // validaciones comunes
+        if (city.getName() == null || StringUtils.isBlank(city.getName())) {
+            throw new NoDataException("No se especificó el campo nombre");
+        }
+        if (city.getCountryId() == null) {
+            throw new NoDataException("No se especificó el campo pais");
+        }
+
+        CityQuery query = new CityQuery();
+        query.setName(city.getName());
+        City cityDB = cityMapper.getByQuery(query);
+
+        if (HttpMethod.POST.equalsIgnoreCase(method)) {
+            // validaciones especificas de insert
+            if (city.getId() != null) {
+                throw new NoDataException("El campo id debe ser nulo");
+            }
+            if (cityDB != null) {
+                throw new UniqueException("El tramo de riesgo ya existe");
+            }
+        } else {
+            // validaciones especificas de update
+            if (city.getId() == null) {
+                throw new NoDataException("No se especificó el campo id");
+            }
+            if (cityDB != null && !cityDB.getId().equals(city.getId())) {
+                throw new UniqueException("El tramo de riesgo ya existe");
+            }
+        }
+    }
+
+    public void deleteCity(String token, Long cityId) {
+        cityMapper.delete(cityId);
+    }
+
+    // COUNTRY *******************************************************************************************************
+
+    public Country getCountryById(String token, Long countryId) {
+        return countryMapper.get(countryId);
+    }
+
+    public List<Country> getAllCountry(String token) {
+        return countryMapper.getAll();
+    }
+
+    public List<Country> findCountryByQuery(String token, CountryQuery query) {
+        return countryMapper.findByQuery(query);
+    }
+
+    public void saveCountry(String token, Country country, String method) throws NoDataException, UniqueException {
+        validateCountry(token, country, method);
+
+        if (country.getId() == null) {
+            countryMapper.insert(country);
+        } else {
+            countryMapper.update(country);
+        }
+    }
+
+    private void validateCountry(String token, Country country, String method) throws NoDataException, UniqueException {
+        // validaciones comunes
+        if (country.getName() == null || StringUtils.isBlank(country.getName())) {
+            throw new NoDataException("No se especificó el campo nombre");
+        }
+        if (country.getNationality() == null) {
+            throw new NoDataException("No se especificó el campo nacionalidad");
+        }
+
+        CountryQuery query = new CountryQuery();
+        query.setName(country.getName());
+        Country countryDB = countryMapper.getByQuery(query);
+
+        if (HttpMethod.POST.equalsIgnoreCase(method)) {
+            // validaciones especificas de insert
+            if (country.getId() != null) {
+                throw new NoDataException("El campo id debe ser nulo");
+            }
+            if (countryDB != null) {
+                throw new UniqueException("El tramo de riesgo ya existe");
+            }
+        } else {
+            // validaciones especificas de update
+            if (country.getId() == null) {
+                throw new NoDataException("No se especificó el campo id");
+            }
+            if (countryDB != null && !countryDB.getId().equals(country.getId())) {
+                throw new UniqueException("El tramo de riesgo ya existe");
+            }
+        }
+    }
+
+    public void deleteCountry(String token, Long countryId) {
+        countryMapper.delete(countryId);
     }
 
 }

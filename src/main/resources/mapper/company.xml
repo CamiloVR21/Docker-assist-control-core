@@ -136,10 +136,11 @@
         <!-- @formatter:on -->
     </select>
 
-    <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.Company">
+    <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.Company" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO company (commune_id, code, name, address, phone, alias, giro, email, geolocation, selfie, lag)
         VALUES (#{communeId}, #{code}, #{name}, #{address}, #{phone}, #{alias}, #{giro}, #{email}, #{geolocation}, #{selfie}, #{lag})
     </insert>
+
 
     <update id="update" parameterType="cl.bennu.assistcontrol.domain.Company">
         UPDATE company

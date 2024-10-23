@@ -1,11 +1,13 @@
 package assistcontrol.service;
 
+import cl.bennu.assistcontrol.domain.Branch;
 import cl.bennu.assistcontrol.domain.Commune;
 import cl.bennu.assistcontrol.domain.Company;
 import cl.bennu.assistcontrol.domain.query.CommuneQuery;
 import cl.bennu.assistcontrol.domain.query.CompanyQuery;
 import cl.bennu.assistcontrol.mapper.CommuneMapper;
 import cl.bennu.assistcontrol.mapper.CompanyMapper;
+import cl.bennu.assistcontrol.request.SaveCompanyRequest;
 import cl.bennu.assistcontrol.service.AssistControlService;
 import cl.bennu.commons.exception.NoDataException;
 import cl.bennu.commons.exception.UniqueException;
@@ -134,28 +136,43 @@ class AssistControlServiceTest {
 
     @Test
     void saveCompanyInsertsNewCompany() throws NoDataException, UniqueException {
+        SaveCompanyRequest saveCompanyRequest = new SaveCompanyRequest();
+
         Company company = new Company();
         company.setCode("COMP123");
         company.setName("Test Company");
         company.setAddress("123 Test St");
         company.setCommuneId(1L);
+        saveCompanyRequest.setCompany(company);
 
-        assistControlService.saveCompany("token", company, HttpMethod.POST);
+        Branch branch = new Branch();
+        saveCompanyRequest.setBranch(branch);
+
+        assistControlService.saveCompany("token", saveCompanyRequest, HttpMethod.POST);
+
         verify(companyMapper).insert(company);
     }
 
     @Test
     void saveCompanyUpdatesExistingCompany() throws NoDataException, UniqueException {
+        SaveCompanyRequest saveCompanyRequest = new SaveCompanyRequest();
+
         Company company = new Company();
         company.setId(1L);
         company.setCode("COMP123");
         company.setName("Test Company");
         company.setAddress("123 Test St");
         company.setCommuneId(1L);
+        saveCompanyRequest.setCompany(company);
 
-        assistControlService.saveCompany("token", company, HttpMethod.PUT);
+        Branch branch = new Branch();
+        saveCompanyRequest.setBranch(branch);
+
+        assistControlService.saveCompany("token", saveCompanyRequest, HttpMethod.PUT);
+
         verify(companyMapper).update(company);
     }
+
 
     @Test
     void deleteCompanyByIdDeletesCompany() throws NoDataException {

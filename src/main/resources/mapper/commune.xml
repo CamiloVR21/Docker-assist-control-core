@@ -29,7 +29,7 @@
     <select id="get" resultMap="communeMap" parameterType="java.lang.Long">
         <include refid="sqlCommune"/>
         <!-- @formatter:off -->
-        WHERE t.id = #{id}
+        WHERE c.id = #{id}
         <!-- @formatter:on -->
     </select>
 
