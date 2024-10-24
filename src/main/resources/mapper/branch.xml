@@ -4,27 +4,55 @@
 <mapper namespace="cl.bennu.assistcontrol.mapper.BranchMapper">
 
     <resultMap id="branchMap" type="cl.bennu.assistcontrol.domain.Branch">
-        <result property="id" column="id"/>
-        <result property="companyId" column="company_id"/>
+        <id property="id" column="id"/>
         <result property="name" column="name"/>
         <result property="address" column="address"/>
         <result property="phone" column="phone"/>
         <result property="alias" column="alias"/>
         <result property="active" column="active"/>
+        <!-- Asignación del objeto Company -->
+        <association property="company" javaType="cl.bennu.assistcontrol.domain.Company">
+            <id property="id" column="company_id"/>
+            <result property="code" column="company_code"/>
+            <result property="name" column="company_name"/>
+            <result property="address" column="company_address"/>
+            <result property="phone" column="company_phone"/>
+            <result property="alias" column="company_alias"/>
+            <result property="giro" column="company_giro"/>
+            <result property="email" column="company_email"/>
+            <result property="geolocation" column="company_geolocation"/>
+            <result property="selfie" column="company_selfie"/>
+            <result property="lag" column="company_lag"/>
+        </association>
     </resultMap>
 
+
     <sql id="sqlBranch">
-        <!-- @formatter:off -->
-        SELECT b.id
-        , b.company_id
-        , b.name
-        , b.address
-        , b.phone
-        , b.alias
-        , b.active
-        FROM branch b
-        <!-- @formatter:on -->
+    <!-- @formatter:off -->
+    SELECT b.id
+    , b.company_id
+    , b.name
+    , b.address
+    , b.phone
+    , b.alias
+    , b.active
+    , c.id as company_id
+    , c.code as company_code
+    , c.name as company_name
+    , c.address as company_address
+    , c.phone as company_phone
+    , c.alias as company_alias
+    , c.giro as company_giro
+    , c.email as company_email
+    , c.geolocation as company_geolocation
+    , c.selfie as company_selfie
+    , c.lag as company_lag
+    FROM branch b
+    LEFT JOIN company c ON b.company_id = c.id
+    <!-- @formatter:on -->
     </sql>
+
+
 
     <select id="getAll" resultMap="branchMap">
         <include refid="sqlBranch"/>
@@ -42,8 +70,8 @@
         <include refid="sqlBranch"/>
         <!-- @formatter:off -->
         WHERE 1 = 1
-        <if test="companyId != null">
-            AND b.company_id = #{companyId}
+        <if test="companyQuery != null and companyQuery.id != null">
+            AND b.company_id = #{companyQuery.id}
         </if>
         <if test="name != null">
             <bind name="_name" value="'%' + name + '%'"/>
@@ -94,13 +122,13 @@
     </select>
 
     <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.Branch" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO branch (company_id, name, address, phone, alias,active)
-        VALUES (#{companyId}, #{name}, #{address}, #{phone}, #{alias}, #{active})
+        INSERT INTO branch (company_id, name, address, phone, alias, active)
+        VALUES (#{company.id}, #{name}, #{address}, #{phone}, #{alias}, #{active})
     </insert>
 
     <update id="update" parameterType="cl.bennu.assistcontrol.domain.Branch">
         UPDATE branch
-        SET company_id = #{companyId},
+        SET company_id = #{company.id},
         name = #{name},
         address = #{address},
         phone = #{phone},

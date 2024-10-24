@@ -10,8 +10,9 @@ import java.util.List;
 
 @Mapper
 @CacheNamespace
-public interface CityMapper extends BaseMapper<City>{
+public interface CityMapper extends BaseMapper<City> {
     List<City> findByQuery(CityQuery query);
+
     City getByQuery(CityQuery query);
 
 }

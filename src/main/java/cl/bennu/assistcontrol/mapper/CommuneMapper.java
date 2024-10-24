@@ -13,6 +13,7 @@ import java.util.List;
 public interface CommuneMapper extends BaseMapper<Commune> {
 
     List<Commune> findByQuery(CommuneQuery query);
+
     Commune getByQuery(CommuneQuery query);
 
 }

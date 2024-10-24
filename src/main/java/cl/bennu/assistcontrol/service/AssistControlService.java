@@ -31,6 +31,9 @@ public class AssistControlService {
     @Inject
     private CountryMapper countryMapper;
 
+    @Inject
+    private RegionMapper regionMapper;
+
     public Commune getCommuneById(String token, Long communeId) {
         return communeMapper.get(communeId);
     }
@@ -58,7 +61,7 @@ public class AssistControlService {
         if (commune.getName() == null || StringUtils.isBlank(commune.getName())) {
             throw new NoDataException("No se especificó el campo nombre");
         }
-        if (commune.getCityId() == null) {
+        if (commune.getCity() == null || commune.getCity().getId() == null) {
             throw new NoDataException("No se especificó el campo ciudad");
         }
 
@@ -106,9 +109,11 @@ public class AssistControlService {
     public void saveCompany(String token, SaveCompanyRequest saveCompanyRequest, String method) throws NoDataException, UniqueException {
         Company company = saveCompanyRequest.getCompany();
         Branch branch = saveCompanyRequest.getBranch();
-        Boolean sucursalRaiz = saveCompanyRequest.getSucursalRaiz();
+        Boolean sucursalRaiz = saveCompanyRequest.getQD();
+
 
         validateCompany(token, company, method);
+
 
         if (company.getId() == null) {
             companyMapper.insert(company);
@@ -116,20 +121,23 @@ public class AssistControlService {
             companyMapper.update(company);
         }
 
+
         Long companyId = company.getId();
         if (companyId == null) {
             throw new NoDataException("Error al guardar la compañía: no se pudo generar un ID.");
         }
 
         if (Boolean.FALSE.equals(sucursalRaiz)) {
+
             branch.setName(company.getName());
             branch.setAddress(company.getAddress());
             branch.setPhone(company.getPhone());
-            branch.setCompanyId(companyId);
+            branch.setCompany(company);
             branch.setActive(false);
             saveBranch(token, branch, HttpMethod.POST);
         } else if (Boolean.TRUE.equals(branch.getActive())) {
-            branch.setCompanyId(companyId);
+
+            branch.setCompany(company);
             if (branch.getId() == null) {
                 saveBranch(token, branch, HttpMethod.POST);
             } else {
@@ -139,23 +147,23 @@ public class AssistControlService {
     }
 
 
-
-
-
-
     private void validateCompany(String token, Company company, String method) throws NoDataException, UniqueException {
         // Validaciones comunes
 
+        if (company == null) {
+            throw new NoDataException("El cuerpo de la solicitud no contiene la información de la compañía");
+        }
+
         if (company.getCode() == null || StringUtils.isBlank(company.getCode())) {
-            throw new NoDataException("No se especificó el campo codigo");
+            throw new NoDataException("No se especificó el campo código");
         }
         if (company.getName() == null || StringUtils.isBlank(company.getName())) {
-            throw new NoDataException("No se especificó el campo nombre compañia");
+            throw new NoDataException("No se especificó el campo nombre de la compañía");
         }
         if (company.getAddress() == null || StringUtils.isBlank(company.getAddress())) {
-            throw new NoDataException("No se especificó el campo direccion");
+            throw new NoDataException("No se especificó el campo dirección");
         }
-        if (company.getCommuneId() == null) {
+        if (company.getCommune() == null || company.getCommune().getId() == null) {
             throw new NoDataException("No se especificó el campo comuna");
         }
 
@@ -165,14 +173,14 @@ public class AssistControlService {
 
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
             if (company.getId() != null) {
-                throw new NoDataException("El campo id debe ser nulo");
+                throw new NoDataException("El campo ID debe ser nulo para insertar una nueva compañía");
             }
             if (companyDB != null) {
                 throw new UniqueException("La compañía ya existe");
             }
         } else {
             if (company.getId() == null) {
-                throw new NoDataException("No se especificó el campo id");
+                throw new NoDataException("No se especificó el campo ID para actualizar la compañía");
             }
             if (companyDB != null && !companyDB.getId().equals(company.getId())) {
                 throw new UniqueException("La compañía ya existe");
@@ -181,14 +189,19 @@ public class AssistControlService {
     }
 
 
+
+
     public Company deleteCompanyById(String token, Long companyId) throws NoDataException {
+        // Obtener la compañía por ID
         Company company = companyMapper.get(companyId);
         if (company == null) {
             throw new NoDataException("No se encontró la compañía con el ID especificado: " + companyId);
         }
 
+        CompanyQuery companyQuery = new CompanyQuery();
+        companyQuery.setId(companyId);
         BranchQuery branchQuery = new BranchQuery();
-        branchQuery.setCompanyId(companyId);
+        branchQuery.setCompanyQuery(companyQuery);
 
         List<Branch> branches = findBranchByQuery(token, branchQuery);
         if (branches != null && !branches.isEmpty()) {
@@ -198,7 +211,6 @@ public class AssistControlService {
         companyMapper.delete(companyId);
         return company;
     }
-
 
 
     // BRANCH
@@ -226,39 +238,47 @@ public class AssistControlService {
     }
 
     private void validateBranch(String token, Branch branch, String method) throws NoDataException, UniqueException {
+        if (branch == null) {
+            throw new NoDataException("El cuerpo de la solicitud no contiene la información de la sucursal");
+        }
 
         if (Boolean.TRUE.equals(branch.getActive())) {
             if (branch.getName() == null || StringUtils.isBlank(branch.getName())) {
-                throw new NoDataException("No se especificó el campo nombre sucursal");
+                throw new NoDataException("No se especificó el campo nombre de la sucursal");
             }
             if (branch.getAddress() == null || StringUtils.isBlank(branch.getAddress())) {
-                throw new NoDataException("No se especificó el campo direccion");
+                throw new NoDataException("No se especificó el campo dirección de la sucursal");
             }
-            if (branch.getCompanyId() == null) {
-                throw new NoDataException("No se especificó el campo compañia");
+            if (branch.getCompany() == null || branch.getCompany().getId() == null) {
+                throw new NoDataException("No se especificó el campo compañía de la sucursal");
             }
             if (branch.getPhone() == null) {
-                throw new NoDataException("No se especificó el campo telefono");
+                throw new NoDataException("No se especificó el campo teléfono de la sucursal");
             }
         }
 
+        // Validación de existencia para operaciones POST y PUT
         BranchQuery query = new BranchQuery();
         query.setName(branch.getName());
         Branch branchDB = branchMapper.getByQuery(query);
 
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
             if (branch.getId() != null) {
-                throw new NoDataException("El campo id debe ser nulo");
+                throw new NoDataException("El campo ID debe ser nulo para insertar una nueva sucursal");
             }
             if (branchDB != null) {
                 throw new UniqueException("La sucursal ya existe");
             }
         } else {
+            if (branch.getId() == null) {
+                throw new NoDataException("No se especificó el campo ID para actualizar la sucursal");
+            }
             if (branchDB != null && !branchDB.getId().equals(branch.getId())) {
                 throw new UniqueException("La sucursal ya existe");
             }
         }
     }
+
 
 
     public Branch deleteBranchById(String token, Long branchId) throws NoDataException {
@@ -299,8 +319,8 @@ public class AssistControlService {
         if (city.getName() == null || StringUtils.isBlank(city.getName())) {
             throw new NoDataException("No se especificó el campo nombre");
         }
-        if (city.getCountryId() == null) {
-            throw new NoDataException("No se especificó el campo pais");
+        if (city.getRegion() == null || city.getRegion().getId() == null) {
+            throw new NoDataException("No se especificó el campo region");
         }
 
         CityQuery query = new CityQuery();
@@ -388,6 +408,66 @@ public class AssistControlService {
 
     public void deleteCountry(String token, Long countryId) {
         countryMapper.delete(countryId);
+    }
+
+    // Region *******************************************************************************************************
+
+    public Region getRegionById(String token, Long regionId) {
+        return regionMapper.get(regionId);
+    }
+
+    public List<Region> getAllRegion(String token) {
+        return regionMapper.getAll();
+    }
+
+    public List<Region> findRegionByQuery(String token, RegionQuery query) {
+        return regionMapper.findByQuery(query);
+    }
+
+    public void saveRegion(String token, Region region, String method) throws NoDataException, UniqueException {
+        validateRegion(token, region, method);
+
+        if (region.getId() == null) {
+            regionMapper.insert(region);
+        } else {
+            regionMapper.update(region);
+        }
+    }
+
+    private void validateRegion(String token, Region region, String method) throws NoDataException, UniqueException {
+        // validaciones comunes
+        if (region.getName() == null || StringUtils.isBlank(region.getName())) {
+            throw new NoDataException("No se especificó el campo nombre");
+        }
+        if (region.getCountry() == null) {
+            throw new NoDataException("No se especificó el campo pais");
+        }
+
+        RegionQuery query = new RegionQuery();
+        query.setName(region.getName());
+        Region regionDB = regionMapper.getByQuery(query);
+
+        if (HttpMethod.POST.equalsIgnoreCase(method)) {
+            // validaciones especificas de insert
+            if (region.getId() != null) {
+                throw new NoDataException("El campo id debe ser nulo");
+            }
+            if (regionDB != null) {
+                throw new UniqueException("El tramo de riesgo ya existe");
+            }
+        } else {
+            // validaciones especificas de update
+            if (region.getId() == null) {
+                throw new NoDataException("No se especificó el campo id");
+            }
+            if (regionDB != null && !regionDB.getId().equals(region.getId())) {
+                throw new UniqueException("El tramo de riesgo ya existe");
+            }
+        }
+    }
+
+    public void deleteRegion(String token, Long regionId) {
+        regionMapper.delete(regionId);
     }
 
 }

@@ -2,7 +2,9 @@ package cl.bennu.assistcontrol.api;
 
 import cl.bennu.assistcontrol.api.base.BaseResource;
 import cl.bennu.assistcontrol.domain.Commune;
+import cl.bennu.assistcontrol.domain.query.CityQuery;
 import cl.bennu.assistcontrol.domain.query.CommuneQuery;
+import cl.bennu.assistcontrol.domain.query.CountryQuery;
 import cl.bennu.assistcontrol.service.AssistControlService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -41,7 +43,8 @@ public class CommuneResource extends BaseResource {
             , @PathParam("sii-code") String siiCode
             , @PathParam("tgr-code") String tgrCode) {
         CommuneQuery query = new CommuneQuery();
-        query.setCityId(cityId);
+        CityQuery city = new CityQuery();
+        city.setId(cityId);
         query.setTgrCode(tgrCode);
         query.setSiiCode(siiCode);
 

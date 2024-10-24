@@ -4,52 +4,58 @@
 <mapper namespace="cl.bennu.assistcontrol.mapper.CityMapper">
 
     <resultMap id="cityMap" type="cl.bennu.assistcontrol.domain.City">
-        <result property="id" column="id"/>
-        <result property="countryId" column="country_id"/>
+        <id property="id" column="id"/>
         <result property="name" column="name"/>
-
+        <association property="region" javaType="cl.bennu.assistcontrol.domain.Region">
+            <id property="id" column="region_id"/>
+            <result property="name" column="region_name"/>
+        </association>
     </resultMap>
 
     <sql id="sqlCity">
         <!-- @formatter:off -->
-        SELECT c.id
-        , c.country_id
-        , c.name
+        SELECT c.id, c.name, r.id as region_id, r.name as region_name
         FROM city c
+        LEFT JOIN region r ON c.region_id = r.id
         <!-- @formatter:on -->
     </sql>
+
     <select id="getAll" resultMap="cityMap">
         <include refid="sqlCity"/>
     </select>
+
     <select id="get" resultMap="cityMap" parameterType="java.lang.Long">
         <include refid="sqlCity"/>
         <!-- @formatter:off -->
         WHERE c.id = #{id}
         <!-- @formatter:on -->
     </select>
+
     <select id="findByQuery" resultMap="cityMap"
             parameterType="cl.bennu.assistcontrol.domain.query.CityQuery">
         <include refid="sqlCity"/>
         <!-- @formatter:off -->
         WHERE 1 = 1
-        <if test="countryId != null">
-            AND c.country_id = #{countryId}
+        <if test="region != null and region.id != null">
+            AND r.id = #{region.id}
         </if>
         <if test="name != null">
             <bind name="_name" value="'%' + name + '%'"/>
             AND c.name LIKE #{_name}
         </if>
     </select>
+
     <select id="getByQuery" resultMap="cityMap"
             parameterType="cl.bennu.assistcontrol.domain.query.CityQuery">
         <include refid="sqlCity"/>
         <!-- @formatter:off -->
         WHERE 1 = 1
-        <if test="countryId != null">
-            AND c.country_id = #{countryId}
+        <if test="region != null and region.id != null">
+            AND r.id = #{region.id}
         </if>
         <if test="name != null">
             AND c.name = #{name}
         </if>
     </select>
+
 </mapper>

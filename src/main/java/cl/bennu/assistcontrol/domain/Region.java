@@ -12,8 +12,9 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @RegisterForReflection
-public class Country extends BaseDomain implements Serializable {
 
+public class Region extends BaseDomain implements Serializable {
+
+    private Country country;
     private String name;
-    private String nationality;
 }

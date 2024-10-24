@@ -35,8 +35,7 @@ CREATE TABLE country (
  	, UNIQUE(id)
 	, UNIQUE(name)
 );
-
-CREATE TABLE city (
+CREATE TABLE region (
     id INTEGER NOT NULL
     , country_id INTEGER NOT NULL
 	, name VARCHAR(200) NOT NULL
@@ -44,7 +43,18 @@ CREATE TABLE city (
  	, PRIMARY KEY (id)
  	, UNIQUE(id)
 	, UNIQUE(name)
-    , FOREIGN KEY (country_id) REFERENCES country(id)
+	, FOREIGN KEY (country_id) REFERENCES country(id)
+);
+
+CREATE TABLE city (
+    id INTEGER NOT NULL
+    , region_id INTEGER NOT NULL
+	, name VARCHAR(200) NOT NULL
+
+ 	, PRIMARY KEY (id)
+ 	, UNIQUE(id)
+	, UNIQUE(name)
+    , FOREIGN KEY (region_id) REFERENCES region(id)
 );
 
 CREATE TABLE commune (

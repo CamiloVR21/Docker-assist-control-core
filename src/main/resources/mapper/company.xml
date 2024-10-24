@@ -4,8 +4,7 @@
 <mapper namespace="cl.bennu.assistcontrol.mapper.CompanyMapper">
 
     <resultMap id="companyMap" type="cl.bennu.assistcontrol.domain.Company">
-        <result property="id" column="id"/>
-        <result property="communeId" column="commune_id"/>
+        <id property="id" column="id"/>
         <result property="code" column="code"/>
         <result property="name" column="name"/>
         <result property="address" column="address"/>
@@ -16,23 +15,22 @@
         <result property="geolocation" column="geolocation"/>
         <result property="selfie" column="selfie"/>
         <result property="lag" column="lag"/>
+        <!-- Asociación con Commune -->
+        <association property="commune" javaType="cl.bennu.assistcontrol.domain.Commune">
+            <id property="id" column="commune_id"/>
+            <result property="name" column="commune_name"/>
+            <result property="siiCode" column="commune_sii_code"/>
+            <result property="tgrCode" column="commune_tgr_code"/>
+        </association>
     </resultMap>
 
     <sql id="sqlCompany">
         <!-- @formatter:off -->
-        SELECT c.id
-        , c.commune_id
-        , c.code
-        , c.name
-        , c.address
-        , c.phone
-        , c.alias
-        , c.giro
-        , c.email
-        , c.geolocation
-        , c.selfie
-        , c.lag
+        SELECT c.id, c.code, c.name, c.address, c.phone, c.alias, c.giro, c.email,
+        c.geolocation, c.selfie, c.lag,
+        co.id as commune_id, co.name as commune_name, co.sii_code as commune_sii_code, co.tgr_code as commune_tgr_code
         FROM company c
+        LEFT JOIN commune co ON c.commune_id = co.id
         <!-- @formatter:on -->
     </sql>
 
@@ -52,32 +50,29 @@
         <include refid="sqlCompany"/>
         <!-- @formatter:off -->
         WHERE 1 = 1
-        <if test="communeId != null">
-            AND c.commune_id = #{communeId}
-        </if>
-        <if test="code != null">
-            <bind name="_code" value="'%' + code + '%'"/>
-            AND c.code LIKE #{_code}
+        <if test="communeQuery != null and communeQuery.id != null">
+            AND co.id = #{communeQuery.id}
         </if>
         <if test="name != null">
             <bind name="_name" value="'%' + name + '%'"/>
             AND c.name LIKE #{_name}
+        </if>
+        <if test="code != null">
+            AND c.code = #{code}
         </if>
         <if test="address != null">
             <bind name="_address" value="'%' + address + '%'"/>
             AND c.address LIKE #{_address}
         </if>
         <if test="phone != null">
-            <bind name="_phone" value="'%' + phone + '%'"/>
-            AND c.phone LIKE #{_phone}
+            AND c.phone = #{phone}
         </if>
         <if test="alias != null">
             <bind name="_alias" value="'%' + alias + '%'"/>
             AND c.alias LIKE #{_alias}
         </if>
         <if test="giro != null">
-            <bind name="_giro" value="'%' + giro + '%'"/>
-            AND c.giro LIKE #{_giro}
+            AND c.giro = #{giro}
         </if>
         <if test="email != null">
             <bind name="_email" value="'%' + email + '%'"/>
@@ -103,48 +98,26 @@
         <if test="id != null">
             AND c.id = #{id}
         </if>
-        <if test="code != null">
-            AND c.code = #{code}
-        </if>
         <if test="name != null">
             AND c.name = #{name}
         </if>
-        <if test="address != null">
-            AND c.address = #{address}
-        </if>
-        <if test="phone != null">
-            AND c.phone = #{phone}
-        </if>
-        <if test="alias != null">
-            AND c.alias = #{alias}
-        </if>
-        <if test="giro != null">
-            AND c.giro = #{giro}
+        <if test="code != null">
+            AND c.code = #{code}
         </if>
         <if test="email != null">
             AND c.email = #{email}
-        </if>
-        <if test="geolocation != null">
-            AND c.geolocation = #{geolocation}
-        </if>
-        <if test="selfie != null">
-            AND c.selfie = #{selfie}
-        </if>
-        <if test="lag != null">
-            AND c.lag = #{lag}
         </if>
         <!-- @formatter:on -->
     </select>
 
     <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.Company" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO company (commune_id, code, name, address, phone, alias, giro, email, geolocation, selfie, lag)
-        VALUES (#{communeId}, #{code}, #{name}, #{address}, #{phone}, #{alias}, #{giro}, #{email}, #{geolocation}, #{selfie}, #{lag})
+        VALUES (#{commune.id}, #{code}, #{name}, #{address}, #{phone}, #{alias}, #{giro}, #{email}, #{geolocation}, #{selfie}, #{lag})
     </insert>
-
 
     <update id="update" parameterType="cl.bennu.assistcontrol.domain.Company">
         UPDATE company
-        SET commune_id = #{communeId},
+        SET commune_id = #{commune.id},
         code = #{code},
         name = #{name},
         address = #{address},

@@ -13,6 +13,7 @@ import java.util.List;
 public interface BranchMapper extends BaseMapper<Branch> {
 
     List<Branch> findByQuery(BranchQuery query);
+
     Branch getByQuery(BranchQuery query);
 
 }

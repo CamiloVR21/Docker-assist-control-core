@@ -14,7 +14,7 @@ import java.io.Serializable;
 @RegisterForReflection
 public class Branch extends BaseDomain implements Serializable {
 
-    private Long companyId;
+    private Company company;
     private String name;
     private String address;
     private String phone;

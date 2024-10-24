@@ -1,5 +1,6 @@
 package assistcontrol.domain;
 
+import cl.bennu.assistcontrol.domain.query.CityQuery;
 import cl.bennu.assistcontrol.domain.query.CommuneQuery;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,19 +36,26 @@ class CommuneTest {
     void communeQueryHandlesNegativeIds() {
         CommuneQuery communeQuery = new CommuneQuery();
         communeQuery.setId(-1L);
-        communeQuery.setCityId(-2L);
+
+        CityQuery city = new CityQuery();
+        city.setId(-2L);
+        communeQuery.setCity(city);
 
         assertEquals(-1L, communeQuery.getId());
-        assertEquals(-2L, communeQuery.getCityId());
+        assertEquals(-2L, communeQuery.getCity().getId());
     }
 
     @Test
     void communeQueryHandlesZeroIds() {
         CommuneQuery communeQuery = new CommuneQuery();
         communeQuery.setId(0L);
-        communeQuery.setCityId(0L);
+
+        CityQuery city = new CityQuery();
+        city.setId(0L);
+        communeQuery.setCity(city);
 
         assertEquals(0L, communeQuery.getId());
-        assertEquals(0L, communeQuery.getCityId());
+        assertEquals(0L, communeQuery.getCity().getId());
     }
+
 }

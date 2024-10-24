@@ -8,10 +8,12 @@ import org.apache.ibatis.annotations.CacheNamespace;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+
 @Mapper
 @CacheNamespace
-public interface CountryMapper extends BaseMapper<Country>{
+public interface CountryMapper extends BaseMapper<Country> {
 
     List<Country> findByQuery(CountryQuery query);
+
     Country getByQuery(CountryQuery query);
 }

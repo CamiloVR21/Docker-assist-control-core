@@ -4,21 +4,22 @@
 <mapper namespace="cl.bennu.assistcontrol.mapper.CommuneMapper">
 
     <resultMap id="communeMap" type="cl.bennu.assistcontrol.domain.Commune">
-        <result property="id" column="id"/>
-        <result property="cityId" column="city_id"/>
+        <id property="id" column="id"/>
         <result property="name" column="name"/>
         <result property="siiCode" column="sii_code"/>
         <result property="tgrCode" column="tgr_code"/>
+        <association property="city" javaType="cl.bennu.assistcontrol.domain.City">
+            <id property="id" column="city_id"/>
+            <result property="name" column="city_name"/>
+        </association>
     </resultMap>
 
     <sql id="sqlCommune">
         <!-- @formatter:off -->
-        SELECT c.id
-            , c.city_id
-            , c.name
-            , c.sii_code
-            , c.tgr_code
+        SELECT c.id, c.name, c.sii_code, c.tgr_code,
+        ci.id as city_id, ci.name as city_name
         FROM commune c
+        LEFT JOIN city ci ON c.city_id = ci.id
         <!-- @formatter:on -->
     </sql>
 
@@ -38,8 +39,8 @@
         <include refid="sqlCommune"/>
         <!-- @formatter:off -->
         WHERE 1 = 1
-        <if test="cityId != null">
-            AND c.city_id = #{cityId}
+        <if test="city != null and city.id != null">
+            AND c.city_id = #{city.id}
         </if>
         <if test="name != null">
             <bind name="_name" value="'%' + name + '%'"/>

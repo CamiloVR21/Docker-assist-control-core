@@ -1,6 +1,7 @@
 package assistcontrol.service;
 
 import cl.bennu.assistcontrol.domain.Branch;
+import cl.bennu.assistcontrol.domain.City;
 import cl.bennu.assistcontrol.domain.Commune;
 import cl.bennu.assistcontrol.domain.Company;
 import cl.bennu.assistcontrol.domain.query.CommuneQuery;
@@ -81,7 +82,10 @@ class AssistControlServiceTest {
     void saveCommuneInsertsNewCommune() throws NoDataException, UniqueException {
         Commune commune = new Commune();
         commune.setName("Test");
-        commune.setCityId(1L);
+
+        City city = new City();
+        city.setId(1L);
+        commune.setCity(city);
 
         assistControlService.saveCommune("token", commune, HttpMethod.POST);
         verify(communeMapper).insert(commune);
@@ -92,7 +96,10 @@ class AssistControlServiceTest {
         Commune commune = new Commune();
         commune.setId(1L);
         commune.setName("Test");
-        commune.setCityId(1L);
+
+        City city = new City();
+        city.setId(1L);
+        commune.setCity(city);
 
         assistControlService.saveCommune("token", commune, HttpMethod.PUT);
         verify(communeMapper).update(commune);
@@ -142,7 +149,11 @@ class AssistControlServiceTest {
         company.setCode("COMP123");
         company.setName("Test Company");
         company.setAddress("123 Test St");
-        company.setCommuneId(1L);
+
+        Commune commune = new Commune();
+        commune.setId(1L);
+        company.setCommune(commune);
+
         saveCompanyRequest.setCompany(company);
 
         Branch branch = new Branch();
@@ -162,7 +173,11 @@ class AssistControlServiceTest {
         company.setCode("COMP123");
         company.setName("Test Company");
         company.setAddress("123 Test St");
-        company.setCommuneId(1L);
+
+        Commune commune = new Commune();
+        commune.setId(1L);
+        company.setCommune(commune);
+
         saveCompanyRequest.setCompany(company);
 
         Branch branch = new Branch();
@@ -172,7 +187,6 @@ class AssistControlServiceTest {
 
         verify(companyMapper).update(company);
     }
-
 
     @Test
     void deleteCompanyByIdDeletesCompany() throws NoDataException {

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cl.bennu.assistcontrol.mapper.RegionMapper">
+
+    <resultMap id="regionMap" type="cl.bennu.assistcontrol.domain.Region">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <association property="country" javaType="cl.bennu.assistcontrol.domain.Country">
+            <id property="id" column="country_id"/>
+            <result property="name" column="country_name"/>
+            <result property="nationality" column="country_nationality"/>
+        </association>
+    </resultMap>
+
+    <sql id="sqlRegion">
+        <!-- @formatter:off -->
+        SELECT r.id, r.name, co.id as country_id, co.name as country_name, co.nationality as country_nationality
+        FROM region r
+        LEFT JOIN country co ON r.country_id = co.id
+        <!-- @formatter:on -->
+    </sql>
+
+    <select id="getAll" resultMap="regionMap">
+        <include refid="sqlRegion"/>
+    </select>
+
+    <select id="get" resultMap="regionMap" parameterType="java.lang.Long">
+        <include refid="sqlRegion"/>
+        <!-- @formatter:off -->
+        WHERE r.id = #{id}
+        <!-- @formatter:on -->
+    </select>
+
+    <select id="findByQuery" resultMap="regionMap"
+            parameterType="cl.bennu.assistcontrol.domain.query.RegionQuery">
+        <include refid="sqlRegion"/>
+        <!-- @formatter:off -->
+        WHERE 1 = 1
+        <if test="country != null and country.id != null">
+            AND r.country_id = #{country.id}
+        </if>
+        <if test="name != null">
+            <bind name="_name" value="'%' + name + '%'"/>
+            AND r.name LIKE #{_name}
+        </if>
+    </select>
+
+    <select id="getByQuery" resultMap="regionMap"
+            parameterType="cl.bennu.assistcontrol.domain.query.RegionQuery">
+        <include refid="sqlRegion"/>
+        <!-- @formatter:off -->
+        WHERE 1 = 1
+        <if test="country != null and country.id != null">
+            AND r.country_id = #{country.id}
+        </if>
+        <if test="name != null">
+            AND r.name = #{name}
+        </if>
+    </select>
+
+</mapper>

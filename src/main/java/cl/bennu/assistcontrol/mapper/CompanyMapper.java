@@ -13,6 +13,7 @@ import java.util.List;
 public interface CompanyMapper extends BaseMapper<Company> {
 
     List<Company> findByQuery(CompanyQuery query);
+
     Company getByQuery(CompanyQuery query);
 
 }

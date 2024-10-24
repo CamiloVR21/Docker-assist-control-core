@@ -14,7 +14,7 @@ import java.io.Serializable;
 @RegisterForReflection
 public class Commune extends BaseDomain implements Serializable {
 
-    private Long cityId;
+    private City city;
     private String name;
     private String siiCode;
     private String tgrCode;

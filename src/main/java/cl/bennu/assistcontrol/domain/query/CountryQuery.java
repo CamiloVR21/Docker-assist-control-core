@@ -4,6 +4,7 @@ import cl.bennu.commons.domain.base.BaseDomain;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.io.Serializable;
 
 @Data
@@ -11,8 +12,8 @@ import java.io.Serializable;
 @RegisterForReflection
 public class CountryQuery extends BaseDomain implements Serializable {
 
-        private Long id;
-        private String name;
-        private String nationality;
+    private Long id;
+    private String name;
+    private String nationality;
 
 }

@@ -14,7 +14,7 @@ import java.util.List;
 
 @Path("/country")
 @Produces(MediaType.APPLICATION_JSON)
-public class CountryResource extends BaseResource{
+public class CountryResource extends BaseResource {
     private @Inject AssistControlService assistControlService;
 
     @SneakyThrows

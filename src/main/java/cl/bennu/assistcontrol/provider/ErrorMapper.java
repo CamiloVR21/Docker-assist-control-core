@@ -35,7 +35,7 @@ public class ErrorMapper implements ExceptionMapper<Exception> {
         } else if (exception instanceof AuthorizationException) {
             code = 403;
         } else if (exception instanceof NoDataException) {
-            code = 409;
+            code = 400;  // Cambiado a 400 para campos faltantes
         } else if (exception instanceof UniqueException) {
             code = 409;
         } else if (exception instanceof AppException) {
@@ -73,5 +73,4 @@ public class ErrorMapper implements ExceptionMapper<Exception> {
         }
         return stackTraces;
     }
-
 }

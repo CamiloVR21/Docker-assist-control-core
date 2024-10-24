@@ -3,6 +3,7 @@ package cl.bennu.assistcontrol.api;
 import cl.bennu.assistcontrol.api.base.BaseResource;
 import cl.bennu.assistcontrol.domain.Branch;
 import cl.bennu.assistcontrol.domain.query.BranchQuery;
+import cl.bennu.assistcontrol.domain.query.CompanyQuery;
 import cl.bennu.assistcontrol.service.AssistControlService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -36,20 +37,27 @@ public class BranchResource extends BaseResource {
     @SneakyThrows
     @GET
     @Path("/-/by-params")
-    public Response find(@HeaderParam("Authorization") String token
-            , @QueryParam("company-id") Long companyId
-            , @QueryParam("name") String name
-            , @QueryParam("address") String address
-            , @QueryParam("active") Boolean active) {
+    public Response find(@HeaderParam("Authorization") String token,
+                         @QueryParam("company-id") Long companyId,
+                         @QueryParam("name") String name,
+                         @QueryParam("address") String address,
+                         @QueryParam("active") Boolean active) {
         BranchQuery query = new BranchQuery();
-        query.setCompanyId(companyId);
+
+        if (companyId != null) {
+            CompanyQuery companyQuery = new CompanyQuery();
+            companyQuery.setId(companyId);
+            query.setCompanyQuery(companyQuery);
+        }
+
         query.setName(name);
         query.setAddress(address);
-        query.setActive(active);;
+        query.setActive(active);
 
-        List<Branch> branchies = assistControlService.findBranchByQuery(token, query);
-        return Response.ok(branchies).build();
+        List<Branch> branches = assistControlService.findBranchByQuery(token, query);
+        return Response.ok(branches).build();
     }
+
 
     @SneakyThrows
     @POST

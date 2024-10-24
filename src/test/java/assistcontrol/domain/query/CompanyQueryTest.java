@@ -1,6 +1,7 @@
 package assistcontrol.domain.query;
 
 import cl.bennu.assistcontrol.domain.query.CompanyQuery;
+import cl.bennu.assistcontrol.domain.query.CommuneQuery;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,8 +16,12 @@ class CompanyQueryTest {
     @Test
     void companyQueryFieldsAreSetCorrectly() {
         CompanyQuery companyQuery = new CompanyQuery();
+
+        CommuneQuery communeQuery = new CommuneQuery();
+        communeQuery.setId(2L);
+
         companyQuery.setId(1L);
-        companyQuery.setCommuneId(2L);
+        companyQuery.setCommuneQuery(communeQuery);
         companyQuery.setCode("COMP123");
         companyQuery.setName("Test Company");
         companyQuery.setAddress("123 Test St");
@@ -29,7 +34,7 @@ class CompanyQueryTest {
         companyQuery.setLag(true);
 
         assertEquals(1L, companyQuery.getId());
-        assertEquals(2L, companyQuery.getCommuneId());
+        assertEquals(2L, companyQuery.getCommuneQuery().getId());
         assertEquals("COMP123", companyQuery.getCode());
         assertEquals("Test Company", companyQuery.getName());
         assertEquals("123 Test St", companyQuery.getAddress());
@@ -45,6 +50,7 @@ class CompanyQueryTest {
     @Test
     void companyQueryHandlesNullValues() {
         CompanyQuery companyQuery = new CompanyQuery();
+        companyQuery.setCommuneQuery(null);
         companyQuery.setCode(null);
         companyQuery.setName(null);
         companyQuery.setAddress(null);
@@ -53,6 +59,7 @@ class CompanyQueryTest {
         companyQuery.setGiro(null);
         companyQuery.setEmail(null);
 
+        assertNull(companyQuery.getCommuneQuery());
         assertNull(companyQuery.getCode());
         assertNull(companyQuery.getName());
         assertNull(companyQuery.getAddress());
@@ -64,9 +71,12 @@ class CompanyQueryTest {
 
     @Test
     void companyQueryEquality() {
+        CommuneQuery communeQuery1 = new CommuneQuery();
+        communeQuery1.setId(2L);
+
         CompanyQuery companyQuery1 = new CompanyQuery();
         companyQuery1.setId(1L);
-        companyQuery1.setCommuneId(2L);
+        companyQuery1.setCommuneQuery(communeQuery1);
         companyQuery1.setCode("COMP123");
         companyQuery1.setName("Test Company");
         companyQuery1.setAddress("123 Test St");
@@ -78,9 +88,12 @@ class CompanyQueryTest {
         companyQuery1.setSelfie(false);
         companyQuery1.setLag(true);
 
+        CommuneQuery communeQuery2 = new CommuneQuery();
+        communeQuery2.setId(2L);
+
         CompanyQuery companyQuery2 = new CompanyQuery();
         companyQuery2.setId(1L);
-        companyQuery2.setCommuneId(2L);
+        companyQuery2.setCommuneQuery(communeQuery2);
         companyQuery2.setCode("COMP123");
         companyQuery2.setName("Test Company");
         companyQuery2.setAddress("123 Test St");
@@ -97,9 +110,12 @@ class CompanyQueryTest {
 
     @Test
     void companyQueryInequality() {
+        CommuneQuery communeQuery1 = new CommuneQuery();
+        communeQuery1.setId(2L);
+
         CompanyQuery companyQuery1 = new CompanyQuery();
         companyQuery1.setId(1L);
-        companyQuery1.setCommuneId(2L);
+        companyQuery1.setCommuneQuery(communeQuery1);
         companyQuery1.setCode("COMP123");
         companyQuery1.setName("Test Company");
         companyQuery1.setAddress("123 Test St");
@@ -111,9 +127,12 @@ class CompanyQueryTest {
         companyQuery1.setSelfie(false);
         companyQuery1.setLag(true);
 
+        CommuneQuery communeQuery2 = new CommuneQuery();
+        communeQuery2.setId(3L);
+
         CompanyQuery companyQuery2 = new CompanyQuery();
         companyQuery2.setId(2L);
-        companyQuery2.setCommuneId(3L);
+        companyQuery2.setCommuneQuery(communeQuery2);
         companyQuery2.setCode("DIFF456");
         companyQuery2.setName("Different Company");
         companyQuery2.setAddress("456 Different St");

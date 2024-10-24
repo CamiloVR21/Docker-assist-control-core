@@ -3,6 +3,7 @@ package cl.bennu.assistcontrol.api;
 import cl.bennu.assistcontrol.api.base.BaseResource;
 import cl.bennu.assistcontrol.domain.Branch;
 import cl.bennu.assistcontrol.domain.Company;
+import cl.bennu.assistcontrol.domain.query.CommuneQuery;
 import cl.bennu.assistcontrol.domain.query.CompanyQuery;
 import cl.bennu.assistcontrol.request.SaveCompanyRequest;
 import cl.bennu.assistcontrol.service.AssistControlService;
@@ -38,13 +39,19 @@ public class CompanyResource extends BaseResource {
     @SneakyThrows
     @GET
     @Path("/-/by-params")
-    public Response find(@HeaderParam("Authorization") String token
-            , @QueryParam("commune-id") Long communeId
-            , @QueryParam("code") String code
-            , @QueryParam("name") String name
-            , @QueryParam("address") String address) {
+    public Response find(@HeaderParam("Authorization") String token,
+                         @QueryParam("commune-id") Long communeId,
+                         @QueryParam("code") String code,
+                         @QueryParam("name") String name,
+                         @QueryParam("address") String address) {
         CompanyQuery query = new CompanyQuery();
-        query.setCommuneId(communeId);
+
+        if (communeId != null) {
+            CommuneQuery communeQuery = new CommuneQuery();
+            communeQuery.setId(communeId);
+            query.setCommuneQuery(communeQuery);
+        }
+
         query.setCode(code);
         query.setName(name);
         query.setAddress(address);
@@ -52,6 +59,7 @@ public class CompanyResource extends BaseResource {
         List<Company> companies = assistControlService.findCompanyByQuery(token, query);
         return Response.ok(companies).build();
     }
+
 
     @SneakyThrows
     @POST

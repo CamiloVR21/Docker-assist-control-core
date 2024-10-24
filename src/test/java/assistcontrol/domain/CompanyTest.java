@@ -1,6 +1,7 @@
 package assistcontrol.domain;
 
 import cl.bennu.assistcontrol.domain.Company;
+import cl.bennu.assistcontrol.domain.Commune;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,7 +16,11 @@ class CompanyTest {
     @Test
     void companyFieldsAreSetCorrectly() {
         Company company = new Company();
-        company.setCommuneId(1L);
+
+        Commune commune = new Commune();
+        commune.setId(1L);
+
+        company.setCommune(commune);
         company.setCode("COMP123");
         company.setName("Test Company");
         company.setAddress("123 Test St");
@@ -27,7 +32,7 @@ class CompanyTest {
         company.setSelfie(false);
         company.setLag(true);
 
-        assertEquals(1L, company.getCommuneId());
+        assertEquals(1L, company.getCommune().getId());
         assertEquals("COMP123", company.getCode());
         assertEquals("Test Company", company.getName());
         assertEquals("123 Test St", company.getAddress());
@@ -43,6 +48,7 @@ class CompanyTest {
     @Test
     void companyHandlesNullValues() {
         Company company = new Company();
+        company.setCommune(null);
         company.setCode(null);
         company.setName(null);
         company.setAddress(null);
@@ -51,6 +57,7 @@ class CompanyTest {
         company.setGiro(null);
         company.setEmail(null);
 
+        assertNull(company.getCommune());
         assertNull(company.getCode());
         assertNull(company.getName());
         assertNull(company.getAddress());
@@ -62,8 +69,11 @@ class CompanyTest {
 
     @Test
     void companyEquality() {
+        Commune commune1 = new Commune();
+        commune1.setId(1L);
+
         Company company1 = new Company();
-        company1.setCommuneId(1L);
+        company1.setCommune(commune1);
         company1.setCode("COMP123");
         company1.setName("Test Company");
         company1.setAddress("123 Test St");
@@ -75,8 +85,11 @@ class CompanyTest {
         company1.setSelfie(false);
         company1.setLag(true);
 
+        Commune commune2 = new Commune();
+        commune2.setId(1L);
+
         Company company2 = new Company();
-        company2.setCommuneId(1L);
+        company2.setCommune(commune2);
         company2.setCode("COMP123");
         company2.setName("Test Company");
         company2.setAddress("123 Test St");
@@ -93,8 +106,11 @@ class CompanyTest {
 
     @Test
     void companyInequality() {
+        Commune commune1 = new Commune();
+        commune1.setId(1L);
+
         Company company1 = new Company();
-        company1.setCommuneId(1L);
+        company1.setCommune(commune1);
         company1.setCode("COMP123");
         company1.setName("Test Company");
         company1.setAddress("123 Test St");
@@ -106,8 +122,11 @@ class CompanyTest {
         company1.setSelfie(false);
         company1.setLag(true);
 
+        Commune commune2 = new Commune();
+        commune2.setId(2L);
+
         Company company2 = new Company();
-        company2.setCommuneId(2L);
+        company2.setCommune(commune2);
         company2.setCode("DIFF456");
         company2.setName("Different Company");
         company2.setAddress("456 Different St");
