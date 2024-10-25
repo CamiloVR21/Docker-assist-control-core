@@ -11,6 +11,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.HttpMethod;
 import org.apache.commons.lang3.StringUtils;
 
+import java.sql.SQLOutput;
 import java.util.List;
 
 @ApplicationScoped
@@ -109,7 +110,7 @@ public class AssistControlService {
     public void saveCompany(String token, SaveCompanyRequest saveCompanyRequest, String method) throws NoDataException, UniqueException {
         Company company = saveCompanyRequest.getCompany();
         Branch branch = saveCompanyRequest.getBranch();
-        Boolean sucursalRaiz = saveCompanyRequest.getQD();
+        Boolean hq = saveCompanyRequest.getHq();
 
 
         validateCompany(token, company, method);
@@ -126,8 +127,8 @@ public class AssistControlService {
         if (companyId == null) {
             throw new NoDataException("Error al guardar la compañía: no se pudo generar un ID.");
         }
-
-        if (Boolean.FALSE.equals(sucursalRaiz)) {
+        System.out.println(hq);
+        if (Boolean.FALSE.equals(hq)) {
 
             branch.setName(company.getName());
             branch.setAddress(company.getAddress());
@@ -187,8 +188,6 @@ public class AssistControlService {
             }
         }
     }
-
-
 
 
     public Company deleteCompanyById(String token, Long companyId) throws NoDataException {
@@ -278,7 +277,6 @@ public class AssistControlService {
             }
         }
     }
-
 
 
     public Branch deleteBranchById(String token, Long branchId) throws NoDataException {

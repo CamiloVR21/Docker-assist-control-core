@@ -11,6 +11,6 @@ public class SaveCompanyRequest {
 
     private Company company;
     private Branch branch;
-    private Boolean QD;
+    private Boolean hq;
 
 }
