@@ -2,7 +2,6 @@ package cl.bennu.assistcontrol.api;
 
 import cl.bennu.assistcontrol.api.base.BaseResource;
 import cl.bennu.assistcontrol.domain.Region;
-import cl.bennu.assistcontrol.domain.query.CityQuery;
 import cl.bennu.assistcontrol.domain.query.RegionQuery;
 import cl.bennu.assistcontrol.domain.query.CountryQuery;
 import cl.bennu.assistcontrol.service.AssistControlService;
@@ -30,9 +29,13 @@ public class RegionResource extends BaseResource {
     @GET
     @Path("/{id}")
     public Response get(@HeaderParam("Authorization") String token, @PathParam("id") Long id) {
-        Region region = assistControlService.getRegionById(token, id);
-        return Response.ok(region).build();
+        Region region = new Region();
+        region.setId(id);
+        Region foundRegion = assistControlService.getRegionById(token, region);
+
+        return Response.ok(foundRegion).build();
     }
+
 
     @SneakyThrows
     @GET

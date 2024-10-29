@@ -12,7 +12,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -43,10 +42,13 @@ class CommuneResourceTest {
 
     @Test
     void getCommuneByIdWithInvalidTokenThrowsException() throws Exception {
-        when(assistControlService.getCommuneById(anyString(), anyLong())).thenThrow(new RuntimeException("Invalid token"));
-
+        Commune commune = new Commune();
+        commune.setId(1L);
+        when(assistControlService.getCommuneById(anyString(), any(Commune.class)))
+                .thenThrow(new RuntimeException("Invalid token"));
         assertThrows(RuntimeException.class, () -> communeResource.get("invalidToken", 1L));
     }
+
 
     @Test
     void findCommunesByQueryWithNoResultsReturnsEmptyList() throws Exception {

@@ -29,9 +29,14 @@ public class CityResource extends BaseResource {
     @GET
     @Path("/{id}")
     public Response get(@HeaderParam("Authorization") String token, @PathParam("id") Long id) {
-        City city = assistControlService.getCityById(token, id);
+        City cityRequest = new City();
+        cityRequest.setId(id);
+
+        City city = assistControlService.getCityById(token, cityRequest);
+
         return Response.ok(city).build();
     }
+
 
     @SneakyThrows
     @GET

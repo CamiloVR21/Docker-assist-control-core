@@ -28,9 +28,12 @@ public class CountryResource extends BaseResource {
     @GET
     @Path("/{id}")
     public Response get(@HeaderParam("Authorization") String token, @PathParam("id") Long id) {
-        Country country = assistControlService.getCountryById(token, id);
+        Country countryRequest = new Country();
+        countryRequest.setId(id);
+        Country country = assistControlService.getCountryById(token, countryRequest);
         return Response.ok(country).build();
     }
+
 
     @SneakyThrows
     @GET

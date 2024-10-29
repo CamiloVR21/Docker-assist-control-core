@@ -4,7 +4,6 @@ import cl.bennu.assistcontrol.api.base.BaseResource;
 import cl.bennu.assistcontrol.domain.Commune;
 import cl.bennu.assistcontrol.domain.query.CityQuery;
 import cl.bennu.assistcontrol.domain.query.CommuneQuery;
-import cl.bennu.assistcontrol.domain.query.CountryQuery;
 import cl.bennu.assistcontrol.service.AssistControlService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -31,9 +30,12 @@ public class CommuneResource extends BaseResource {
     @GET
     @Path("/{id}")
     public Response get(@HeaderParam("Authorization") String token, @PathParam("id") Long id) {
-        Commune commune = assistControlService.getCommuneById(token, id);
+        Commune communeRequest = new Commune();
+        communeRequest.setId(id);
+        Commune commune = assistControlService.getCommuneById(token, communeRequest);
         return Response.ok(commune).build();
     }
+
 
     @SneakyThrows
     @GET

@@ -44,10 +44,16 @@ class CompanyResourceTest {
 
     @Test
     void getCompanyByIdWithInvalidTokenThrowsException() throws Exception {
-        when(assistControlService.getCompanyById(anyString(), anyLong())).thenThrow(new RuntimeException("Invalid token"));
+        Company company = new Company();
+        company.setId(1L);
 
-        assertThrows(RuntimeException.class, () -> companyResource.get("invalidToken", 1L));
+        when(assistControlService.getCompanyById(anyString(), any(Company.class)))
+                .thenThrow(new RuntimeException("Invalid token"));
+
+        assertThrows(RuntimeException.class, () -> companyResource.get("invalidToken", company.getId()));
     }
+
+
 
     @Test
     void findCompaniesByQueryWithNoResultsReturnsEmptyList() throws Exception {

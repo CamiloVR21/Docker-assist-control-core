@@ -11,7 +11,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.HttpMethod;
 import org.apache.commons.lang3.StringUtils;
 
-import java.sql.SQLOutput;
+
 import java.util.List;
 
 @ApplicationScoped
@@ -35,9 +35,21 @@ public class AssistControlService {
     @Inject
     private RegionMapper regionMapper;
 
-    public Commune getCommuneById(String token, Long communeId) {
-        return communeMapper.get(communeId);
+    public Commune getCommuneById(String token, Commune commune) throws NoDataException {
+        if (commune == null || commune.getId() == null) {
+            throw new NoDataException("No se especificó el ID de la comuna.");
+        }
+
+        Long communeId = commune.getId();
+        Commune result = communeMapper.get(communeId);
+
+        if (result == null) {
+            throw new NoDataException("No se encontró la comuna con el ID especificado: " + communeId);
+        }
+
+        return result;
     }
+
 
     public List<Commune> getAllCommune(String token) {
         return communeMapper.getAll();
@@ -95,10 +107,16 @@ public class AssistControlService {
 
     // COMPANY
 
-    public Company getCompanyById(String token, Long companyId) {
-        return companyMapper.get(companyId);
+    public Company getCompanyById(String token, Company company) throws NoDataException {
+        if (company == null || company.getId() == null) {
+            throw new NoDataException("No se especificó el ID de la compañía.");
+        }
+        Company foundCompany = companyMapper.get(company.getId());
+        if (foundCompany == null) {
+            throw new NoDataException("No se encontró la compañía con el ID especificado: " + company.getId());
+        }
+        return foundCompany;
     }
-
     public List<Company> getAllCompany(String token) {
         return companyMapper.getAll();
     }
@@ -108,6 +126,10 @@ public class AssistControlService {
     }
 
     public void saveCompany(String token, SaveCompanyRequest saveCompanyRequest, String method) throws NoDataException, UniqueException {
+        if (saveCompanyRequest == null || saveCompanyRequest.getCompany() == null) {
+            throw new NoDataException("El objeto SaveCompanyRequest o Company no está inicializado.");
+        }
+
         Company company = saveCompanyRequest.getCompany();
         Branch branch = saveCompanyRequest.getBranch();
         Boolean hq = saveCompanyRequest.getHq();
@@ -124,9 +146,7 @@ public class AssistControlService {
 
 
         Long companyId = company.getId();
-        if (companyId == null) {
-            throw new NoDataException("Error al guardar la compañía: no se pudo generar un ID.");
-        }
+
         System.out.println(hq);
         if (Boolean.FALSE.equals(hq)) {
 
@@ -214,9 +234,18 @@ public class AssistControlService {
 
     // BRANCH
 
-    public Branch getBranchyById(String token, Long branchId) {
-        return branchMapper.get(branchId);
+    public Branch getBranchById(String token, Branch branch) throws NoDataException {
+        if (branch == null || branch.getId() == null) {
+            throw new NoDataException("No se especificó el ID de la sucursal.");
+        }
+        Branch foundBranch = branchMapper.get(branch.getId());
+        if (foundBranch == null) {
+            throw new NoDataException("No se encontró la sucursal con el ID especificado: " + branch.getId());
+        }
+
+        return foundBranch;
     }
+
 
     public List<Branch> getAllBranch(String token) {
         return branchMapper.getAll();
@@ -256,7 +285,7 @@ public class AssistControlService {
             }
         }
 
-        // Validación de existencia para operaciones POST y PUT
+
         BranchQuery query = new BranchQuery();
         query.setName(branch.getName());
         Branch branchDB = branchMapper.getByQuery(query);
@@ -290,10 +319,16 @@ public class AssistControlService {
 
     // CITY *******************************************************************************************************
 
-    public City getCityById(String token, Long cityId) {
-        return cityMapper.get(cityId);
+    public City getCityById(String token, City city) throws NoDataException {
+        if (city == null || city.getId() == null) {
+            throw new NoDataException("No se especificó el ID de la ciudad.");
+        }
+        City foundCity = cityMapper.get(city.getId());
+        if (foundCity == null) {
+            throw new NoDataException("No se encontró la ciudad con el ID especificado: " + city.getId());
+        }
+        return foundCity;
     }
-
     public List<City> getAllCity(String token) {
         return cityMapper.getAll();
     }
@@ -344,16 +379,19 @@ public class AssistControlService {
         }
     }
 
-    public void deleteCity(String token, Long cityId) {
-        cityMapper.delete(cityId);
-    }
 
     // COUNTRY *******************************************************************************************************
 
-    public Country getCountryById(String token, Long countryId) {
-        return countryMapper.get(countryId);
+    public Country getCountryById(String token, Country country) throws NoDataException {
+        if (country == null || country.getId() == null) {
+            throw new NoDataException("No se especificó el ID del país.");
+        }
+        Country foundCountry = countryMapper.get(country.getId());
+        if (foundCountry == null) {
+            throw new NoDataException("No se encontró el país con el ID especificado: " + country.getId());
+        }
+        return foundCountry;
     }
-
     public List<Country> getAllCountry(String token) {
         return countryMapper.getAll();
     }
@@ -404,16 +442,19 @@ public class AssistControlService {
         }
     }
 
-    public void deleteCountry(String token, Long countryId) {
-        countryMapper.delete(countryId);
-    }
 
     // Region *******************************************************************************************************
 
-    public Region getRegionById(String token, Long regionId) {
-        return regionMapper.get(regionId);
+    public Region getRegionById(String token, Region region) throws NoDataException {
+        if (region == null || region.getId() == null) {
+            throw new NoDataException("No se especificó el ID de la región.");
+        }
+        Region foundRegion = regionMapper.get(region.getId());
+        if (foundRegion == null) {
+            throw new NoDataException("No se encontró la región con el ID especificado: " + region.getId());
+        }
+        return foundRegion;
     }
-
     public List<Region> getAllRegion(String token) {
         return regionMapper.getAll();
     }
@@ -464,8 +505,6 @@ public class AssistControlService {
         }
     }
 
-    public void deleteRegion(String token, Long regionId) {
-        regionMapper.delete(regionId);
-    }
+
 
 }

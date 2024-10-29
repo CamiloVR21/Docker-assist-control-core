@@ -136,9 +136,9 @@
         <!-- @formatter:on -->
     </select>
 
-    <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.CompanyTest">
-        INSERT INTO company (commune_id, code, name, address, phone, alias, giro, email, geolocation, selfie, lag)
-        VALUES (#{communeId}, #{code}, #{name}, #{address}, #{phone}, #{alias}, #{giro}, #{email}, #{geolocation}, #{selfie}, #{lag})
+    <insert id="insert" parameterType="Company" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO company (code, name, address, commune_id)
+        VALUES (#{code}, #{name}, #{address}, #{commune.id})
     </insert>
 
     <update id="update" parameterType="cl.bennu.assistcontrol.domain.CompanyTest">

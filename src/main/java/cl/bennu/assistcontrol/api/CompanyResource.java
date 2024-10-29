@@ -1,7 +1,6 @@
 package cl.bennu.assistcontrol.api;
 
 import cl.bennu.assistcontrol.api.base.BaseResource;
-import cl.bennu.assistcontrol.domain.Branch;
 import cl.bennu.assistcontrol.domain.Company;
 import cl.bennu.assistcontrol.domain.query.CommuneQuery;
 import cl.bennu.assistcontrol.domain.query.CompanyQuery;
@@ -32,9 +31,14 @@ public class CompanyResource extends BaseResource {
     @GET
     @Path("/{id}")
     public Response get(@HeaderParam("Authorization") String token, @PathParam("id") Long id) {
-        Company company = assistControlService.getCompanyById(token, id);
-        return Response.ok(company).build();
+        Company company = new Company();
+        company.setId(id);
+        Company result = assistControlService.getCompanyById(token, company);
+        return Response.ok(result).build();
     }
+
+
+
 
     @SneakyThrows
     @GET

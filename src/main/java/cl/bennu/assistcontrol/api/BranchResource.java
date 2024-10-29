@@ -30,9 +30,14 @@ public class BranchResource extends BaseResource {
     @GET
     @Path("/{id}")
     public Response get(@HeaderParam("Authorization") String token, @PathParam("id") Long id) {
-        Branch branch = assistControlService.getBranchyById(token, id);
+        Branch branchRequest = new Branch();
+        branchRequest.setId(id);
+
+        Branch branch = assistControlService.getBranchById(token, branchRequest);
+
         return Response.ok(branch).build();
     }
+
 
     @SneakyThrows
     @GET
