@@ -117,6 +117,7 @@ public class AssistControlService {
         }
         return foundCompany;
     }
+
     public List<Company> getAllCompany(String token) {
         return companyMapper.getAll();
     }
@@ -126,17 +127,25 @@ public class AssistControlService {
     }
 
     public void saveCompany(String token, SaveCompanyRequest saveCompanyRequest, String method) throws NoDataException, UniqueException {
-        if (saveCompanyRequest == null || saveCompanyRequest.getCompany() == null) {
-            throw new NoDataException("El objeto SaveCompanyRequest o Company no está inicializado.");
+        // Validar el cuerpo de la solicitud
+        if (saveCompanyRequest == null) {
+            throw new NoDataException("El cuerpo de la solicitud no contiene la información necesaria.");
         }
 
         Company company = saveCompanyRequest.getCompany();
         Branch branch = saveCompanyRequest.getBranch();
         Boolean hq = saveCompanyRequest.getHq();
 
+        if (company == null) {
+            throw new NoDataException("La información de la compañía no se especificó en el cuerpo de la solicitud.");
+        }
+
+
+        if (hq == null) {
+            hq = false; 
+        }
 
         validateCompany(token, company, method);
-
 
         if (company.getId() == null) {
             companyMapper.insert(company);
@@ -144,32 +153,44 @@ public class AssistControlService {
             companyMapper.update(company);
         }
 
-
         Long companyId = company.getId();
+        if (companyId == null) {
+            throw new NoDataException("Error al guardar la compañía: no se pudo generar un ID.");
+        }
 
-        System.out.println(hq);
         if (Boolean.FALSE.equals(hq)) {
-
-            branch.setName(company.getName());
-            branch.setAddress(company.getAddress());
-            branch.setPhone(company.getPhone());
-            branch.setCompany(company);
-            branch.setActive(false);
-            saveBranch(token, branch, HttpMethod.POST);
-        } else if (Boolean.TRUE.equals(branch.getActive())) {
-
-            branch.setCompany(company);
-            if (branch.getId() == null) {
+            if (branch == null) {
+                branch = new Branch();
+                branch.setName(company.getName());
+                branch.setAddress(company.getAddress());
+                branch.setPhone(company.getPhone());
+                branch.setCompany(company);
+                branch.setActive(false);
                 saveBranch(token, branch, HttpMethod.POST);
             } else {
-                saveBranch(token, branch, HttpMethod.PUT);
+                Branch existingBranch = findBranchByCompany(company);
+                if (existingBranch != null) {
+                    existingBranch.setName(company.getName());
+                    existingBranch.setAddress(company.getAddress());
+                    existingBranch.setPhone(company.getPhone());
+                    existingBranch.setCompany(company);
+                    existingBranch.setActive(false);
+                    saveBranch(token, existingBranch, HttpMethod.PUT);
+                } else {
+                    branch.setCompany(company);
+                    saveBranch(token, branch, HttpMethod.POST);
+                }
             }
+        } else if (hq && branch != null) {
+            branch.setCompany(company);
+            saveBranch(token, branch, branch.getId() == null ? HttpMethod.POST : HttpMethod.PUT);
         }
     }
 
 
+
+
     private void validateCompany(String token, Company company, String method) throws NoDataException, UniqueException {
-        // Validaciones comunes
 
         if (company == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información de la compañía");
@@ -211,7 +232,6 @@ public class AssistControlService {
 
 
     public Company deleteCompanyById(String token, Long companyId) throws NoDataException {
-        // Obtener la compañía por ID
         Company company = companyMapper.get(companyId);
         if (company == null) {
             throw new NoDataException("No se encontró la compañía con el ID especificado: " + companyId);
@@ -242,10 +262,8 @@ public class AssistControlService {
         if (foundBranch == null) {
             throw new NoDataException("No se encontró la sucursal con el ID especificado: " + branch.getId());
         }
-
         return foundBranch;
     }
-
 
     public List<Branch> getAllBranch(String token) {
         return branchMapper.getAll();
@@ -285,27 +303,31 @@ public class AssistControlService {
             }
         }
 
-
         BranchQuery query = new BranchQuery();
         query.setName(branch.getName());
-        Branch branchDB = branchMapper.getByQuery(query);
+        List<Branch> branchDBList = branchMapper.findByQuery(query);
 
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
             if (branch.getId() != null) {
                 throw new NoDataException("El campo ID debe ser nulo para insertar una nueva sucursal");
             }
-            if (branchDB != null) {
+            if (branchDBList != null && !branchDBList.isEmpty()) {
                 throw new UniqueException("La sucursal ya existe");
             }
         } else {
             if (branch.getId() == null) {
                 throw new NoDataException("No se especificó el campo ID para actualizar la sucursal");
             }
-            if (branchDB != null && !branchDB.getId().equals(branch.getId())) {
-                throw new UniqueException("La sucursal ya existe");
+            if (branchDBList != null && !branchDBList.isEmpty()) {
+                for (Branch existingBranch : branchDBList) {
+                    if (!existingBranch.getId().equals(branch.getId())) {
+                        throw new UniqueException("La sucursal ya existe con el mismo nombre");
+                    }
+                }
             }
         }
     }
+
 
 
     public Branch deleteBranchById(String token, Long branchId) throws NoDataException {
@@ -315,6 +337,18 @@ public class AssistControlService {
         }
         branchMapper.delete(branchId);
         return branch;
+    }
+    private Branch findBranchByCompany(Company company) throws NoDataException {
+        BranchQuery branchQuery = new BranchQuery();
+        CompanyQuery companyQuery = new CompanyQuery();
+        companyQuery.setId(company.getId());
+        branchQuery.setCompanyQuery(companyQuery);
+
+        List<Branch> branches = findBranchByQuery("", branchQuery);
+        if (branches != null && !branches.isEmpty()) {
+            return branches.get(0);
+        }
+        return null;
     }
 
     // CITY *******************************************************************************************************
@@ -329,6 +363,7 @@ public class AssistControlService {
         }
         return foundCity;
     }
+
     public List<City> getAllCity(String token) {
         return cityMapper.getAll();
     }
@@ -392,6 +427,7 @@ public class AssistControlService {
         }
         return foundCountry;
     }
+
     public List<Country> getAllCountry(String token) {
         return countryMapper.getAll();
     }
@@ -455,6 +491,7 @@ public class AssistControlService {
         }
         return foundRegion;
     }
+
     public List<Region> getAllRegion(String token) {
         return regionMapper.getAll();
     }
@@ -504,7 +541,6 @@ public class AssistControlService {
             }
         }
     }
-
 
 
 }

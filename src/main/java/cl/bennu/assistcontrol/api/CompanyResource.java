@@ -6,6 +6,7 @@ import cl.bennu.assistcontrol.domain.query.CommuneQuery;
 import cl.bennu.assistcontrol.domain.query.CompanyQuery;
 import cl.bennu.assistcontrol.request.SaveCompanyRequest;
 import cl.bennu.assistcontrol.service.AssistControlService;
+import cl.bennu.commons.exception.NoDataException;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -36,8 +37,6 @@ public class CompanyResource extends BaseResource {
         Company result = assistControlService.getCompanyById(token, company);
         return Response.ok(result).build();
     }
-
-
 
 
     @SneakyThrows
@@ -75,11 +74,17 @@ public class CompanyResource extends BaseResource {
     @SneakyThrows
     @PUT
     @Path("/{id}")
-    public Response update(@HeaderParam("Authorization") String token, @PathParam("id") Long id, SaveCompanyRequest request) {
-        request.getCompany().setId(id);
-        assistControlService.saveCompany(token, request, HttpMethod.PUT);
-        return Response.ok(request.getCompany()).build();
+    public Response update(@HeaderParam("Authorization") String token, @PathParam("id") Long id, SaveCompanyRequest saveCompanyRequest) {
+        Company company = saveCompanyRequest.getCompany();
+        if (company == null) {
+            throw new NoDataException("El cuerpo de la solicitud no contiene la información de la compañía");
+        }
+        company.setId(id);
+
+        assistControlService.saveCompany(token, saveCompanyRequest, HttpMethod.PUT);
+        return Response.ok().build();
     }
+
 
 
     @SneakyThrows

@@ -98,6 +98,32 @@ class AssistControlServiceTest {
         Company result = assistControlService.getCompanyById("token", company);
         assertEquals(company, result);
     }
+    @Test
+    void saveCompanyUpdatesExistingCompanyAndBranch() throws NoDataException, UniqueException {
+        SaveCompanyRequest saveCompanyRequest = new SaveCompanyRequest();
+        Company company = new Company();
+        company.setId(1L);
+        company.setCode("COMP123");
+        company.setName("Test Company");
+        company.setAddress("123 Test St");
+        Commune commune = new Commune();
+        commune.setId(1L);
+        company.setCommune(commune);
+        saveCompanyRequest.setCompany(company);
+        Branch branch = new Branch();
+        branch.setId(1L);
+        branch.setName("Branch Test");
+        branch.setAddress("456 Branch St");
+        branch.setPhone("0987654321");
+        branch.setActive(true);
+        branch.setCompany(company);
+        saveCompanyRequest.setBranch(branch);
+        saveCompanyRequest.setHq(true);
+        assistControlService.saveCompany("token", saveCompanyRequest, HttpMethod.PUT);
+        verify(companyMapper).update(company);
+        verify(branchMapper).update(branch);
+    }
+
 
     // CITY TESTS *********************************************************************************************
     @Test
