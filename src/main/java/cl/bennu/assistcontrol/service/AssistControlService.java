@@ -133,7 +133,7 @@ public class AssistControlService {
 
         validateCompany(token, company, method);
 
-        // Inserta o actualiza la compañía
+
         if (company.getId() == null) {
             companyMapper.insert(company);
         } else {
@@ -145,13 +145,13 @@ public class AssistControlService {
             throw new NoDataException("Error al guardar la compañía: no se pudo generar un ID.");
         }
 
-        // Si hq es false, actualizar la sucursal correspondiente con los datos de la compañía
+
         if (Boolean.FALSE.equals(hq)) {
             if (branch == null || branch.getId() == null) {
-                // Busca la sucursal existente asociada a la compañía
+
                 Branch existingBranch = findBranchByCompany(company);
                 if (existingBranch == null) {
-                    // Si no existe una sucursal asociada, crea una nueva
+
                     branch = new Branch();
                     branch.setName(company.getName());
                     branch.setAddress(company.getAddress());
@@ -170,17 +170,15 @@ public class AssistControlService {
                     saveBranch(token, existingBranch, HttpMethod.PUT);
                 }
             } else {
-                // Actualizar la sucursal proporcionada con los datos de la compañía
+
                 branch.setCompany(company);
                 saveBranch(token, branch, branch.getId() == null ? HttpMethod.POST : HttpMethod.PUT);
             }
         } else if (hq && branch != null) {
-            // Si HQ es true y se proporciona una sucursal, se actualiza o inserta según corresponda
             branch.setCompany(company);
             saveBranch(token, branch, branch.getId() == null ? HttpMethod.POST : HttpMethod.PUT);
         }
     }
-
 
 
     private void validateCompany(String token, Company company, String method) throws NoDataException, UniqueException {
@@ -242,7 +240,6 @@ public class AssistControlService {
         companyMapper.delete(companyId);
         return company;
     }
-
 
 
     // BRANCH
@@ -333,7 +330,7 @@ public class AssistControlService {
 
     private Branch findBranchByCompany(Company company) throws NoDataException {
         BranchQuery branchQuery = new BranchQuery();
-        branchQuery.setCompanyId(company.getId()); // Usar el `companyId` en lugar del objeto `CompanyQuery`
+        branchQuery.setCompanyId(company.getId()); 
 
         List<Branch> branches = findBranchByQuery("", branchQuery);
         if (branches != null && !branches.isEmpty()) {
