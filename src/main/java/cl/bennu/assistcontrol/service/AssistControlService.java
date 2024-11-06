@@ -127,26 +127,13 @@ public class AssistControlService {
     }
 
     public void saveCompany(String token, SaveCompanyRequest saveCompanyRequest, String method) throws NoDataException, UniqueException {
-        // Validar el cuerpo de la solicitud
-        if (saveCompanyRequest == null) {
-            throw new NoDataException("El cuerpo de la solicitud no contiene la información necesaria.");
-        }
-
         Company company = saveCompanyRequest.getCompany();
         Branch branch = saveCompanyRequest.getBranch();
         Boolean hq = saveCompanyRequest.getHq();
 
-        if (company == null) {
-            throw new NoDataException("La información de la compañía no se especificó en el cuerpo de la solicitud.");
-        }
-
-
-        if (hq == null) {
-            hq = false; 
-        }
-
         validateCompany(token, company, method);
 
+        // Inserta o actualiza la compañía
         if (company.getId() == null) {
             companyMapper.insert(company);
         } else {
@@ -158,35 +145,41 @@ public class AssistControlService {
             throw new NoDataException("Error al guardar la compañía: no se pudo generar un ID.");
         }
 
+        // Si hq es false, actualizar la sucursal correspondiente con los datos de la compañía
         if (Boolean.FALSE.equals(hq)) {
-            if (branch == null) {
-                branch = new Branch();
-                branch.setName(company.getName());
-                branch.setAddress(company.getAddress());
-                branch.setPhone(company.getPhone());
-                branch.setCompany(company);
-                branch.setActive(false);
-                saveBranch(token, branch, HttpMethod.POST);
-            } else {
+            if (branch == null || branch.getId() == null) {
+                // Busca la sucursal existente asociada a la compañía
                 Branch existingBranch = findBranchByCompany(company);
-                if (existingBranch != null) {
+                if (existingBranch == null) {
+                    // Si no existe una sucursal asociada, crea una nueva
+                    branch = new Branch();
+                    branch.setName(company.getName());
+                    branch.setAddress(company.getAddress());
+                    branch.setPhone(company.getPhone());
+                    branch.setCompany(company);
+                    branch.setActive(false);
+                    saveBranch(token, branch, HttpMethod.POST);
+                } else {
+                    // Si existe una sucursal, actualizar sus datos
                     existingBranch.setName(company.getName());
                     existingBranch.setAddress(company.getAddress());
                     existingBranch.setPhone(company.getPhone());
+                    existingBranch.setAlias(company.getAlias());
                     existingBranch.setCompany(company);
                     existingBranch.setActive(false);
                     saveBranch(token, existingBranch, HttpMethod.PUT);
-                } else {
-                    branch.setCompany(company);
-                    saveBranch(token, branch, HttpMethod.POST);
                 }
+            } else {
+                // Actualizar la sucursal proporcionada con los datos de la compañía
+                branch.setCompany(company);
+                saveBranch(token, branch, branch.getId() == null ? HttpMethod.POST : HttpMethod.PUT);
             }
         } else if (hq && branch != null) {
+            // Si HQ es true y se proporciona una sucursal, se actualiza o inserta según corresponda
             branch.setCompany(company);
             saveBranch(token, branch, branch.getId() == null ? HttpMethod.POST : HttpMethod.PUT);
         }
     }
-
 
 
 
@@ -232,15 +225,14 @@ public class AssistControlService {
 
 
     public Company deleteCompanyById(String token, Long companyId) throws NoDataException {
+        // Obtener la compañía por ID
         Company company = companyMapper.get(companyId);
         if (company == null) {
             throw new NoDataException("No se encontró la compañía con el ID especificado: " + companyId);
         }
 
-        CompanyQuery companyQuery = new CompanyQuery();
-        companyQuery.setId(companyId);
         BranchQuery branchQuery = new BranchQuery();
-        branchQuery.setCompanyQuery(companyQuery);
+        branchQuery.setCompanyId(companyId);
 
         List<Branch> branches = findBranchByQuery(token, branchQuery);
         if (branches != null && !branches.isEmpty()) {
@@ -250,6 +242,7 @@ public class AssistControlService {
         companyMapper.delete(companyId);
         return company;
     }
+
 
 
     // BRANCH
@@ -305,6 +298,7 @@ public class AssistControlService {
 
         BranchQuery query = new BranchQuery();
         query.setName(branch.getName());
+        query.setCompanyId(branch.getCompany().getId()); // Usar el ID de la compañía en lugar de la referencia a `Company`
         List<Branch> branchDBList = branchMapper.findByQuery(query);
 
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
@@ -314,7 +308,7 @@ public class AssistControlService {
             if (branchDBList != null && !branchDBList.isEmpty()) {
                 throw new UniqueException("La sucursal ya existe");
             }
-        } else {
+        } else if (HttpMethod.PUT.equalsIgnoreCase(method)) {
             if (branch.getId() == null) {
                 throw new NoDataException("No se especificó el campo ID para actualizar la sucursal");
             }
@@ -328,21 +322,18 @@ public class AssistControlService {
         }
     }
 
-
-
     public Branch deleteBranchById(String token, Long branchId) throws NoDataException {
         Branch branch = branchMapper.get(branchId);
         if (branch == null) {
-            throw new NoDataException("No se encontró la compañía con el id especificado");
+            throw new NoDataException("No se encontró la sucursal con el ID especificado");
         }
         branchMapper.delete(branchId);
         return branch;
     }
+
     private Branch findBranchByCompany(Company company) throws NoDataException {
         BranchQuery branchQuery = new BranchQuery();
-        CompanyQuery companyQuery = new CompanyQuery();
-        companyQuery.setId(company.getId());
-        branchQuery.setCompanyQuery(companyQuery);
+        branchQuery.setCompanyId(company.getId()); // Usar el `companyId` en lugar del objeto `CompanyQuery`
 
         List<Branch> branches = findBranchByQuery("", branchQuery);
         if (branches != null && !branches.isEmpty()) {
@@ -350,6 +341,7 @@ public class AssistControlService {
         }
         return null;
     }
+
 
     // CITY *******************************************************************************************************
 

@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class BranchQuery extends BaseDomain implements Serializable {
 
     private Long id;
-    private CompanyQuery companyQuery;
+    private Long companyId;
     private String name;
     private String address;
     private String phone;

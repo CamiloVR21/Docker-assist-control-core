@@ -26,33 +26,30 @@
         </association>
     </resultMap>
 
-
     <sql id="sqlBranch">
-    <!-- @formatter:off -->
-    SELECT b.id
-    , b.company_id
-    , b.name
-    , b.address
-    , b.phone
-    , b.alias
-    , b.active
-    , c.id as company_id
-    , c.code as company_code
-    , c.name as company_name
-    , c.address as company_address
-    , c.phone as company_phone
-    , c.alias as company_alias
-    , c.giro as company_giro
-    , c.email as company_email
-    , c.geolocation as company_geolocation
-    , c.selfie as company_selfie
-    , c.lag as company_lag
-    FROM branch b
-    LEFT JOIN company c ON b.company_id = c.id
-    <!-- @formatter:on -->
+        <!-- @formatter:off -->
+        SELECT b.id
+        , b.company_id
+        , b.name
+        , b.address
+        , b.phone
+        , b.alias
+        , b.active
+        , c.id as company_id
+        , c.code as company_code
+        , c.name as company_name
+        , c.address as company_address
+        , c.phone as company_phone
+        , c.alias as company_alias
+        , c.giro as company_giro
+        , c.email as company_email
+        , c.geolocation as company_geolocation
+        , c.selfie as company_selfie
+        , c.lag as company_lag
+        FROM branch b
+        LEFT JOIN company c ON b.company_id = c.id
+        <!-- @formatter:on -->
     </sql>
-
-
 
     <select id="getAll" resultMap="branchMap">
         <include refid="sqlBranch"/>
@@ -70,8 +67,8 @@
         <include refid="sqlBranch"/>
         <!-- @formatter:off -->
         WHERE 1 = 1
-        <if test="companyQuery != null and companyQuery.id != null">
-            AND b.company_id = #{companyQuery.id}
+        <if test="companyId != null">
+            AND b.company_id = #{companyId}
         </if>
         <if test="name != null">
             <bind name="_name" value="'%' + name + '%'"/>

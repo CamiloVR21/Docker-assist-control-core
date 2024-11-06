@@ -102,7 +102,7 @@ CREATE TABLE branch (
     , address VARCHAR(500) NOT NULL
 	, phone VARCHAR(20) NULL
     , alias VARCHAR(200) NULL
-    , active BOOLEAN NOT NULL
+    , active BOOLEAN  NULL
 
  	, PRIMARY KEY (id)
  	, UNIQUE(id)

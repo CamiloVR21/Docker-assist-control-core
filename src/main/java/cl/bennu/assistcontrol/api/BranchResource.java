@@ -50,9 +50,7 @@ public class BranchResource extends BaseResource {
         BranchQuery query = new BranchQuery();
 
         if (companyId != null) {
-            CompanyQuery companyQuery = new CompanyQuery();
-            companyQuery.setId(companyId);
-            query.setCompanyQuery(companyQuery);
+            query.setCompanyId(companyId);  // Usar el campo companyId directamente
         }
 
         query.setName(name);
@@ -62,6 +60,7 @@ public class BranchResource extends BaseResource {
         List<Branch> branches = assistControlService.findBranchByQuery(token, query);
         return Response.ok(branches).build();
     }
+
 
 
     @SneakyThrows

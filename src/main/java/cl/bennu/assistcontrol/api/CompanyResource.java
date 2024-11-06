@@ -86,7 +86,6 @@ public class CompanyResource extends BaseResource {
     }
 
 
-
     @SneakyThrows
     @DELETE
     @Path("/{id}")
