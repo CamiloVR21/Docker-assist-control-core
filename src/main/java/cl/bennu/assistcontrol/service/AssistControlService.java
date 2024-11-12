@@ -2,6 +2,7 @@ package cl.bennu.assistcontrol.service;
 
 import cl.bennu.assistcontrol.domain.*;
 import cl.bennu.assistcontrol.domain.query.*;
+import cl.bennu.assistcontrol.enums.JobTypeEnum;
 import cl.bennu.assistcontrol.mapper.*;
 import cl.bennu.assistcontrol.request.SaveCompanyRequest;
 import cl.bennu.commons.exception.NoDataException;
@@ -34,6 +35,9 @@ public class AssistControlService {
 
     @Inject
     private RegionMapper regionMapper;
+
+    @Inject
+    private JobSchedulerMapper jobSchedulerMapper;
 
     public Commune getCommuneById(String token, Commune commune) throws NoDataException {
         if (commune == null || commune.getId() == null) {
@@ -105,7 +109,7 @@ public class AssistControlService {
         communeMapper.delete(communeId);
     }
 
-    // COMPANY
+    // COMPANY *******************************************************************************************************
 
     public Company getCompanyById(String token, Company company) throws NoDataException {
         if (company == null || company.getId() == null) {
@@ -242,7 +246,7 @@ public class AssistControlService {
     }
 
 
-    // BRANCH
+    // BRANCH *******************************************************************************************************
 
     public Branch getBranchById(String token, Branch branch) throws NoDataException {
         if (branch == null || branch.getId() == null) {
@@ -330,7 +334,7 @@ public class AssistControlService {
 
     private Branch findBranchByCompany(Company company) throws NoDataException {
         BranchQuery branchQuery = new BranchQuery();
-        branchQuery.setCompanyId(company.getId()); 
+        branchQuery.setCompanyId(company.getId());
 
         List<Branch> branches = findBranchByQuery("", branchQuery);
         if (branches != null && !branches.isEmpty()) {
@@ -529,6 +533,82 @@ public class AssistControlService {
                 throw new UniqueException("El tramo de riesgo ya existe");
             }
         }
+    }
+
+    // JobScheduler *******************************************************************************************************
+    public JobScheduler getJobSchedulerById(String token, JobScheduler jobScheduler) throws NoDataException {
+        if (jobScheduler == null || jobScheduler.getId() == null) {
+            throw new NoDataException("No se especificó el ID del programador de trabajos.");
+        }
+        JobScheduler foundJobScheduler = jobSchedulerMapper.get(jobScheduler.getId());
+        if (foundJobScheduler == null) {
+            throw new NoDataException("No se encontró el programador de trabajos con el ID especificado: " + jobScheduler.getId());
+        }
+        return foundJobScheduler;
+    }
+
+    public List<JobScheduler> getAllJobScheduler(String token) {
+        return jobSchedulerMapper.getAll();
+    }
+
+    public List<JobScheduler> findJobSchedulerByQuery(String token, JobSchedulerQuery query) {
+        return jobSchedulerMapper.findByQuery(query);
+    }
+
+    public void saveJobScheduler(String token, JobScheduler jobScheduler, String method) throws NoDataException, UniqueException {
+        validateJobScheduler(token, jobScheduler, method);
+
+        if (jobScheduler.getId() == null) {
+            jobSchedulerMapper.insert(jobScheduler);
+        } else {
+            jobSchedulerMapper.update(jobScheduler);
+        }
+    }
+
+    private void validateJobScheduler(String token, JobScheduler jobScheduler, String method) throws NoDataException, UniqueException {
+        if (jobScheduler == null) {
+            throw new NoDataException("El cuerpo de la solicitud no contiene la información del programador de trabajos");
+        }
+
+        if (StringUtils.isBlank(jobScheduler.getName())) {
+            throw new NoDataException("No se especificó el nombre del programador de trabajos");
+        }
+        if (jobScheduler.getJobType() == null) {
+            throw new NoDataException("No se especificó el tipo de trabajo");
+        }
+
+        JobSchedulerQuery query = new JobSchedulerQuery();
+        query.setName(jobScheduler.getName());
+        List<JobScheduler> jobSchedulerDBList = jobSchedulerMapper.findByQuery(query);
+
+        if (HttpMethod.POST.equalsIgnoreCase(method)) {
+            if (jobScheduler.getId() != null) {
+                throw new NoDataException("El campo ID debe ser nulo para insertar un nuevo programador de trabajos");
+            }
+            if (jobSchedulerDBList != null && !jobSchedulerDBList.isEmpty()) {
+                throw new UniqueException("El programador de trabajos ya existe");
+            }
+        } else if (HttpMethod.PUT.equalsIgnoreCase(method)) {
+            if (jobScheduler.getId() == null) {
+                throw new NoDataException("No se especificó el campo ID para actualizar el programador de trabajos");
+            }
+            if (jobSchedulerDBList != null && !jobSchedulerDBList.isEmpty()) {
+                for (JobScheduler existingJobScheduler : jobSchedulerDBList) {
+                    if (!existingJobScheduler.getId().equals(jobScheduler.getId())) {
+                        throw new UniqueException("El programador de trabajos ya existe con el mismo nombre");
+                    }
+                }
+            }
+        }
+    }
+
+    public JobScheduler deleteJobSchedulerById(String token, Long jobSchedulerId) throws NoDataException {
+        JobScheduler jobScheduler = jobSchedulerMapper.get(jobSchedulerId);
+        if (jobScheduler == null) {
+            throw new NoDataException("No se encontró el programador de trabajos con el ID especificado: " + jobSchedulerId);
+        }
+        jobSchedulerMapper.delete(jobSchedulerId);
+        return jobScheduler;
     }
 
 

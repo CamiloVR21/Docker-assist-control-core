@@ -52,7 +52,7 @@ public class CompanyResource extends BaseResource {
         if (communeId != null) {
             CommuneQuery communeQuery = new CommuneQuery();
             communeQuery.setId(communeId);
-            query.setCommuneQuery(communeQuery);
+            query.setCommune(communeQuery);
         }
 
         query.setCode(code);

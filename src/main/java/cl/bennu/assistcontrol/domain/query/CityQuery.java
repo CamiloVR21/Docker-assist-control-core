@@ -13,6 +13,6 @@ import java.io.Serializable;
 public class CityQuery extends BaseDomain implements Serializable {
 
     private Long id;
-    private RegionQuery regionQuery;
+    private RegionQuery region;
     private String name;
 }

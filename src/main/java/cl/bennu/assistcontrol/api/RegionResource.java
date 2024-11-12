@@ -36,17 +36,20 @@ public class RegionResource extends BaseResource {
         return Response.ok(foundRegion).build();
     }
 
-
     @SneakyThrows
     @GET
     @Path("/-/by-params")
-    public Response find(@HeaderParam("Authorization") String token
-            , @PathParam("country-id") Long countryId
-            , @PathParam("name") String name) {
+    public Response find(@HeaderParam("Authorization") String token,
+                         @QueryParam("country-id") Long countryId,
+                         @QueryParam("name") String name) {
         RegionQuery query = new RegionQuery();
 
-        CountryQuery countryQuery = new CountryQuery();
-        countryQuery.setId(countryId);
+        if (countryId != null) {
+            CountryQuery countryQuery = new CountryQuery();
+            countryQuery.setId(countryId);
+            query.setCountry(countryQuery);
+        }
+
         query.setName(name);
 
         List<Region> region = assistControlService.findRegionByQuery(token, query);

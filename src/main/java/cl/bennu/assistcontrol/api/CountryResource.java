@@ -34,17 +34,15 @@ public class CountryResource extends BaseResource {
         return Response.ok(country).build();
     }
 
-
     @SneakyThrows
     @GET
     @Path("/-/by-params")
-    public Response find(@HeaderParam("Authorization") String token
-            , @PathParam("name") String name
-            , @PathParam("nationality") String nationality) {
+    public Response find(@HeaderParam("Authorization") String token,
+                         @QueryParam("name") String name,
+                         @QueryParam("nationality") String nationality) {
         CountryQuery query = new CountryQuery();
         query.setName(name);
         query.setNationality(nationality);
-
 
         List<Country> country = assistControlService.findCountryByQuery(token, query);
         return Response.ok(country).build();

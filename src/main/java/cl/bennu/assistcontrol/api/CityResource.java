@@ -37,23 +37,25 @@ public class CityResource extends BaseResource {
         return Response.ok(city).build();
     }
 
-
     @SneakyThrows
     @GET
     @Path("/-/by-params")
-    public Response find(@HeaderParam("Authorization") String token
-            , @PathParam("region-id") Long regionId
-            , @PathParam("name") String name) {
+    public Response find(@HeaderParam("Authorization") String token,
+                         @QueryParam("region-id") Long regionId,
+                         @QueryParam("name") String name) {
         CityQuery query = new CityQuery();
-        RegionQuery regionQuery = new RegionQuery();
-        regionQuery.setId(regionId);
-        query.setRegionQuery(regionQuery);
+
+        if (regionId != null) {
+            RegionQuery regionQuery = new RegionQuery();
+            regionQuery.setId(regionId);
+            query.setRegion(regionQuery);
+        }
+
         query.setName(name);
 
         List<City> cities = assistControlService.findCityByQuery(token, query);
         return Response.ok(cities).build();
     }
-
 
     @SneakyThrows
     @POST

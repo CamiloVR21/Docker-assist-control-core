@@ -1,6 +1,7 @@
 package cl.bennu.assistcontrol.domain;
 
 import cl.bennu.commons.domain.base.BaseDomain;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,4 +27,11 @@ public class Company extends BaseDomain implements Serializable {
     private Boolean geolocation;
     private Boolean selfie;
     private Boolean lag;
+
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static Company valueOf(Long id) {
+        Company obj = new Company();
+        obj.setId(id);
+        return obj;
+    }
 }

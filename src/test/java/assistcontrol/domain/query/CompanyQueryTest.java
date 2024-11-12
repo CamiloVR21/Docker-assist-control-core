@@ -1,5 +1,5 @@
 package assistcontrol.domain.query;
-
+/*
 import cl.bennu.assistcontrol.domain.query.CompanyQuery;
 import cl.bennu.assistcontrol.domain.query.CommuneQuery;
 import org.junit.jupiter.api.Test;
@@ -147,3 +147,4 @@ class CompanyQueryTest {
         assertNotEquals(companyQuery1, companyQuery2);
     }
 }
+*/

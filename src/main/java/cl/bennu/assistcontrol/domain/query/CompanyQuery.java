@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class CompanyQuery extends BaseDomain implements Serializable {
 
     private Long id;
-    private CommuneQuery communeQuery;
+    private CommuneQuery commune;
     private String code;
     private String name;
     private String address;

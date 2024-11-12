@@ -36,23 +36,30 @@ public class CommuneResource extends BaseResource {
         return Response.ok(commune).build();
     }
 
-
     @SneakyThrows
     @GET
     @Path("/-/by-params")
-    public Response find(@HeaderParam("Authorization") String token
-            , @PathParam("city-id") Long cityId
-            , @PathParam("sii-code") String siiCode
-            , @PathParam("tgr-code") String tgrCode) {
+    public Response find(
+            @HeaderParam("Authorization") String token,
+            @QueryParam("city-id") Long cityId,
+            @QueryParam("sii-code") String siiCode,
+            @QueryParam("tgr-code") String tgrCode) {
+
         CommuneQuery query = new CommuneQuery();
-        CityQuery city = new CityQuery();
-        city.setId(cityId);
+
+        if (cityId != null) {
+            CityQuery city = new CityQuery();
+            city.setId(cityId);
+            query.setCity(city);
+        }
+
         query.setTgrCode(tgrCode);
         query.setSiiCode(siiCode);
 
         List<Commune> communes = assistControlService.findCommuneByQuery(token, query);
         return Response.ok(communes).build();
     }
+
 
     @SneakyThrows
     @POST

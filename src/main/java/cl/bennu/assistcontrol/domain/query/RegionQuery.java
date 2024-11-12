@@ -15,7 +15,7 @@ import java.io.Serializable;
 public class RegionQuery extends BaseDomain implements Serializable {
 
     private Long id;
-    private CountryQuery countryQuery;
+    private CountryQuery country;
     private String name;
 
 }
