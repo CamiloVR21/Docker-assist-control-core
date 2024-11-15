@@ -165,15 +165,15 @@ CREATE TABLE employee (
     , branch_id INTEGER NOT NULL
 	, job_scheduler_id INTEGER NOT NULL
     , commune_id INTEGER NOT NULL
-    , natoionality_id INTEGER NOT NULL
+    , nationality_id INTEGER NOT NULL
 	, gender_id INTEGER NOT NULL
 	, marital_status_id INTEGER NOT NULL
 	, contract_type_id INTEGER NULL
 
 	, code VARCHAR(20) NOT NULL
     , name VARCHAR(500) NOT NULL
-    , lastnmame VARCHAR(200) NOT NULL
-    , mother_lastnmame VARCHAR(200) NULL
+    , last_name VARCHAR(200) NOT NULL
+    , mother_last_name VARCHAR(200) NULL
 
 	, birth_date DATE NULL
 	, phone VARCHAR(20) NULL
@@ -190,7 +190,7 @@ CREATE TABLE employee (
 	, UNIQUE(code)
 	, FOREIGN KEY (branch_id) REFERENCES branch(id)
 	, FOREIGN KEY (job_scheduler_id) REFERENCES job_scheduler(id)
-    , FOREIGN KEY (natoionality_id) REFERENCES country(id)
+    , FOREIGN KEY (nationality_id) REFERENCES country(id)
 	, FOREIGN KEY (commune_id) REFERENCES commune(id)
 	, FOREIGN KEY (gender_id) REFERENCES gender(id)
 	, FOREIGN KEY (marital_status_id) REFERENCES marital_status(id)

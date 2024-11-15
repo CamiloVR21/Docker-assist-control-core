@@ -42,6 +42,7 @@ public class JobScheduler extends BaseDomain implements Serializable {
     private Time sundayFrom;
     private Time sundayTo;
 
+
     public JobScheduler(JobTypeEnum jobType, String name) {
         this.jobType = jobType;
         this.name = name;

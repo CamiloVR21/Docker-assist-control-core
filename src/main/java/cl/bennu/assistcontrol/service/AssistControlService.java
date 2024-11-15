@@ -9,6 +9,7 @@ import cl.bennu.commons.exception.NoDataException;
 import cl.bennu.commons.exception.UniqueException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.HttpMethod;
 import org.apache.commons.lang3.StringUtils;
 
@@ -39,6 +40,9 @@ public class AssistControlService {
     @Inject
     private JobSchedulerMapper jobSchedulerMapper;
 
+    @Inject
+    EmployeeMapper employeeMapper;
+
     public Commune getCommuneById(String token, Commune commune) throws NoDataException {
         if (commune == null || commune.getId() == null) {
             throw new NoDataException("No se especificó el ID de la comuna.");
@@ -63,6 +67,7 @@ public class AssistControlService {
         return communeMapper.findByQuery(query);
     }
 
+    @Transactional
     public void saveCommune(String token, Commune commune, String method) throws NoDataException, UniqueException {
         validateCommune(token, commune, method);
 
@@ -74,7 +79,7 @@ public class AssistControlService {
     }
 
     private void validateCommune(String token, Commune commune, String method) throws NoDataException, UniqueException {
-        // validaciones comunes
+
         if (commune.getName() == null || StringUtils.isBlank(commune.getName())) {
             throw new NoDataException("No se especificó el campo nombre");
         }
@@ -87,7 +92,6 @@ public class AssistControlService {
         Commune communeDB = communeMapper.getByQuery(query);
 
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
-            // validaciones especificas de insert
             if (commune.getId() != null) {
                 throw new NoDataException("El campo id debe ser nulo");
             }
@@ -95,7 +99,6 @@ public class AssistControlService {
                 throw new UniqueException("El tramo de riesgo ya existe");
             }
         } else {
-            // validaciones especificas de update
             if (commune.getId() == null) {
                 throw new NoDataException("No se especificó el campo id");
             }
@@ -130,6 +133,7 @@ public class AssistControlService {
         return companyMapper.findByQuery(query);
     }
 
+    @Transactional
     public void saveCompany(String token, SaveCompanyRequest saveCompanyRequest, String method) throws NoDataException, UniqueException {
         Company company = saveCompanyRequest.getCompany();
         Branch branch = saveCompanyRequest.getBranch();
@@ -164,7 +168,7 @@ public class AssistControlService {
                     branch.setActive(false);
                     saveBranch(token, branch, HttpMethod.POST);
                 } else {
-                    // Si existe una sucursal, actualizar sus datos
+
                     existingBranch.setName(company.getName());
                     existingBranch.setAddress(company.getAddress());
                     existingBranch.setPhone(company.getPhone());
@@ -227,7 +231,6 @@ public class AssistControlService {
 
 
     public Company deleteCompanyById(String token, Long companyId) throws NoDataException {
-        // Obtener la compañía por ID
         Company company = companyMapper.get(companyId);
         if (company == null) {
             throw new NoDataException("No se encontró la compañía con el ID especificado: " + companyId);
@@ -267,6 +270,7 @@ public class AssistControlService {
         return branchMapper.findByQuery(query);
     }
 
+    @Transactional
     public void saveBranch(String token, Branch branch, String method) throws NoDataException, UniqueException {
         validateBranch(token, branch, method);
 
@@ -299,7 +303,7 @@ public class AssistControlService {
 
         BranchQuery query = new BranchQuery();
         query.setName(branch.getName());
-        query.setCompanyId(branch.getCompany().getId()); // Usar el ID de la compañía en lugar de la referencia a `Company`
+        query.setCompanyId(branch.getCompany().getId());
         List<Branch> branchDBList = branchMapper.findByQuery(query);
 
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
@@ -327,6 +331,12 @@ public class AssistControlService {
         Branch branch = branchMapper.get(branchId);
         if (branch == null) {
             throw new NoDataException("No se encontró la sucursal con el ID especificado");
+        }
+        EmployeeQuery employeeQuery = new EmployeeQuery();
+        employeeQuery.setBranch(branchId);
+        List<Employee> employees = findEmployeesByQuery(token, employeeQuery);
+        if (employees != null && !employees.isEmpty()) {
+            throw new NoDataException("No se puede eliminar la sucursal porque tiene empleados asociados.");
         }
         branchMapper.delete(branchId);
         return branch;
@@ -365,6 +375,7 @@ public class AssistControlService {
         return cityMapper.findByQuery(query);
     }
 
+    @Transactional
     public void saveCity(String token, City city, String method) throws NoDataException, UniqueException {
         validateCity(token, city, method);
 
@@ -376,7 +387,7 @@ public class AssistControlService {
     }
 
     private void validateCity(String token, City city, String method) throws NoDataException, UniqueException {
-        // validaciones comunes
+
         if (city.getName() == null || StringUtils.isBlank(city.getName())) {
             throw new NoDataException("No se especificó el campo nombre");
         }
@@ -389,7 +400,7 @@ public class AssistControlService {
         City cityDB = cityMapper.getByQuery(query);
 
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
-            // validaciones especificas de insert
+
             if (city.getId() != null) {
                 throw new NoDataException("El campo id debe ser nulo");
             }
@@ -397,7 +408,7 @@ public class AssistControlService {
                 throw new UniqueException("El tramo de riesgo ya existe");
             }
         } else {
-            // validaciones especificas de update
+
             if (city.getId() == null) {
                 throw new NoDataException("No se especificó el campo id");
             }
@@ -429,6 +440,7 @@ public class AssistControlService {
         return countryMapper.findByQuery(query);
     }
 
+    @Transactional
     public void saveCountry(String token, Country country, String method) throws NoDataException, UniqueException {
         validateCountry(token, country, method);
 
@@ -440,7 +452,7 @@ public class AssistControlService {
     }
 
     private void validateCountry(String token, Country country, String method) throws NoDataException, UniqueException {
-        // validaciones comunes
+
         if (country.getName() == null || StringUtils.isBlank(country.getName())) {
             throw new NoDataException("No se especificó el campo nombre");
         }
@@ -453,7 +465,7 @@ public class AssistControlService {
         Country countryDB = countryMapper.getByQuery(query);
 
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
-            // validaciones especificas de insert
+
             if (country.getId() != null) {
                 throw new NoDataException("El campo id debe ser nulo");
             }
@@ -461,7 +473,7 @@ public class AssistControlService {
                 throw new UniqueException("El tramo de riesgo ya existe");
             }
         } else {
-            // validaciones especificas de update
+
             if (country.getId() == null) {
                 throw new NoDataException("No se especificó el campo id");
             }
@@ -493,6 +505,7 @@ public class AssistControlService {
         return regionMapper.findByQuery(query);
     }
 
+    @Transactional
     public void saveRegion(String token, Region region, String method) throws NoDataException, UniqueException {
         validateRegion(token, region, method);
 
@@ -504,7 +517,7 @@ public class AssistControlService {
     }
 
     private void validateRegion(String token, Region region, String method) throws NoDataException, UniqueException {
-        // validaciones comunes
+
         if (region.getName() == null || StringUtils.isBlank(region.getName())) {
             throw new NoDataException("No se especificó el campo nombre");
         }
@@ -517,7 +530,7 @@ public class AssistControlService {
         Region regionDB = regionMapper.getByQuery(query);
 
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
-            // validaciones especificas de insert
+
             if (region.getId() != null) {
                 throw new NoDataException("El campo id debe ser nulo");
             }
@@ -525,7 +538,7 @@ public class AssistControlService {
                 throw new UniqueException("El tramo de riesgo ya existe");
             }
         } else {
-            // validaciones especificas de update
+
             if (region.getId() == null) {
                 throw new NoDataException("No se especificó el campo id");
             }
@@ -555,6 +568,7 @@ public class AssistControlService {
         return jobSchedulerMapper.findByQuery(query);
     }
 
+    @Transactional
     public void saveJobScheduler(String token, JobScheduler jobScheduler, String method) throws NoDataException, UniqueException {
         validateJobScheduler(token, jobScheduler, method);
 
@@ -605,11 +619,134 @@ public class AssistControlService {
     public JobScheduler deleteJobSchedulerById(String token, Long jobSchedulerId) throws NoDataException {
         JobScheduler jobScheduler = jobSchedulerMapper.get(jobSchedulerId);
         if (jobScheduler == null) {
-            throw new NoDataException("No se encontró el programador de trabajos con el ID especificado: " + jobSchedulerId);
+            throw new NoDataException("No se encontró  con el ID especificado: " + jobSchedulerId);
         }
+        EmployeeQuery employeeQuery = new EmployeeQuery();
+        employeeQuery.setJobScheduler(jobSchedulerId);
+
+        List<Employee> employees = findEmployeesByQuery(token, employeeQuery);
+        if (employees != null && !employees.isEmpty()) {
+            throw new NoDataException("No se puede eliminar el horario de trabajos porque tiene empleados asociados.");
+        }
+
         jobSchedulerMapper.delete(jobSchedulerId);
         return jobScheduler;
     }
 
 
+    // EMPLOYEEE *******************************************************************************************************
+
+    public Employee getEmployeeById(String token, Long employeeId) throws NoDataException {
+        if (employeeId == null) {
+            throw new NoDataException("No se especificó el ID del empleado.");
+        }
+        Employee employee = employeeMapper.get(employeeId);
+        if (employee == null) {
+            throw new NoDataException("No se encontró el empleado con el ID especificado: " + employeeId);
+        }
+        return employee;
+    }
+
+    public List<Employee> getAllEmployees(String token) {
+        return employeeMapper.getAll();
+    }
+
+    public List<Employee> findEmployeesByQuery(String token, EmployeeQuery query) {
+        return employeeMapper.findByQuery(query);
+    }
+
+
+    @Transactional
+    public void saveEmployee(String token, Employee employee, String method) throws NoDataException, UniqueException {
+        validateEmployee(token, employee, method);
+
+        if (employee.getId() == null) {
+            employeeMapper.insert(employee);
+        } else {
+            employeeMapper.update(employee);
+        }
+    }
+
+    private void validateEmployee(String token, Employee employee, String method) throws NoDataException, UniqueException {
+        if (employee == null) {
+            throw new NoDataException("El cuerpo de la solicitud no contiene la información del empleado");
+        }
+
+        if (StringUtils.isBlank(employee.getName())) {
+            throw new NoDataException("No se especificó el nombre del empleado");
+        }
+        if (StringUtils.isBlank(employee.getLastName())) {
+            throw new NoDataException("No se especificó el apellido del empleado");
+        }
+        if (employee.getGender() == null) {
+            throw new NoDataException("No se especificó el género del empleado");
+        }
+        if (employee.getBirthDate() == null) {
+            throw new NoDataException("No se especificó la fecha de nacimiento del empleado");
+        }
+        if (employee.getCommune() == null || employee.getCommune().getId() == null) {
+            throw new NoDataException("No se especificó la comuna del empleado");
+        }
+        if (employee.getBranch() == null || employee.getBranch().getId() == null) {
+            throw new NoDataException("No se especificó la sucursal del empleado");
+        }
+        if (employee.getContractType() == null) {
+            throw new NoDataException("No se especificó el tipo de trabajo del empleado");
+        }
+        if (employee.getEmail() == null) {
+            throw new NoDataException("No se especificó el correo del empleado");
+        }
+        if (employee.getCountry() == null) {
+            throw new NoDataException("No se especificó el pais del empleado");
+        }
+        if (employee.getMaritalStatus() == null) {
+            throw new NoDataException("No se especificó el estado del empleado");
+        }
+        if (employee.getAddress() == null) {
+            throw new NoDataException("No se especificó la dirreccion del empleado");
+        }
+        if (employee.getContractDate() == null) {
+            throw new NoDataException("No se especificó el estado del empleado");
+        }
+        //hablar si es obligatorio
+        if (employee.getContractEndDate() == null) {
+            throw new NoDataException("No se especificó el estado del empleado");
+        }
+        EmployeeQuery query = new EmployeeQuery();
+        query.setName(employee.getName());
+        query.setLastName(employee.getLastName());
+        List<Employee> employeeDBList = employeeMapper.findByQuery(query);
+
+        if ("POST".equalsIgnoreCase(method)) {
+            if (employee.getId() != null) {
+                throw new NoDataException("El campo ID debe ser nulo para insertar un nuevo empleado");
+            }
+            if (employeeDBList != null && !employeeDBList.isEmpty()) {
+                throw new UniqueException("El empleado ya existe");
+            }
+        } else if ("PUT".equalsIgnoreCase(method)) {
+            if (employee.getId() == null) {
+                throw new NoDataException("No se especificó el campo ID para actualizar el empleado");
+            }
+            if (employeeDBList != null && !employeeDBList.isEmpty()) {
+                for (Employee existingEmployee : employeeDBList) {
+                    if (!existingEmployee.getId().equals(employee.getId())) {
+                        throw new UniqueException("El empleado ya existe con el mismo nombre y apellido");
+                    }
+                }
+            }
+        }
+    }
+
+    public Employee deleteEmployeeById(String token, Long employeeId) throws NoDataException {
+        Employee employee = employeeMapper.get(employeeId);
+        if (employee == null) {
+            throw new NoDataException("No se encontró el empleado con el ID especificado: " + employeeId);
+        }
+        if (employeeId == null) {
+            throw new NoDataException("No se especifico el id del empleado: ");
+        }
+        employeeMapper.delete(employeeId);
+        return employee;
+    }
 }

@@ -41,14 +41,14 @@ public class JobSchedulerResource extends BaseResource {
     @GET
     @Path("/-/by-params")
     public Response find(@HeaderParam("Authorization") String token,
-                         @QueryParam("job-type") Integer jobType,
+                         @QueryParam("job-type") JobTypeEnum jobType,
                          @QueryParam("name") String name,
                          @QueryParam("monday") Boolean monday,
                          @QueryParam("tuesday") Boolean tuesday) {
         JobSchedulerQuery query = new JobSchedulerQuery();
 
         if (jobType != null) {
-            query.setJobTypeId(jobType);
+            query.setJobType(jobType);
         }
 
         query.setName(name);

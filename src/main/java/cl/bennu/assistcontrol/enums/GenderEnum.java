@@ -15,8 +15,8 @@ import java.util.Map;
 public enum GenderEnum implements BaseEnum {
 
     //@formatter:off
-    MALE(1, "Masculino")
-    , FEME(2, "Femenino");
+    MALE(1, "Masculino"),
+    FEMALE(2, "Femenino");
     //@formatter:on
 
     GenderEnum(Integer id, String name) {
@@ -38,5 +38,4 @@ public enum GenderEnum implements BaseEnum {
             return null;
         }
     }
-
 }

@@ -15,7 +15,6 @@
         <result property="geolocation" column="geolocation"/>
         <result property="selfie" column="selfie"/>
         <result property="lag" column="lag"/>
-        <!-- Asociación con Commune -->
         <association property="commune" javaType="cl.bennu.assistcontrol.domain.Commune">
             <id property="id" column="commune_id"/>
             <result property="name" column="commune_name"/>
