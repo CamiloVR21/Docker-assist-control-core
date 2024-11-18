@@ -296,9 +296,6 @@ public class AssistControlService {
             if (branch.getCompany() == null || branch.getCompany().getId() == null) {
                 throw new NoDataException("No se especificó el campo compañía de la sucursal");
             }
-            if (branch.getPhone() == null) {
-                throw new NoDataException("No se especificó el campo teléfono de la sucursal");
-            }
         }
 
         BranchQuery query = new BranchQuery();
@@ -666,7 +663,7 @@ public class AssistControlService {
             employeeMapper.update(employee);
         }
     }
-
+//REVISAR LA QUE PUEDEN SER NULAS
     private void validateEmployee(String token, Employee employee, String method) throws NoDataException, UniqueException {
         if (employee == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información del empleado");
@@ -681,9 +678,6 @@ public class AssistControlService {
         if (employee.getGender() == null) {
             throw new NoDataException("No se especificó el género del empleado");
         }
-        if (employee.getBirthDate() == null) {
-            throw new NoDataException("No se especificó la fecha de nacimiento del empleado");
-        }
         if (employee.getCommune() == null || employee.getCommune().getId() == null) {
             throw new NoDataException("No se especificó la comuna del empleado");
         }
@@ -692,9 +686,6 @@ public class AssistControlService {
         }
         if (employee.getContractType() == null) {
             throw new NoDataException("No se especificó el tipo de trabajo del empleado");
-        }
-        if (employee.getEmail() == null) {
-            throw new NoDataException("No se especificó el correo del empleado");
         }
         if (employee.getCountry() == null) {
             throw new NoDataException("No se especificó el pais del empleado");
