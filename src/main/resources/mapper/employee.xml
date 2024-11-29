@@ -16,9 +16,9 @@
         <result property="contractDate" column="contract_date" javaType="java.time.LocalDate"/>
         <result property="contractEndDate" column="contract_end_date" javaType="java.time.LocalDate"/>
         <result property="active" column="active"/>
-        <result property="gender" column="gender_id" javaType="cl.bennu.assistcontrol.enums.GenderEnum" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler" />
-        <result property="maritalStatus" column="marital_status_id" javaType="cl.bennu.assistcontrol.enums.MaritalStatusEnum" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler"/>
-        <result property="contractType" column="contract_type_id" javaType="cl.bennu.assistcontrol.enums.ContractTypeEnum" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler"/>
+        <result property="gender" column="gender_id" javaType="cl.bennu.assistcontrol.enums.GenderEnum" typeHandler="cl.bennu.assistcontrol.enums.TypeHandler.GenericEnumTypeHandler"/>
+        <result property="maritalStatus" column="marital_status_id" javaType="cl.bennu.assistcontrol.enums.MaritalStatusEnum" typeHandler="cl.bennu.assistcontrol.enums.TypeHandler.GenericEnumTypeHandler"/>
+        <result property="contractType" column="contract_type_id" javaType="cl.bennu.assistcontrol.enums.ContractTypeEnum" typeHandler="cl.bennu.assistcontrol.enums.TypeHandler.GenericEnumTypeHandler"/>
         <association property="branch" javaType="cl.bennu.assistcontrol.domain.Branch">
             <id property="id" column="branch_id"/>
             <result property="name" column="branch_name"/>

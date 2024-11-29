@@ -1,5 +1,5 @@
-INSERT INTO gender (id, name) VALUES (2, 'Femenino');
 INSERT INTO gender (id, name) VALUES (1, 'Masculino');
+INSERT INTO gender (id, name) VALUES (2, 'Femenino');
 INSERT INTO marital_status (id, name) VALUES (1,'Casado');
 INSERT INTO marital_status (id, name) VALUES (2,'Viudo');
 INSERT INTO marital_status (id, name) VALUES (3,'Divorciado');

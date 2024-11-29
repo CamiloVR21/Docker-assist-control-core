@@ -4,7 +4,7 @@
 
     <resultMap id="jobSchedulerMap" type="cl.bennu.assistcontrol.domain.JobScheduler">
         <id property="id" column="id"/>
-        <result property="jobType" column="job_type_id" javaType="cl.bennu.assistcontrol.enums.JobTypeEnum" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler"/>
+        <result property="jobType" column="job_type_id" javaType="cl.bennu.assistcontrol.enums.JobTypeEnum" typeHandler="cl.bennu.assistcontrol.enums.TypeHandler.GenericEnumTypeHandler"/>
         <result property="name" column="name"/>
         <result property="monday" column="monday"/>
         <result property="mondayFrom" column="monday_from"/>

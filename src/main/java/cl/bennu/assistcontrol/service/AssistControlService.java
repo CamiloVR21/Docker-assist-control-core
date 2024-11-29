@@ -154,7 +154,7 @@ public class AssistControlService {
         }
 
 
-        if (Boolean.FALSE.equals(hq)) {
+        if (Boolean.TRUE.equals(hq)) {
             if (branch == null || branch.getId() == null) {
 
                 Branch existingBranch = findBranchByCompany(company);
@@ -165,7 +165,7 @@ public class AssistControlService {
                     branch.setAddress(company.getAddress());
                     branch.setPhone(company.getPhone());
                     branch.setCompany(company);
-                    branch.setActive(false);
+                    branch.setActive(true);
                     saveBranch(token, branch, HttpMethod.POST);
                 } else {
 
@@ -174,7 +174,7 @@ public class AssistControlService {
                     existingBranch.setPhone(company.getPhone());
                     existingBranch.setAlias(company.getAlias());
                     existingBranch.setCompany(company);
-                    existingBranch.setActive(false);
+                    existingBranch.setActive(true);
                     saveBranch(token, existingBranch, HttpMethod.PUT);
                 }
             } else {
@@ -664,6 +664,7 @@ public class AssistControlService {
         }
     }
 //REVISAR LA QUE PUEDEN SER NULAS
+
     private void validateEmployee(String token, Employee employee, String method) throws NoDataException, UniqueException {
         if (employee == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información del empleado");
@@ -699,10 +700,6 @@ public class AssistControlService {
         if (employee.getContractDate() == null) {
             throw new NoDataException("No se especificó el estado del empleado");
         }
-        //hablar si es obligatorio
-        if (employee.getContractEndDate() == null) {
-            throw new NoDataException("No se especificó el estado del empleado");
-        }
         EmployeeQuery query = new EmployeeQuery();
         query.setName(employee.getName());
         query.setLastName(employee.getLastName());
@@ -715,6 +712,7 @@ public class AssistControlService {
             if (employeeDBList != null && !employeeDBList.isEmpty()) {
                 throw new UniqueException("El empleado ya existe");
             }
+            employee.setActive(true);
         } else if ("PUT".equalsIgnoreCase(method)) {
             if (employee.getId() == null) {
                 throw new NoDataException("No se especificó el campo ID para actualizar el empleado");
