@@ -138,28 +138,23 @@ public class AssistControlService {
         Company company = saveCompanyRequest.getCompany();
         Branch branch = saveCompanyRequest.getBranch();
         Boolean hq = saveCompanyRequest.getHq();
-
+        if (company == null) {
+            throw new NoDataException("El cuerpo de la solicitud no contiene la información de la compañía");
+        }
         validateCompany(token, company, method);
-
-
         if (company.getId() == null) {
             companyMapper.insert(company);
         } else {
             companyMapper.update(company);
         }
-
         Long companyId = company.getId();
         if (companyId == null) {
             throw new NoDataException("Error al guardar la compañía: no se pudo generar un ID.");
         }
-
-
         if (Boolean.TRUE.equals(hq)) {
             if (branch == null || branch.getId() == null) {
-
                 Branch existingBranch = findBranchByCompany(company);
                 if (existingBranch == null) {
-
                     branch = new Branch();
                     branch.setName(company.getName());
                     branch.setAddress(company.getAddress());
@@ -168,7 +163,6 @@ public class AssistControlService {
                     branch.setActive(true);
                     saveBranch(token, branch, HttpMethod.POST);
                 } else {
-
                     existingBranch.setName(company.getName());
                     existingBranch.setAddress(company.getAddress());
                     existingBranch.setPhone(company.getPhone());
@@ -178,7 +172,6 @@ public class AssistControlService {
                     saveBranch(token, existingBranch, HttpMethod.PUT);
                 }
             } else {
-
                 branch.setCompany(company);
                 saveBranch(token, branch, branch.getId() == null ? HttpMethod.POST : HttpMethod.PUT);
             }
@@ -187,7 +180,6 @@ public class AssistControlService {
             saveBranch(token, branch, branch.getId() == null ? HttpMethod.POST : HttpMethod.PUT);
         }
     }
-
 
     private void validateCompany(String token, Company company, String method) throws NoDataException, UniqueException {
 

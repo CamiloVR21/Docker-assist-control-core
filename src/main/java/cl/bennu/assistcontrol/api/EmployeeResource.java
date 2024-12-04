@@ -62,9 +62,12 @@ public class EmployeeResource extends BaseResource {
 
     @SneakyThrows
     @PUT
-    @Path("/{id}")
-    public Response update(@HeaderParam("Authorization") String token, @PathParam("id") Long id, Employee employee) {
-        employee.setId(id);
+    @Path("/updateEmployee")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response update(@HeaderParam("Authorization") String token, Employee employee) {
+        if (employee.getId() == null) {
+            throw new BadRequestException("El ID del empleado es obligatorio");
+        }
         assistControlService.saveEmployee(token, employee, HttpMethod.PUT);
         return Response.ok(employee).build();
     }

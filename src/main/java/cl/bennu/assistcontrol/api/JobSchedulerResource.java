@@ -69,16 +69,18 @@ public class JobSchedulerResource extends BaseResource {
 
     @SneakyThrows
     @PUT
-    @Path("/{id}")
-    public Response update(@HeaderParam("Authorization") String token, @PathParam("id") Long id, JobScheduler jobScheduler) {
+    @Path("/updateJobScheduler")
+    public Response update(@HeaderParam("Authorization") String token, JobScheduler jobScheduler) {
         if (jobScheduler == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información del programador de trabajos");
         }
-        jobScheduler.setId(id);
-
+        if (jobScheduler.getId() == null) {
+            throw new NoDataException("El id del JobScheduler es requerido para una actualización");
+        }
         assistControlService.saveJobScheduler(token, jobScheduler, HttpMethod.PUT);
         return Response.ok().build();
     }
+
 
     @SneakyThrows
     @DELETE

@@ -4,6 +4,7 @@ import cl.bennu.assistcontrol.api.base.BaseResource;
 import cl.bennu.assistcontrol.domain.Branch;
 import cl.bennu.assistcontrol.domain.query.BranchQuery;
 import cl.bennu.assistcontrol.service.AssistControlService;
+import cl.bennu.commons.exception.NoDataException;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -70,9 +71,14 @@ public class BranchResource extends BaseResource {
 
     @SneakyThrows
     @PUT
-    @Path("/{id}")
-    public Response update(@HeaderParam("Authorization") String token, @PathParam("id") Long id, Branch branch) {
-        branch.setId(id);
+    @Path("/updateBranch")
+    public Response update(@HeaderParam("Authorization") String token, Branch branch) {
+        if (branch == null) {
+            throw new NoDataException("El cuerpo de la solicitud no contiene la información de la sucursal");
+        }
+        if (branch.getId() == null) {
+            throw new NoDataException("El id de la sucursal es requerido para una actualización");
+        }
         assistControlService.saveBranch(token, branch, HttpMethod.PUT);
         return Response.ok(branch).build();
     }

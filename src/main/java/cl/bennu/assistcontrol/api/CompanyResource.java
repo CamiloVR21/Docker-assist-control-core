@@ -73,17 +73,16 @@ public class CompanyResource extends BaseResource {
 
     @SneakyThrows
     @PUT
-    @Path("/{id}")
-    public Response update(@HeaderParam("Authorization") String token, @PathParam("id") Long id, SaveCompanyRequest saveCompanyRequest) {
+    @Path("/updateCompany")
+    public Response update(@HeaderParam("Authorization") String token, SaveCompanyRequest saveCompanyRequest) {
         Company company = saveCompanyRequest.getCompany();
         if (company == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información de la compañía");
         }
-        company.setId(id);
-
         assistControlService.saveCompany(token, saveCompanyRequest, HttpMethod.PUT);
-        return Response.ok().build();
+        return Response.ok(saveCompanyRequest).build();
     }
+
 
 
     @SneakyThrows
