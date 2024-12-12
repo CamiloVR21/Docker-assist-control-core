@@ -73,7 +73,6 @@ public class CompanyResource extends BaseResource {
 
     @SneakyThrows
     @PUT
-    @Path("/updateCompany")
     public Response update(@HeaderParam("Authorization") String token, SaveCompanyRequest saveCompanyRequest) {
         Company company = saveCompanyRequest.getCompany();
         if (company == null) {

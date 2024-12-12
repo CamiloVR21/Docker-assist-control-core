@@ -3,6 +3,7 @@ INSERT INTO gender (id, name) VALUES (2, 'Femenino');
 INSERT INTO marital_status (id, name) VALUES (1,'Casado');
 INSERT INTO marital_status (id, name) VALUES (2,'Viudo');
 INSERT INTO marital_status (id, name) VALUES (3,'Divorciado');
+INSERT INTO marital_status (id, name) VALUES (4,'Soltero');
 INSERT INTO contract_type (id, name) VALUES (1,'Fijo');
 INSERT INTO contract_type (id, name) VALUES (2,'Indefinido');
 INSERT INTO contract_type (id, name) VALUES (3,'Obra');

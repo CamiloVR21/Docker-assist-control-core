@@ -62,7 +62,6 @@ public class EmployeeResource extends BaseResource {
 
     @SneakyThrows
     @PUT
-    @Path("/updateEmployee")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response update(@HeaderParam("Authorization") String token, Employee employee) {
         if (employee.getId() == null) {

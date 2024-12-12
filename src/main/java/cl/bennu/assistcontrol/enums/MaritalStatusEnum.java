@@ -17,7 +17,9 @@ public enum MaritalStatusEnum implements BaseEnum {
     //@formatter:off
     MARRIED(1, "Casado"),
     WIDOWED(2, "Viudo"),
-    DIVORCED(3, "Divorciado");
+    DIVORCED(3, "Divorciado"),
+    SINGLE(4, "Soltero");
+
     //@formatter:on
 
     MaritalStatusEnum(Integer id, String name) {

@@ -229,7 +229,9 @@ public class AssistControlService {
         }
 
         BranchQuery branchQuery = new BranchQuery();
-        branchQuery.setCompanyId(companyId);
+        CompanyQuery companyQuery = new CompanyQuery();
+        companyQuery.setId(companyId);
+        branchQuery.setCompanyId(companyQuery);
 
         List<Branch> branches = findBranchByQuery(token, branchQuery);
         if (branches != null && !branches.isEmpty()) {
@@ -239,6 +241,8 @@ public class AssistControlService {
         companyMapper.delete(companyId);
         return company;
     }
+
+
 
 
     // BRANCH *******************************************************************************************************
@@ -291,8 +295,10 @@ public class AssistControlService {
         }
 
         BranchQuery query = new BranchQuery();
+        CompanyQuery companyQuery = new CompanyQuery();
+        companyQuery.setId(branch.getCompany().getId());
         query.setName(branch.getName());
-        query.setCompanyId(branch.getCompany().getId());
+        query.setCompanyId(companyQuery);
         List<Branch> branchDBList = branchMapper.findByQuery(query);
 
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
@@ -321,19 +327,28 @@ public class AssistControlService {
         if (branch == null) {
             throw new NoDataException("No se encontró la sucursal con el ID especificado");
         }
+
         EmployeeQuery employeeQuery = new EmployeeQuery();
-        employeeQuery.setBranch(branchId);
+        BranchQuery branchQuery = new BranchQuery();
+        branchQuery.setId(branchId);
+        employeeQuery.setBranch(branchQuery);
+
         List<Employee> employees = findEmployeesByQuery(token, employeeQuery);
         if (employees != null && !employees.isEmpty()) {
             throw new NoDataException("No se puede eliminar la sucursal porque tiene empleados asociados.");
         }
+
         branchMapper.delete(branchId);
         return branch;
     }
 
+
+
     private Branch findBranchByCompany(Company company) throws NoDataException {
         BranchQuery branchQuery = new BranchQuery();
-        branchQuery.setCompanyId(company.getId());
+        CompanyQuery companyQuery = new CompanyQuery();
+        companyQuery.setId(company.getId());
+        branchQuery.setCompanyId(companyQuery);
 
         List<Branch> branches = findBranchByQuery("", branchQuery);
         if (branches != null && !branches.isEmpty()) {
@@ -341,6 +356,7 @@ public class AssistControlService {
         }
         return null;
     }
+
 
 
     // CITY *******************************************************************************************************
@@ -608,10 +624,13 @@ public class AssistControlService {
     public JobScheduler deleteJobSchedulerById(String token, Long jobSchedulerId) throws NoDataException {
         JobScheduler jobScheduler = jobSchedulerMapper.get(jobSchedulerId);
         if (jobScheduler == null) {
-            throw new NoDataException("No se encontró  con el ID especificado: " + jobSchedulerId);
+            throw new NoDataException("No se encontró el horario de trabajo con el ID especificado: " + jobSchedulerId);
         }
+
         EmployeeQuery employeeQuery = new EmployeeQuery();
-        employeeQuery.setJobScheduler(jobSchedulerId);
+        JobSchedulerQuery jobSchedulerQuery = new JobSchedulerQuery();
+        jobSchedulerQuery.setId(jobSchedulerId);
+        employeeQuery.setJobScheduler(jobSchedulerQuery);
 
         List<Employee> employees = findEmployeesByQuery(token, employeeQuery);
         if (employees != null && !employees.isEmpty()) {
@@ -621,6 +640,7 @@ public class AssistControlService {
         jobSchedulerMapper.delete(jobSchedulerId);
         return jobScheduler;
     }
+
 
 
     // EMPLOYEEE *******************************************************************************************************

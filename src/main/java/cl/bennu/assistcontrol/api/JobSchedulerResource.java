@@ -69,7 +69,6 @@ public class JobSchedulerResource extends BaseResource {
 
     @SneakyThrows
     @PUT
-    @Path("/updateJobScheduler")
     public Response update(@HeaderParam("Authorization") String token, JobScheduler jobScheduler) {
         if (jobScheduler == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información del programador de trabajos");

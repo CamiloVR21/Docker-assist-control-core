@@ -3,6 +3,7 @@ package cl.bennu.assistcontrol.api;
 import cl.bennu.assistcontrol.api.base.BaseResource;
 import cl.bennu.assistcontrol.domain.Branch;
 import cl.bennu.assistcontrol.domain.query.BranchQuery;
+import cl.bennu.assistcontrol.domain.query.CompanyQuery;
 import cl.bennu.assistcontrol.service.AssistControlService;
 import cl.bennu.commons.exception.NoDataException;
 import jakarta.inject.Inject;
@@ -50,7 +51,9 @@ public class BranchResource extends BaseResource {
         BranchQuery query = new BranchQuery();
 
         if (companyId != null) {
-            query.setCompanyId(companyId);
+            CompanyQuery companyQuery = new CompanyQuery();
+            companyQuery.setId(companyId);
+            query.setCompanyId(companyQuery);
         }
 
         query.setName(name);
@@ -71,7 +74,6 @@ public class BranchResource extends BaseResource {
 
     @SneakyThrows
     @PUT
-    @Path("/updateBranch")
     public Response update(@HeaderParam("Authorization") String token, Branch branch) {
         if (branch == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información de la sucursal");

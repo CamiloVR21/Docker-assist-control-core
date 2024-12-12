@@ -1,5 +1,6 @@
 package cl.bennu.assistcontrol.domain.query;
 
+import cl.bennu.assistcontrol.domain.Company;
 import cl.bennu.commons.domain.base.BaseDomain;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Data;
@@ -13,7 +14,7 @@ import java.io.Serializable;
 public class BranchQuery extends BaseDomain implements Serializable {
 
     private Long id;
-    private Long companyId;
+    private CompanyQuery companyId;
     private String name;
     private String address;
     private String phone;
