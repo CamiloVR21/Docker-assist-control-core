@@ -4,6 +4,7 @@ import cl.bennu.assistcontrol.api.base.BaseResource;
 import cl.bennu.assistcontrol.domain.Company;
 import cl.bennu.assistcontrol.domain.query.CommuneQuery;
 import cl.bennu.assistcontrol.domain.query.CompanyQuery;
+import cl.bennu.assistcontrol.enums.JobTypeEnum;
 import cl.bennu.assistcontrol.request.SaveCompanyRequest;
 import cl.bennu.assistcontrol.service.AssistControlService;
 import cl.bennu.commons.exception.NoDataException;
@@ -62,6 +63,15 @@ public class CompanyResource extends BaseResource {
         List<Company> companies = assistControlService.findCompanyByQuery(token, query);
         return Response.ok(companies).build();
     }
+
+    @SneakyThrows
+    @GET
+    @Path("/{id}/job-types")
+    public Response getJobTypesByCompany(@HeaderParam("Authorization") String token, @PathParam("id") Long id) {
+        List<JobTypeEnum> jobTypes = assistControlService.findJobTypesByCompany(token, id);
+        return Response.ok(jobTypes).build();
+    }
+
 
 
     @SneakyThrows

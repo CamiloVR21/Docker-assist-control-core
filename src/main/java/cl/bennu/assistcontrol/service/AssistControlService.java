@@ -199,15 +199,22 @@ public class AssistControlService {
         if (company.getCommune() == null || company.getCommune().getId() == null) {
             throw new NoDataException("No se especificó el campo comuna");
         }
+        if (company.getGeolocation() == null){
+            throw new NoDataException("No se especificó el campo geolocalización");
+        }
+        if (company.getLag() == null) {
+            throw new NoDataException("No se especificó el campo lag");
+        }
+        if (company.getSelfie() == null){
+            throw new NoDataException("No se especificó el campo selfie");
+        }
 
         CompanyQuery query = new CompanyQuery();
         query.setCode(company.getCode());
         Company companyDB = companyMapper.getByQuery(query);
 
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
-            if (company.getId() != null) {
-                throw new NoDataException("El campo ID debe ser nulo para insertar una nueva compañía");
-            }
+
             if (companyDB != null) {
                 throw new UniqueException("La compañía ya existe");
             }
@@ -241,10 +248,16 @@ public class AssistControlService {
         companyMapper.delete(companyId);
         return company;
     }
-
-
-
-
+    public List<JobTypeEnum> findJobTypesByCompany(String token, Long companyId) throws NoDataException {
+        if (companyId == null) {
+            throw new NoDataException("No se especificó el ID de la compañía.");
+        }
+        List<JobTypeEnum> jobTypes = companyMapper.findJobTypesByCompany(companyId);
+        if (jobTypes == null || jobTypes.isEmpty()) {
+            throw new NoDataException("No se encontraron tipos de trabajo para la compañía con el ID especificado: " + companyId);
+        }
+        return jobTypes;
+    }
     // BRANCH *******************************************************************************************************
 
     public Branch getBranchById(String token, Branch branch) throws NoDataException {
@@ -595,6 +608,27 @@ public class AssistControlService {
         if (jobScheduler.getJobType() == null) {
             throw new NoDataException("No se especificó el tipo de trabajo");
         }
+        if (jobScheduler.getMonday() == null) {
+            throw new NoDataException("No se especificó el campo lunes");
+        }
+        if (jobScheduler.getTuesday() == null) {
+            throw new NoDataException("No se especificó el campo martes");
+        }
+        if (jobScheduler.getWednesday() == null) {
+            throw new NoDataException("No se especificó el campo miércoles");
+        }
+        if (jobScheduler.getThursday() == null) {
+            throw new NoDataException("No se especificó el campo jueves");
+        }
+        if (jobScheduler.getFriday() == null) {
+            throw new NoDataException("No se especificó el campo viernes");
+        }
+        if (jobScheduler.getSaturday() == null) {
+            throw new NoDataException("No se especificó el campo sábado");
+        }
+        if (jobScheduler.getSunday() == null) {
+            throw new NoDataException("No se especificó el campo domingo");
+        }
 
         JobSchedulerQuery query = new JobSchedulerQuery();
         query.setName(jobScheduler.getName());
@@ -664,6 +698,17 @@ public class AssistControlService {
         return employeeMapper.findByQuery(query);
     }
 
+    public List<Employee> findEmployeesByCompany(String token, Long companyId) throws NoDataException {
+        if (companyId == null) {
+            throw new NoDataException("No se especificó el ID de la compañía.");
+        }
+        List<Employee> employees = employeeMapper.findByCompany(companyId);
+        if (employees == null || employees.isEmpty()) {
+            throw new NoDataException("No se encontraron empleados para la compañía con el ID especificado: " + companyId);
+        }
+        return employees;
+    }
+
 
     @Transactional
     public void saveEmployee(String token, Employee employee, String method) throws NoDataException, UniqueException {
@@ -675,7 +720,6 @@ public class AssistControlService {
             employeeMapper.update(employee);
         }
     }
-//REVISAR LA QUE PUEDEN SER NULAS
 
     private void validateEmployee(String token, Employee employee, String method) throws NoDataException, UniqueException {
         if (employee == null) {
@@ -697,6 +741,9 @@ public class AssistControlService {
         if (employee.getBranch() == null || employee.getBranch().getId() == null) {
             throw new NoDataException("No se especificó la sucursal del empleado");
         }
+        if (employee.getJobScheduler() == null || employee.getJobScheduler().getId() == null) {
+            throw new NoDataException("No se especifico el horario del empleado");
+        }
         if (employee.getContractType() == null) {
             throw new NoDataException("No se especificó el tipo de trabajo del empleado");
         }
@@ -710,8 +757,12 @@ public class AssistControlService {
             throw new NoDataException("No se especificó la dirreccion del empleado");
         }
         if (employee.getContractDate() == null) {
-            throw new NoDataException("No se especificó el estado del empleado");
+            throw new NoDataException("No se especificó la fecha del contrato del empleado");
         }
+        if (employee.getCode() == null) {
+            throw new NoDataException("No se especificó el codigo del empleado");
+        }
+
         EmployeeQuery query = new EmployeeQuery();
         query.setName(employee.getName());
         query.setLastName(employee.getLastName());

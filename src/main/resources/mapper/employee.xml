@@ -51,6 +51,7 @@
         LEFT JOIN job_scheduler js ON e.job_scheduler_id = js.id
         LEFT JOIN commune co ON e.commune_id = co.id
         LEFT JOIN country cn ON e.nationality_id = cn.id
+        LEFT JOIN company c ON b.company_id = c.id
         <!-- @formatter:on -->
     </sql>
 
@@ -125,6 +126,11 @@
             AND e.active = #{active}
         </if>
         <!-- @formatter:on -->
+    </select>
+
+    <select id="findByCompany" resultMap="employeeMap" parameterType="java.lang.Long">
+        <include refid="sqlEmployee"/>
+        WHERE c.id = #{companyId}
     </select>
 
     <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.Employee" useGeneratedKeys="true" keyProperty="id">

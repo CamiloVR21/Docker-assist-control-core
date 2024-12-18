@@ -37,6 +37,16 @@ public class EmployeeResource extends BaseResource {
 
     @SneakyThrows
     @GET
+    @Path("/-/by-company/{companyId}")
+    public Response findByCompany(@HeaderParam("Authorization") String token,
+                                  @PathParam("companyId") Long companyId) {
+        List<Employee> employees = assistControlService.findEmployeesByCompany(token, companyId);
+        return Response.ok(employees).build();
+    }
+
+
+    @SneakyThrows
+    @GET
     @Path("/-/by-params")
     public Response find(@HeaderParam("Authorization") String token,
                          @QueryParam("name") String name,
