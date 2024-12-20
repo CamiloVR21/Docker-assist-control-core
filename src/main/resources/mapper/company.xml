@@ -144,8 +144,7 @@
         FROM company c
         INNER JOIN branch b ON b.company_id = c.id
         INNER JOIN employee e ON e.branch_id = b.id
-        INNER JOIN job_scheduler js ON js.id = e.job_scheduler_id
-        INNER JOIN job_type jt ON jt.id = js.job_type_id
+        INNER JOIN job_type jt ON jt.id = e.job_type_id
         WHERE c.id = #{companyId}
     </select>
 </mapper>

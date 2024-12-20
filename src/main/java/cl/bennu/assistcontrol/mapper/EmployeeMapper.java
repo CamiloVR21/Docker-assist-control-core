@@ -21,4 +21,6 @@ public interface EmployeeMapper extends BaseMapper<Employee> {
 
     List<Employee> findByCompany(@Param("companyId") Long companyId);
 
+
+
 }

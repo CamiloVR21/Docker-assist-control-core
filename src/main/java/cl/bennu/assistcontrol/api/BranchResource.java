@@ -42,9 +42,9 @@ public class BranchResource extends BaseResource {
 
     @SneakyThrows
     @GET
-    @Path("/-/by-params")
+    @Path("/-")
     public Response find(@HeaderParam("Authorization") String token,
-                         @QueryParam("company-id") Long companyId,
+                         @QueryParam("company") Long companyId,
                          @QueryParam("name") String name,
                          @QueryParam("address") String address,
                          @QueryParam("active") Boolean active) {

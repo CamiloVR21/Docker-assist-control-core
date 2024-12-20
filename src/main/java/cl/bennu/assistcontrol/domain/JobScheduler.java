@@ -1,6 +1,5 @@
 package cl.bennu.assistcontrol.domain;
 
-import cl.bennu.assistcontrol.enums.JobTypeEnum;
 import cl.bennu.commons.domain.base.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.quarkus.runtime.annotations.RegisterForReflection;
@@ -18,7 +17,6 @@ import java.sql.Time;
 
 public class JobScheduler extends BaseDomain implements Serializable {
 
-    private JobTypeEnum jobType;
     private String name;
     private Boolean monday;
     private Time mondayFrom;
@@ -42,11 +40,6 @@ public class JobScheduler extends BaseDomain implements Serializable {
     private Time sundayFrom;
     private Time sundayTo;
 
-
-    public JobScheduler(JobTypeEnum jobType, String name) {
-        this.jobType = jobType;
-        this.name = name;
-    }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static JobScheduler valueOf(Long id) {

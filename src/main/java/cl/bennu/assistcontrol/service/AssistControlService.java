@@ -41,13 +41,12 @@ public class AssistControlService {
     private JobSchedulerMapper jobSchedulerMapper;
 
     @Inject
-    EmployeeMapper employeeMapper;
+    private EmployeeMapper employeeMapper;
 
     public Commune getCommuneById(String token, Commune commune) throws NoDataException {
         if (commune == null || commune.getId() == null) {
             throw new NoDataException("No se especificó el ID de la comuna.");
         }
-
         Long communeId = commune.getId();
         Commune result = communeMapper.get(communeId);
 
@@ -65,6 +64,7 @@ public class AssistControlService {
 
     public List<Commune> findCommuneByQuery(String token, CommuneQuery query) {
         return communeMapper.findByQuery(query);
+
     }
 
     @Transactional
@@ -123,6 +123,7 @@ public class AssistControlService {
             throw new NoDataException("No se encontró la compañía con el ID especificado: " + company.getId());
         }
         return foundCompany;
+
     }
 
     public List<Company> getAllCompany(String token) {
@@ -605,9 +606,6 @@ public class AssistControlService {
         if (StringUtils.isBlank(jobScheduler.getName())) {
             throw new NoDataException("No se especificó el nombre del programador de trabajos");
         }
-        if (jobScheduler.getJobType() == null) {
-            throw new NoDataException("No se especificó el tipo de trabajo");
-        }
         if (jobScheduler.getMonday() == null) {
             throw new NoDataException("No se especificó el campo lunes");
         }
@@ -746,6 +744,9 @@ public class AssistControlService {
         }
         if (employee.getContractType() == null) {
             throw new NoDataException("No se especificó el tipo de trabajo del empleado");
+        }
+        if (employee.getJobType() == null) {
+            throw new NoDataException("No se especificó el tipo de trabajo");
         }
         if (employee.getCountry() == null) {
             throw new NoDataException("No se especificó el pais del empleado");

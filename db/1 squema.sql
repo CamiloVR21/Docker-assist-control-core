@@ -122,10 +122,7 @@ CREATE TABLE job_type (
 
 CREATE TABLE job_scheduler (
 	id SERIAL NOT NULL
-	, job_type_id INTEGER NOT NULL
-
 	, name VARCHAR(500) NOT NULL
-
 	, monday BOOLEAN NOT NULL
 	, monday_from time NULL
 	, monday_to time NULL
@@ -157,7 +154,6 @@ CREATE TABLE job_scheduler (
  	, PRIMARY KEY (id)
  	, UNIQUE(id)
  	, UNIQUE(name)
-	, FOREIGN KEY (job_type_id) REFERENCES job_type(id)
 );
 
 CREATE TABLE employee (
@@ -169,7 +165,7 @@ CREATE TABLE employee (
 	, gender_id INTEGER NOT NULL
 	, marital_status_id INTEGER NOT NULL
 	, contract_type_id INTEGER NULL
-
+    , job_type_id INTEGER NOT NULL
 	, code VARCHAR(20) NOT NULL
     , name VARCHAR(500) NOT NULL
     , last_name VARCHAR(200) NOT NULL
@@ -195,4 +191,5 @@ CREATE TABLE employee (
 	, FOREIGN KEY (gender_id) REFERENCES gender(id)
 	, FOREIGN KEY (marital_status_id) REFERENCES marital_status(id)
 	, FOREIGN KEY (contract_type_id) REFERENCES contract_type(id)
+	, FOREIGN KEY (job_type_id) REFERENCES job_type(id)
 );

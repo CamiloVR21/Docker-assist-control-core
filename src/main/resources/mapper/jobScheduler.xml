@@ -4,7 +4,6 @@
 
     <resultMap id="jobSchedulerMap" type="cl.bennu.assistcontrol.domain.JobScheduler">
         <id property="id" column="id"/>
-        <result property="jobType" column="job_type_id" javaType="cl.bennu.assistcontrol.enums.JobTypeEnum" typeHandler="cl.bennu.assistcontrol.enums.TypeHandler.GenericEnumTypeHandler"/>
         <result property="name" column="name"/>
         <result property="monday" column="monday"/>
         <result property="mondayFrom" column="monday_from"/>
@@ -31,7 +30,7 @@
 
     <sql id="sqlJobScheduler">
         <!-- @formatter:off -->
-        SELECT jc.id, jc.job_type_id, jc.name, jc.monday, jc.monday_from, jc.monday_to, jc.tuesday, jc.tuesday_from,
+        SELECT jc.id, jc.name, jc.monday, jc.monday_from, jc.monday_to, jc.tuesday, jc.tuesday_from,
         jc.tuesday_to, jc.wednesday, jc.wednesday_from, jc.wednesday_to, jc.thursday, jc.thursday_from, jc.thursday_to,
         jc.friday, jc.friday_from, jc.friday_to, jc.saturday, jc.saturday_from, jc.saturday_to, jc.sunday, jc.sunday_from, jc.sunday_to
         FROM job_scheduler jc
@@ -53,9 +52,6 @@
         <include refid="sqlJobScheduler"/>
         <!-- @formatter:off -->
         WHERE 1 = 1
-        <if test="jobType != null">
-            AND jc.job_type_id = #{jobType.id}
-        </if>
         <if test="name != null">
             <bind name="_name" value="'%' + name + '%'"/>
             AND jc.name LIKE #{_name}
@@ -86,7 +82,7 @@
 
     <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.JobScheduler" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO job_scheduler (
-        job_type_id, name, monday, monday_from, monday_to,
+        name, monday, monday_from, monday_to,
         tuesday, tuesday_from, tuesday_to,
         wednesday, wednesday_from, wednesday_to,
         thursday, thursday_from, thursday_to,
@@ -94,7 +90,7 @@
         saturday, saturday_from, saturday_to,
         sunday, sunday_from, sunday_to
         ) VALUES (
-        #{jobType.id}, #{name}, #{monday}, #{mondayFrom}, #{mondayTo},
+        #{name}, #{monday}, #{mondayFrom}, #{mondayTo},
         #{tuesday}, #{tuesdayFrom}, #{tuesdayTo},
         #{wednesday}, #{wednesdayFrom}, #{wednesdayTo},
         #{thursday}, #{thursdayFrom}, #{thursdayTo},
@@ -107,7 +103,6 @@
     <update id="update" parameterType="cl.bennu.assistcontrol.domain.JobScheduler">
         UPDATE job_scheduler
         SET
-        job_type_id = #{jobType.id},
         name = #{name},
         monday = #{monday},
         monday_from = #{mondayFrom},

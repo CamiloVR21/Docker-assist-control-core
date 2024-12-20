@@ -15,7 +15,6 @@ import java.sql.Time;
 public class JobSchedulerQuery extends BaseDomain implements Serializable {
 
     private Long id;
-    private JobTypeEnum jobType;
     private String name;
     private Boolean monday;
     private Time mondayFrom;
