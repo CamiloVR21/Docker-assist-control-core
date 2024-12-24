@@ -2,7 +2,6 @@ package cl.bennu.assistcontrol.service;
 
 import cl.bennu.assistcontrol.domain.*;
 import cl.bennu.assistcontrol.domain.query.*;
-import cl.bennu.assistcontrol.enums.JobTypeEnum;
 import cl.bennu.assistcontrol.mapper.*;
 import cl.bennu.assistcontrol.request.SaveCompanyRequest;
 import cl.bennu.commons.exception.NoDataException;
@@ -42,6 +41,10 @@ public class AssistControlService {
 
     @Inject
     private EmployeeMapper employeeMapper;
+
+    @Inject
+    private JobTypeMapper jobTypeMapper;
+
 
     public Commune getCommuneById(String token, Commune commune) throws NoDataException {
         if (commune == null || commune.getId() == null) {
@@ -249,16 +252,7 @@ public class AssistControlService {
         companyMapper.delete(companyId);
         return company;
     }
-    public List<JobTypeEnum> findJobTypesByCompany(String token, Long companyId) throws NoDataException {
-        if (companyId == null) {
-            throw new NoDataException("No se especificó el ID de la compañía.");
-        }
-        List<JobTypeEnum> jobTypes = companyMapper.findJobTypesByCompany(companyId);
-        if (jobTypes == null || jobTypes.isEmpty()) {
-            throw new NoDataException("No se encontraron tipos de trabajo para la compañía con el ID especificado: " + companyId);
-        }
-        return jobTypes;
-    }
+
     // BRANCH *******************************************************************************************************
 
     public Branch getBranchById(String token, Branch branch) throws NoDataException {
@@ -802,4 +796,104 @@ public class AssistControlService {
         employeeMapper.delete(employeeId);
         return employee;
     }
+
+
+    //JOBTYPEEEEEE
+
+    public JobType getJobTypeById(String token, JobType jobType) throws NoDataException {
+        if (jobType == null || jobType.getId() == null) {
+            throw new NoDataException("No se especificó el ID de rol.");
+        }
+        JobType foundJobType = jobTypeMapper.get(jobType.getId());
+        if (foundJobType == null) {
+            throw new NoDataException("No se encontró la sucursal con el ID especificado: " + jobType.getId());
+        }
+        return foundJobType;
+    }
+
+    public List<JobType> getAllJobType(String token) {
+        return jobTypeMapper.getAll();
+    }
+
+    public List<JobType> findJobTypeByQuery(String token, JobTypeQuery query) {
+        return jobTypeMapper.findByQuery(query);
+    }
+
+    @Transactional
+    public void saveJobType(String token, JobType jobType, String method) throws NoDataException, UniqueException {
+        validateJobType(token, jobType, method);
+
+        if (jobType.getId() == null) {
+            jobTypeMapper.insert(jobType);
+        } else {
+            jobTypeMapper.update(jobType);
+        }
+    }
+
+    private void validateJobType(String token, JobType jobType, String method) throws NoDataException, UniqueException {
+        if (jobType == null) {
+            throw new NoDataException("El cuerpo de la solicitud no contiene la información del rol");
+        }
+
+        if (Boolean.TRUE.equals(jobType.getActive())) {
+            if (jobType.getName() == null || StringUtils.isBlank(jobType.getName())) {
+                throw new NoDataException("No se especificó el campo nombre del rol");
+            }
+            if (jobType.getCompany() == null || jobType.getCompany().getId() == null) {
+                throw new NoDataException("No se especificó el campo compañía de la sucursal");
+            }
+        }
+
+        JobTypeQuery query = new JobTypeQuery();
+        query.setName(jobType.getName());
+        List<JobType> jobTypeDBList = jobTypeMapper.findByQuery(query);
+
+        if (HttpMethod.POST.equalsIgnoreCase(method)) {
+            if (jobType.getId() != null) {
+                throw new NoDataException("El campo ID debe ser nulo para un rol");
+            }
+            if (jobTypeDBList != null && !jobTypeDBList.isEmpty()) {
+                throw new UniqueException("El rol ya existe");
+            }
+        } else if (HttpMethod.PUT.equalsIgnoreCase(method)) {
+            if (jobType.getId() == null) {
+                throw new NoDataException("No se especificó el campo ID para actualizar el rol");
+            }
+            if (jobTypeDBList != null && !jobTypeDBList.isEmpty()) {
+                for (JobType existingJobType : jobTypeDBList) {
+                    if (!existingJobType.getId().equals(jobType.getId())) {
+                        throw new UniqueException("El rol ya existe con el mismo nombre");
+                    }
+                }
+            }
+        }
+    }
+
+    public JobType deleteJobTypeById(String token, Long jobTypeId) throws NoDataException {
+        JobType jobType = jobTypeMapper.get(jobTypeId);
+        if (jobType == null) {
+            throw new NoDataException("No se encontró el rol con el ID especificado");
+        }
+
+        EmployeeQuery employeeQuery = new EmployeeQuery();
+        JobTypeQuery jobTypeQuery = new JobTypeQuery();
+        jobTypeQuery.setId(jobTypeId);
+        employeeQuery.setJobType(jobTypeQuery);
+
+        List<Employee> employees = findEmployeesByQuery(token, employeeQuery);
+        if (employees != null && !employees.isEmpty()) {
+            throw new NoDataException("No se puede eliminar el rol  porque tiene empleados asociados.");
+        }
+
+        jobTypeMapper.delete(jobTypeId);
+        return jobType;
+    }
+
+
+
+
+
+
+
+
 }

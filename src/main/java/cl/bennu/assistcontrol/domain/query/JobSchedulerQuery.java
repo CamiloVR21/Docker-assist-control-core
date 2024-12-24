@@ -1,6 +1,5 @@
 package cl.bennu.assistcontrol.domain.query;
 
-import cl.bennu.assistcontrol.enums.JobTypeEnum;
 import cl.bennu.commons.domain.base.BaseDomain;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Data;

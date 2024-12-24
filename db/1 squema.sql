@@ -111,13 +111,15 @@ CREATE TABLE branch (
 );
 
 CREATE TABLE job_type (
-	id INTEGER NOT NULL
+	id SERIAL  NOT NULL
 
 	, "name" varchar(100) NOT NULL
+	, company_id INTEGER NOT NULL
 
  	, PRIMARY KEY (id)
  	, UNIQUE(id)
- 	, UNIQUE(name)
+ 	, UNIQUE(name, company_id)
+ 	, FOREIGN KEY (company_id) REFERENCES company(id)
 );
 
 CREATE TABLE job_scheduler (

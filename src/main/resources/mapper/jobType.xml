@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cl.bennu.assistcontrol.mapper.JobTypeMapper">
+
+    <resultMap id="jobTypeMap" type="cl.bennu.assistcontrol.domain.JobType">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <association property="company" javaType="cl.bennu.assistcontrol.domain.Company">
+            <id property="id" column="company_id"/>
+            <result property="code" column="company_code"/>
+            <result property="name" column="company_name"/>
+        </association>
+    </resultMap>
+
+    <sql id="sqlJobType">
+        <!-- @formatter:off -->
+        SELECT jt.id, jt.name, jt.company_id
+        FROM job_type jt
+        LEFT JOIN company c ON jt.company_id = c.id
+        <!-- @formatter:on -->
+    </sql>
+
+    <select id="getAll" resultMap="jobTypeMap">
+        <include refid="sqlJobType"/>
+    </select>
+
+    <select id="get" resultMap="jobTypeMap" parameterType="java.lang.Long">
+        <include refid="sqlJobType"/>
+        <!-- @formatter:off -->
+        WHERE jt.id = #{id}
+        <!-- @formatter:on -->
+    </select>
+
+    <select id="findByQuery" resultMap="jobTypeMap"
+            parameterType="cl.bennu.assistcontrol.domain.query.JobTypeQuery">
+        <include refid="sqlJobType"/>
+        <!-- @formatter:off -->
+        WHERE 1 = 1
+        <if test="company != null and company.id != null">
+            AND jt.company_id = #{company.id}
+        </if>
+        <if test="name != null">
+            <bind name="_name" value="'%' + name + '%'"/>
+            AND jt.name LIKE #{_name}
+        </if>
+    </select>
+
+    <select id="getByQuery" resultMap="jobTypeMap"
+            parameterType="cl.bennu.assistcontrol.domain.query.JobTypeQuery">
+        <include refid="sqlJobType"/>
+        <!-- @formatter:off -->
+        WHERE 1 = 1
+        <if test="company != null and company.id != null">
+            AND jt.company_id = #{company.id}
+        </if>
+        <if test="name != null">
+            AND r.name = #{name}
+        </if>
+    </select>
+
+    <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.JobType" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO job_Type (name, company_id)
+        VALUES (#{name}, #{company.id})
+    </insert>
+
+    <update id="update" parameterType="cl.bennu.assistcontrol.domain.JobType">
+        UPDATE job_Type
+        SET name = #{name},
+        company_id = #{company.id},
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM job_Type WHERE id = #{id}
+    </delete>
+
+
+</mapper>

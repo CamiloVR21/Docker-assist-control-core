@@ -1,11 +1,10 @@
 package cl.bennu.assistcontrol.api;
 
 import cl.bennu.assistcontrol.api.base.BaseResource;
-import cl.bennu.assistcontrol.domain.Branch;
 import cl.bennu.assistcontrol.domain.Employee;
-import cl.bennu.assistcontrol.domain.query.BranchQuery;
+import cl.bennu.assistcontrol.domain.JobType;
 import cl.bennu.assistcontrol.domain.query.EmployeeQuery;
-import cl.bennu.assistcontrol.enums.JobTypeEnum;
+import cl.bennu.assistcontrol.domain.query.JobTypeQuery;
 import cl.bennu.assistcontrol.service.AssistControlService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -51,13 +50,15 @@ public class EmployeeResource extends BaseResource {
     @Path("/-/by-params")
     public Response find(@HeaderParam("Authorization") String token,
                          @QueryParam("name") String name,
-                         @QueryParam("job-type") JobTypeEnum jobType,
+                         @QueryParam("job-type") Long jobTypeId,
                          @QueryParam("lastName") String lastName,
                          @QueryParam("address") String address,
                          @QueryParam("active") Boolean active) {
         EmployeeQuery query = new EmployeeQuery();
-        if (jobType != null) {
-            query.setJobType(jobType);
+        if (jobTypeId != null) {
+            JobTypeQuery jobTypeQuery = new JobTypeQuery();
+            jobTypeQuery.setId(jobTypeId);
+            query.setJobType(jobTypeQuery);
         }
         query.setName(name);
         query.setLastName(lastName);

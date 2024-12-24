@@ -134,17 +134,4 @@
         DELETE FROM company WHERE id = #{id}
     </delete>
 
-    <resultMap id="jobTypeEnumMap" type="cl.bennu.assistcontrol.enums.JobTypeEnum">
-        <result column="id" javaType="cl.bennu.assistcontrol.enums.JobTypeEnum"
-                typeHandler="cl.bennu.assistcontrol.enums.TypeHandler.JobTypeEnumTypeHandler"/>
-    </resultMap>
-
-    <select id="findJobTypesByCompany" parameterType="java.lang.Long" resultMap="jobTypeEnumMap">
-        SELECT DISTINCT jt.id
-        FROM company c
-        INNER JOIN branch b ON b.company_id = c.id
-        INNER JOIN employee e ON e.branch_id = b.id
-        INNER JOIN job_type jt ON jt.id = e.job_type_id
-        WHERE c.id = #{companyId}
-    </select>
 </mapper>

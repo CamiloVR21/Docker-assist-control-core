@@ -3,7 +3,6 @@ package cl.bennu.assistcontrol.api;
 import cl.bennu.assistcontrol.api.base.BaseResource;
 import cl.bennu.assistcontrol.domain.JobScheduler;
 import cl.bennu.assistcontrol.domain.query.JobSchedulerQuery;
-import cl.bennu.assistcontrol.enums.JobTypeEnum;
 import cl.bennu.assistcontrol.service.AssistControlService;
 import cl.bennu.commons.exception.NoDataException;
 import jakarta.inject.Inject;
