@@ -10,7 +10,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
-
 import java.util.List;
 
 @Path("/commune")
@@ -59,7 +58,6 @@ public class CommuneResource extends BaseResource {
         List<Commune> communes = assistControlService.findCommuneByQuery(token, query);
         return Response.ok(communes).build();
     }
-
 
     @SneakyThrows
     @POST

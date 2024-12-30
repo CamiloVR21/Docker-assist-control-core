@@ -4,7 +4,6 @@ import cl.bennu.commons.domain.base.BaseDomain;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.io.Serializable;
 import java.sql.Time;
 
@@ -14,6 +13,8 @@ import java.sql.Time;
 public class JobSchedulerQuery extends BaseDomain implements Serializable {
 
     private Long id;
+    private CompanyQuery company;
+    private BranchQuery branch;
     private String name;
     private Boolean monday;
     private Time mondayFrom;

@@ -6,7 +6,6 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
 import java.io.Serializable;
 import java.sql.Time;
 
@@ -39,7 +38,7 @@ public class JobScheduler extends BaseDomain implements Serializable {
     private Boolean sunday;
     private Time sundayFrom;
     private Time sundayTo;
-
+    private JobType jobType;
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static JobScheduler valueOf(Long id) {

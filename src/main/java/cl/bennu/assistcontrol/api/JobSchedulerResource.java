@@ -10,7 +10,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
-
 import java.util.List;
 
 @Path("/job-scheduler")
@@ -52,6 +51,29 @@ public class JobSchedulerResource extends BaseResource {
         return Response.ok(jobSchedulers).build();
     }
 
+    @SneakyThrows
+    @GET
+    @Path("/by-company/{companyId}")
+    public Response getByCompanyId(@PathParam("companyId") Long companyId) {
+        if (companyId == null) {
+            throw new NoDataException("El ID de la compañía es requerido.");
+        }
+
+        List<JobScheduler> jobSchedulers = assistControlService.findJobSchedulersByCompanyId(companyId);
+        return Response.ok(jobSchedulers).build();
+    }
+
+    @SneakyThrows
+    @GET
+    @Path("/by-branch/{branchId}")
+    public Response getByBranchId(@PathParam("branchId") Long branchId) {
+        if (branchId == null) {
+            throw new NoDataException("El ID de la sucursal es requerido.");
+        }
+
+        List<JobScheduler> jobSchedulers = assistControlService.findJobSchedulersByBranchId(branchId);
+        return Response.ok(jobSchedulers).build();
+    }
 
     @SneakyThrows
     @POST
@@ -72,7 +94,6 @@ public class JobSchedulerResource extends BaseResource {
         assistControlService.saveJobScheduler(token, jobScheduler, HttpMethod.PUT);
         return Response.ok().build();
     }
-
 
     @SneakyThrows
     @DELETE

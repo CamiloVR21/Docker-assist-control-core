@@ -1,14 +1,11 @@
 package cl.bennu.assistcontrol.mapper;
 
 import cl.bennu.assistcontrol.domain.Employee;
-import cl.bennu.assistcontrol.domain.JobScheduler;
 import cl.bennu.assistcontrol.domain.query.EmployeeQuery;
-import cl.bennu.assistcontrol.domain.query.JobSchedulerQuery;
 import cl.bennu.commons.mapper.base.BaseMapper;
 import org.apache.ibatis.annotations.CacheNamespace;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
 
 @Mapper
@@ -16,9 +13,7 @@ import java.util.List;
 public interface EmployeeMapper extends BaseMapper<Employee> {
 
     List<Employee> findByQuery(EmployeeQuery query);
-
     Employee getByQuery(EmployeeQuery query);
-
     List<Employee> findByCompany(@Param("companyId") Long companyId);
 
 

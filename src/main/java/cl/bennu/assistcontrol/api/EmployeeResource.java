@@ -2,7 +2,6 @@ package cl.bennu.assistcontrol.api;
 
 import cl.bennu.assistcontrol.api.base.BaseResource;
 import cl.bennu.assistcontrol.domain.Employee;
-import cl.bennu.assistcontrol.domain.JobType;
 import cl.bennu.assistcontrol.domain.query.EmployeeQuery;
 import cl.bennu.assistcontrol.domain.query.JobTypeQuery;
 import cl.bennu.assistcontrol.service.AssistControlService;
@@ -11,7 +10,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
-
 import java.util.List;
 
 @Path("/employee")
@@ -43,7 +41,6 @@ public class EmployeeResource extends BaseResource {
         List<Employee> employees = assistControlService.findEmployeesByCompany(token, companyId);
         return Response.ok(employees).build();
     }
-
 
     @SneakyThrows
     @GET

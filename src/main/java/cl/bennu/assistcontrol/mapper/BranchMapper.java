@@ -5,7 +5,6 @@ import cl.bennu.assistcontrol.domain.query.BranchQuery;
 import cl.bennu.commons.mapper.base.BaseMapper;
 import org.apache.ibatis.annotations.CacheNamespace;
 import org.apache.ibatis.annotations.Mapper;
-
 import java.util.List;
 
 @Mapper
@@ -13,7 +12,6 @@ import java.util.List;
 public interface BranchMapper extends BaseMapper<Branch> {
 
     List<Branch> findByQuery(BranchQuery query);
-
     Branch getByQuery(BranchQuery query);
 
 }

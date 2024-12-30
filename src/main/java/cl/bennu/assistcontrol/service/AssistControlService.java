@@ -11,8 +11,6 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.HttpMethod;
 import org.apache.commons.lang3.StringUtils;
-
-
 import java.util.List;
 
 @ApplicationScoped
@@ -45,7 +43,6 @@ public class AssistControlService {
     @Inject
     private JobTypeMapper jobTypeMapper;
 
-
     public Commune getCommuneById(String token, Commune commune) throws NoDataException {
         if (commune == null || commune.getId() == null) {
             throw new NoDataException("No se especificó el ID de la comuna.");
@@ -59,7 +56,6 @@ public class AssistControlService {
 
         return result;
     }
-
 
     public List<Commune> getAllCommune(String token) {
         return communeMapper.getAll();
@@ -190,7 +186,6 @@ public class AssistControlService {
         if (company == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información de la compañía");
         }
-
         if (company.getCode() == null || StringUtils.isBlank(company.getCode())) {
             throw new NoDataException("No se especificó el campo código");
         }
@@ -231,7 +226,6 @@ public class AssistControlService {
             }
         }
     }
-
 
     public Company deleteCompanyById(String token, Long companyId) throws NoDataException {
         Company company = companyMapper.get(companyId);
@@ -350,8 +344,6 @@ public class AssistControlService {
         return branch;
     }
 
-
-
     private Branch findBranchByCompany(Company company) throws NoDataException {
         BranchQuery branchQuery = new BranchQuery();
         CompanyQuery companyQuery = new CompanyQuery();
@@ -364,8 +356,6 @@ public class AssistControlService {
         }
         return null;
     }
-
-
 
     // CITY *******************************************************************************************************
 
@@ -431,7 +421,6 @@ public class AssistControlService {
         }
     }
 
-
     // COUNTRY *******************************************************************************************************
 
     public Country getCountryById(String token, Country country) throws NoDataException {
@@ -495,7 +484,6 @@ public class AssistControlService {
             }
         }
     }
-
 
     // Region *******************************************************************************************************
 
@@ -562,6 +550,7 @@ public class AssistControlService {
     }
 
     // JobScheduler *******************************************************************************************************
+
     public JobScheduler getJobSchedulerById(String token, JobScheduler jobScheduler) throws NoDataException {
         if (jobScheduler == null || jobScheduler.getId() == null) {
             throw new NoDataException("No se especificó el ID del programador de trabajos.");
@@ -662,10 +651,26 @@ public class AssistControlService {
         if (employees != null && !employees.isEmpty()) {
             throw new NoDataException("No se puede eliminar el horario de trabajos porque tiene empleados asociados.");
         }
-
         jobSchedulerMapper.delete(jobSchedulerId);
         return jobScheduler;
     }
+
+    public List<JobScheduler> findJobSchedulersByCompanyId(Long companyId) throws NoDataException {
+        if (companyId == null) {
+            throw new NoDataException("El ID de la compañía es requerido.");
+        }
+
+        return jobSchedulerMapper.findByCompanyId(companyId);
+    }
+
+    public List<JobScheduler> findJobSchedulersByBranchId(Long branchId) throws NoDataException {
+        if (branchId == null) {
+            throw new NoDataException("El ID de la sucursal es requerido.");
+        }
+        return jobSchedulerMapper.findByBranchId(branchId);
+    }
+
+
 
 
 
@@ -700,7 +705,6 @@ public class AssistControlService {
         }
         return employees;
     }
-
 
     @Transactional
     public void saveEmployee(String token, Employee employee, String method) throws NoDataException, UniqueException {
@@ -797,7 +801,6 @@ public class AssistControlService {
         return employee;
     }
 
-
     //JOBTYPEEEEEE
 
     public JobType getJobTypeById(String token, JobType jobType) throws NoDataException {
@@ -888,12 +891,4 @@ public class AssistControlService {
         jobTypeMapper.delete(jobTypeId);
         return jobType;
     }
-
-
-
-
-
-
-
-
 }

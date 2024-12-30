@@ -1,7 +1,6 @@
 package cl.bennu.assistcontrol.api;
 
 import cl.bennu.assistcontrol.api.base.BaseResource;
-import cl.bennu.assistcontrol.domain.Branch;
 import cl.bennu.assistcontrol.domain.JobType;
 import cl.bennu.assistcontrol.domain.query.CompanyQuery;
 import cl.bennu.assistcontrol.domain.query.JobTypeQuery;
@@ -12,7 +11,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
-
 import java.util.List;
 
 @Path("/job-type")
@@ -37,7 +35,6 @@ public class JobTypeResource extends BaseResource {
         JobType result = assistControlService.getJobTypeById(token, jobType);
         return Response.ok(result).build();
     }
-
 
     @SneakyThrows
     @GET
@@ -76,8 +73,6 @@ public class JobTypeResource extends BaseResource {
         assistControlService.saveJobType(token, jobType, HttpMethod.PUT);
         return Response.ok(jobType).build();
     }
-
-
 
     @SneakyThrows
     @DELETE

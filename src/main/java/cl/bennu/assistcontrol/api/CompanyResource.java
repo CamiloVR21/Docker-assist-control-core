@@ -12,7 +12,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
-
 import java.util.List;
 
 @Path("/company")
@@ -37,7 +36,6 @@ public class CompanyResource extends BaseResource {
         Company result = assistControlService.getCompanyById(token, company);
         return Response.ok(result).build();
     }
-
 
     @SneakyThrows
     @GET
@@ -80,8 +78,6 @@ public class CompanyResource extends BaseResource {
         assistControlService.saveCompany(token, saveCompanyRequest, HttpMethod.PUT);
         return Response.ok(saveCompanyRequest).build();
     }
-
-
 
     @SneakyThrows
     @DELETE

@@ -26,16 +26,26 @@
         <result property="sunday" column="sunday"/>
         <result property="sundayFrom" column="sunday_from"/>
         <result property="sundayTo" column="sunday_to"/>
+        <association property="jobType" javaType="cl.bennu.assistcontrol.domain.JobType">
+            <id property="id" column="jobTypeId"/>
+            <result property="name" column="jobTypeName"/>
+        </association>
     </resultMap>
 
     <sql id="sqlJobScheduler">
-        <!-- @formatter:off -->
-        SELECT jc.id, jc.name, jc.monday, jc.monday_from, jc.monday_to, jc.tuesday, jc.tuesday_from,
-        jc.tuesday_to, jc.wednesday, jc.wednesday_from, jc.wednesday_to, jc.thursday, jc.thursday_from, jc.thursday_to,
-        jc.friday, jc.friday_from, jc.friday_to, jc.saturday, jc.saturday_from, jc.saturday_to, jc.sunday, jc.sunday_from, jc.sunday_to
-        FROM job_scheduler jc
-        <!-- @formatter:on -->
+        SELECT
+        jc.id, jc.name, jc.monday, jc.monday_from, jc.monday_to, jc.tuesday, jc.tuesday_from, jc.tuesday_to,
+        jc.wednesday, jc.wednesday_from, jc.wednesday_to, jc.thursday, jc.thursday_from, jc.thursday_to,
+        jc.friday, jc.friday_from, jc.friday_to, jc.saturday, jc.saturday_from, jc.saturday_to,
+        jc.sunday, jc.sunday_from, jc.sunday_to, jt.name AS jobTypeName
+        FROM
+        job_scheduler jc
+        LEFT JOIN
+        employee e ON jc.id = e.job_scheduler_id
+        LEFT JOIN
+        job_type jt ON e.job_type_id = jt.id
     </sql>
+
 
     <select id="getAll" resultMap="jobSchedulerMap">
         <include refid="sqlJobScheduler"/>
@@ -47,8 +57,44 @@
         WHERE jc.id = #{id}
         <!-- @formatter:on -->
     </select>
+    <select id="findByCompanyId" resultMap="jobSchedulerMap" parameterType="java.lang.Long">
+        SELECT
+        jc.id, jc.name, jc.monday, jc.monday_from, jc.monday_to,
+        jc.tuesday, jc.tuesday_from, jc.tuesday_to,
+        jc.wednesday, jc.wednesday_from, jc.wednesday_to,
+        jc.thursday, jc.thursday_from, jc.thursday_to,
+        jc.friday, jc.friday_from, jc.friday_to,
+        jc.saturday, jc.saturday_from, jc.saturday_to,
+        jc.sunday, jc.sunday_from, jc.sunday_to,
+        jt.id AS jobTypeId, jt.name AS jobTypeName,
+        c.id AS companyId, c.name AS companyName
+        FROM job_scheduler jc
+        LEFT JOIN employee e ON jc.id = e.job_scheduler_id
+        LEFT JOIN job_type jt ON e.job_type_id = jt.id
+        LEFT JOIN company c ON jt.company_id = c.id
+        WHERE c.id = #{companyId}
+    </select>
 
-    <select id="findByQuery" resultMap="jobSchedulerMap" parameterType="cl.bennu.assistcontrol.domain.query.JobSchedulerQuery">
+    <select id="findByBranchId" resultMap="jobSchedulerMap" parameterType="java.lang.Long">
+        SELECT
+        jc.id, jc.name, jc.monday, jc.monday_from, jc.monday_to,
+        jc.tuesday, jc.tuesday_from, jc.tuesday_to,
+        jc.wednesday, jc.wednesday_from, jc.wednesday_to,
+        jc.thursday, jc.thursday_from, jc.thursday_to,
+        jc.friday, jc.friday_from, jc.friday_to,
+        jc.saturday, jc.saturday_from, jc.saturday_to,
+        jc.sunday, jc.sunday_from, jc.sunday_to,
+        jt.id AS jobTypeId, jt.name AS jobTypeName,
+        b.id AS branchId, b.name AS branchName
+        FROM job_scheduler jc
+        LEFT JOIN employee e ON jc.id = e.job_scheduler_id
+        LEFT JOIN job_type jt ON e.job_type_id = jt.id
+        LEFT JOIN branch b ON e.branch_id = b.id
+        WHERE b.id = #{branchId}
+    </select>
+
+    <select id="findByQuery" resultMap="jobSchedulerMap"
+            parameterType="cl.bennu.assistcontrol.domain.query.JobSchedulerQuery">
         <include refid="sqlJobScheduler"/>
         <!-- @formatter:off -->
         WHERE 1 = 1
@@ -80,7 +126,8 @@
         <!-- @formatter:on -->
     </select>
 
-    <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.JobScheduler" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.JobScheduler" useGeneratedKeys="true"
+            keyProperty="id">
         INSERT INTO job_scheduler (
         name, monday, monday_from, monday_to,
         tuesday, tuesday_from, tuesday_to,

@@ -11,7 +11,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
-
 import java.util.List;
 
 @Path("/branch")
@@ -39,7 +38,6 @@ public class BranchResource extends BaseResource {
         return Response.ok(branch).build();
     }
 
-
     @SneakyThrows
     @GET
     @Path("/-")
@@ -63,7 +61,6 @@ public class BranchResource extends BaseResource {
         List<Branch> branches = assistControlService.findBranchByQuery(token, query);
         return Response.ok(branches).build();
     }
-
 
     @SneakyThrows
     @POST
