@@ -15,7 +15,7 @@ import java.sql.Time;
 @NoArgsConstructor
 @RegisterForReflection
 
-public class Registry extends BaseDomain implements Serializable {
+public class Register extends BaseDomain implements Serializable {
 
     private Employee employee;
     private Time startOfTheDay;
@@ -26,8 +26,8 @@ public class Registry extends BaseDomain implements Serializable {
     private JobType jobType;
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static Registry valueOf(Long id) {
-        Registry obj = new Registry();
+    public static Register valueOf(Long id) {
+        Register obj = new Register();
         obj.setId(id);
         return obj;
     }

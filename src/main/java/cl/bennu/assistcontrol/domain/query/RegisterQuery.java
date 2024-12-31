@@ -12,7 +12,7 @@ import java.sql.Time;
 @NoArgsConstructor
 @RegisterForReflection
 
-public class RegistryQuery extends BaseDomain implements Serializable {
+public class RegisterQuery extends BaseDomain implements Serializable {
 
     private Long id;
     private EmployeeQuery employee;

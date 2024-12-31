@@ -196,7 +196,7 @@ CREATE TABLE employee (
 	, FOREIGN KEY (job_type_id) REFERENCES job_type(id)
 );
 
-CREATE TABLE registry (
+CREATE TABLE register (
 	id SERIAL  NOT NULL
 	, employee_id INTEGER NOT NULL
 	,start_of_the_day time NOT null

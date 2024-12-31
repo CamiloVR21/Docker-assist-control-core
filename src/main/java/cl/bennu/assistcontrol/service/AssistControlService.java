@@ -45,7 +45,7 @@ public class AssistControlService {
     private JobTypeMapper jobTypeMapper;
 
     @Inject
-    private RegistryMapper registryMapper;
+    private RegisterMapper registerMapper;
 
     public Commune getCommuneById(String token, Commune commune) throws NoDataException {
         if (commune == null || commune.getId() == null) {
@@ -798,12 +798,12 @@ public class AssistControlService {
         if (employeeId == null) {
             throw new NoDataException("No se especifico el id del empleado: ");
         }
-        RegistryQuery registryQuery = new RegistryQuery();
+        RegisterQuery registerQuery = new RegisterQuery();
         EmployeeQuery employeeQuery = new EmployeeQuery();
         employeeQuery.setId(employeeId);
-        registryQuery.setEmployee(employeeQuery);
+        registerQuery.setEmployee(employeeQuery);
 
-        List<Registry> registries = registryMapper.findByQuery(registryQuery);
+        List<Register> registries = registerMapper.findByQuery(registerQuery);
         if (registries != null && !registries.isEmpty()) {
             throw new NoDataException("No se puede eliminar el empleado porque tiene registros asociados.");
         }
@@ -905,78 +905,78 @@ public class AssistControlService {
 
     //REGISTRYYYYYYYYYYYYYYYY
 
-    public Registry getRegistryById(String token, Registry registry) throws NoDataException {
-        if (registry == null || registry.getId() == null) {
+    public Register getRegistryById(String token, Register register) throws NoDataException {
+        if (register == null || register.getId() == null) {
             throw new NoDataException("No se especificó el ID del registro.");
         }
-        Registry foundRegistry = registryMapper.get(registry.getId());
-        if (foundRegistry == null) {
-            throw new NoDataException("No se encontró la sucursal con el ID especificado: " + registry.getId());
+        Register foundRegister = registerMapper.get(register.getId());
+        if (foundRegister == null) {
+            throw new NoDataException("No se encontró la sucursal con el ID especificado: " + register.getId());
         }
-        return foundRegistry;
+        return foundRegister;
     }
 
-    public List<Registry> getAllRegistry(String token) {
-        return registryMapper.getAll();
+    public List<Register> getAllRegistry(String token) {
+        return registerMapper.getAll();
     }
 
-    public List<Registry> findRegistryByQuery(String token, RegistryQuery query) {
-        return registryMapper.findByQuery(query);
+    public List<Register> findRegistryByQuery(String token, RegisterQuery query) {
+        return registerMapper.findByQuery(query);
     }
 
     @Transactional
-    public void saveRegistry(String token, Registry registry, String method) throws NoDataException, UniqueException {
-        validateRegistry(token, registry, method);
+    public void saveRegistry(String token, Register register, String method) throws NoDataException, UniqueException {
+        validateRegistry(token, register, method);
 
-        if (registry.getId() == null) {
-            registryMapper.insert(registry);
+        if (register.getId() == null) {
+            registerMapper.insert(register);
         } else {
-            registryMapper.update(registry);
+            registerMapper.update(register);
         }
     }
 
-    private void validateRegistry(String token, Registry registry, String method) throws NoDataException, UniqueException {
-        if (registry == null) {
+    private void validateRegistry(String token, Register register, String method) throws NoDataException, UniqueException {
+        if (register == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información del rol");
         }
 
-        if (Boolean.TRUE.equals(registry.getActive())) {
-            if (registry.getStartOfTheDay() == null) {
+        if (Boolean.TRUE.equals(register.getActive())) {
+            if (register.getStartOfTheDay() == null) {
                 throw new NoDataException("No se especificó el campo inicio del día");
             }
-            if (registry.getDay() == null) {
+            if (register.getDay() == null) {
                 throw new NoDataException("No se especificó el campo día");
             }
-            if (registry.getEntry() == null) {
+            if (register.getEntry() == null) {
                 throw new NoDataException("No se especificó el campo entrada");
             }
-            if (registry.getExit() == null) {
+            if (register.getExit() == null) {
                 throw new NoDataException("No se especificó el campo salida");
             }
 
         }
 
-        RegistryQuery query = new RegistryQuery();
-        query.setStartOfTheDay(registry.getStartOfTheDay());
-        query.setDay(registry.getDay());
-        query.setEntry(registry.getEntry());
-        query.setExit(registry.getExit());
-        List<Registry> registryDBList = registryMapper.findByQuery(query);
+        RegisterQuery query = new RegisterQuery();
+        query.setStartOfTheDay(register.getStartOfTheDay());
+        query.setDay(register.getDay());
+        query.setEntry(register.getEntry());
+        query.setExit(register.getExit());
+        List<Register> registerDBList = registerMapper.findByQuery(query);
 
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
-            if (registry.getId() != null) {
+            if (register.getId() != null) {
                 throw new NoDataException("El campo ID debe ser nulo para el registro");
             }
-            if (registryDBList != null && !registryDBList.isEmpty()) {
+            if (registerDBList != null && !registerDBList.isEmpty()) {
                 throw new UniqueException("El rol ya existe");
             }
         } else if (HttpMethod.PUT.equalsIgnoreCase(method)) {
-            if (registry.getId() == null) {
+            if (register.getId() == null) {
                 throw new NoDataException("No se especificó el campo ID para actualizar el registro");
             }
-            if (registryDBList != null && !registryDBList.isEmpty()) {
-                for (Registry existingRegistry : registryDBList) {
-                    if (!existingRegistry.getId().equals(registry.getId())) {
+            if (registerDBList != null && !registerDBList.isEmpty()) {
+                for (Register existingRegister : registerDBList) {
+                    if (!existingRegister.getId().equals(register.getId())) {
                         throw new UniqueException("El registro ya existe con el mismo tiempo");
                     }
                 }
@@ -984,16 +984,43 @@ public class AssistControlService {
         }
     }
 
-    public Registry deleteRegistryById(String token, Long registryId) throws NoDataException {
-        Registry registry = registryMapper.get(registryId);
-        if (registry == null) {
+    public Register deleteRegistryById(String token, Long registryId) throws NoDataException {
+        Register register = registerMapper.get(registryId);
+        if (register == null) {
             throw new NoDataException("No se encontró el registro con el ID especificado");
         }
-        RegistryQuery registryQuery = new RegistryQuery();
-        registryQuery.setId(registryId);
-        registryMapper.delete(registryId);
-        return registry;
+        RegisterQuery registerQuery = new RegisterQuery();
+        registerQuery.setId(registryId);
+        registerMapper.delete(registryId);
+        return register;
     }
+
+    public List<Register> findByCompanyId(Long companyId) throws NoDataException {
+        if (companyId == null) {
+            throw new NoDataException("El ID de la compañía no puede ser nulo.");
+        }
+
+        List<Register> registries = registerMapper.findByCompanyId(companyId);
+        if (registries == null || registries.isEmpty()) {
+            throw new NoDataException("No se encontraron registros para la compañía con ID: " + companyId);
+        }
+
+        return registries;
+    }
+
+    public List<Register> findByBranchId(Long branchId) throws NoDataException {
+        if (branchId == null) {
+            throw new NoDataException("El ID de la sucursal no puede ser nulo.");
+        }
+
+        List<Register> registries = registerMapper.findByBranchId(branchId);
+        if (registries == null || registries.isEmpty()) {
+            throw new NoDataException("No se encontraron registros para la sucursal con ID: " + branchId);
+        }
+
+        return registries;
+    }
+
 
 
 }
