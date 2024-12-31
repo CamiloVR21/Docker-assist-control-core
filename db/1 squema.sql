@@ -195,3 +195,17 @@ CREATE TABLE employee (
 	, FOREIGN KEY (contract_type_id) REFERENCES contract_type(id)
 	, FOREIGN KEY (job_type_id) REFERENCES job_type(id)
 );
+
+CREATE TABLE registry (
+	id SERIAL  NOT NULL
+	, employee_id INTEGER NOT NULL
+	,start_of_the_day time NOT null
+	, entry time NOT null
+	, exit time NOT null
+	, break_time time NOT null
+	, day date NOT NULL
+
+ 	, PRIMARY KEY (id)
+ 	, UNIQUE(id)
+ 	, FOREIGN KEY (employee_id) REFERENCES employee(id)
+);

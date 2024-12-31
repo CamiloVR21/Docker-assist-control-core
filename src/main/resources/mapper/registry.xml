@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cl.bennu.assistcontrol.mapper.RegistryMapper">
+
+    <resultMap id="registryMap" type="cl.bennu.assistcontrol.domain.Registry">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="startOfTheDay" column="start_of_the_day"/>
+        <result property="entry" column="entry"/>
+        <result property="exit" column="exit"/>
+        <result property="breakTime" column="break_time"/>
+        <result property="day" column="day"/>
+        <association property="jobType" javaType="cl.bennu.assistcontrol.domain.JobType">
+            <id property="id" column="jobTypeId"/>
+            <result property="name" column="job_Type_Name"/>
+        </association>
+        <association property="employee" javaType="cl.bennu.assistcontrol.domain.Employee">
+            <id property="id" column="employeeId"/>
+            <result property="name" column="employee_name"/>
+        </association>
+    </resultMap>
+
+    <sql id="sqlRegistry">
+        SELECT
+        r.id,
+        r.start_of_the_day,
+        r.entry,
+        r.exit,
+        r.break_time,
+        r.day,
+        e.id AS employee_id,
+        e.name AS employee_name,
+        e.last_name AS employee_last_name,
+        e.mother_last_name AS employee_mother_last_name,
+        e.birth_date AS employee_birth_date,
+        jt.id AS job_type_id,
+        jt.name AS job_type_name
+        FROM registry r
+        LEFT JOIN employee e ON r.employee_id = e.id
+        LEFT JOIN job_type jt ON e.job_type_id = jt.id
+    </sql>
+
+    <select id="getAll" resultMap="registryMap">
+        <include refid="sqlRegistry"/>
+    </select>
+
+    <select id="get" resultMap="registryMap" parameterType="java.lang.Long">
+        <include refid="sqlRegistry"/>
+        <!-- @formatter:off -->
+        WHERE r.id = #{id}
+        <!-- @formatter:on -->
+    </select>
+    <select id="findByQuery" resultMap="registryMap"
+            parameterType="cl.bennu.assistcontrol.domain.query.RegistryQuery">
+        <include refid="sqlRegistry"/>
+        <!-- @formatter:off -->
+        WHERE 1 = 1
+        <if test="employee != null">
+            AND r.employee_id = #{employee.id}
+        </if>
+        <if test="startOfTheDay != null">
+            AND r.start_of_the_day = #{startOfTheDay}
+        </if>
+        <if test="entry != null">
+            AND r.entry = #{entry}
+        </if>
+        <if test="exit != null">
+            AND r.exit = #{exit}
+        </if>
+        <if test="breakTime != null">
+            AND r.break_time = #{breakTime}
+        </if>
+        <if test="day != null">
+            AND r.day = #{day}
+        </if>
+        <!-- @formatter:on -->
+    </select>
+
+    <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.Registry" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO registry (employee_id,start_of_the_day, entry, exit, break_time, day)
+        VALUES (#{employee.id}, #{startOfTheDay}, #{entry}, #{exit}, #{breakTime}, #{day})
+    </insert>
+
+    <update id="update" parameterType="cl.bennu.assistcontrol.domain.Registry">
+        UPDATE registry
+        SET
+        employee_id = #{employee.id},
+        start_of_the_day = #{startOfTheDay},
+        entry = #{entry},
+        exit = #{exit},
+        break_time = #{breakTime},
+        day = #{day}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM registry WHERE id = #{id}
+    </delete>
+
+</mapper>

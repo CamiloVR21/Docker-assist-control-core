@@ -11,6 +11,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.HttpMethod;
 import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
 
 @ApplicationScoped
@@ -42,6 +43,9 @@ public class AssistControlService {
 
     @Inject
     private JobTypeMapper jobTypeMapper;
+
+    @Inject
+    private RegistryMapper registryMapper;
 
     public Commune getCommuneById(String token, Commune commune) throws NoDataException {
         if (commune == null || commune.getId() == null) {
@@ -198,13 +202,13 @@ public class AssistControlService {
         if (company.getCommune() == null || company.getCommune().getId() == null) {
             throw new NoDataException("No se especificó el campo comuna");
         }
-        if (company.getGeolocation() == null){
+        if (company.getGeolocation() == null) {
             throw new NoDataException("No se especificó el campo geolocalización");
         }
         if (company.getLag() == null) {
             throw new NoDataException("No se especificó el campo lag");
         }
-        if (company.getSelfie() == null){
+        if (company.getSelfie() == null) {
             throw new NoDataException("No se especificó el campo selfie");
         }
 
@@ -671,9 +675,6 @@ public class AssistControlService {
     }
 
 
-
-
-
     // EMPLOYEEE *******************************************************************************************************
 
     public Employee getEmployeeById(String token, Long employeeId) throws NoDataException {
@@ -797,6 +798,16 @@ public class AssistControlService {
         if (employeeId == null) {
             throw new NoDataException("No se especifico el id del empleado: ");
         }
+        RegistryQuery registryQuery = new RegistryQuery();
+        EmployeeQuery employeeQuery = new EmployeeQuery();
+        employeeQuery.setId(employeeId);
+        registryQuery.setEmployee(employeeQuery);
+
+        List<Registry> registries = registryMapper.findByQuery(registryQuery);
+        if (registries != null && !registries.isEmpty()) {
+            throw new NoDataException("No se puede eliminar el empleado porque tiene registros asociados.");
+        }
+
         employeeMapper.delete(employeeId);
         return employee;
     }
@@ -891,4 +902,98 @@ public class AssistControlService {
         jobTypeMapper.delete(jobTypeId);
         return jobType;
     }
+
+    //REGISTRYYYYYYYYYYYYYYYY
+
+    public Registry getRegistryById(String token, Registry registry) throws NoDataException {
+        if (registry == null || registry.getId() == null) {
+            throw new NoDataException("No se especificó el ID del registro.");
+        }
+        Registry foundRegistry = registryMapper.get(registry.getId());
+        if (foundRegistry == null) {
+            throw new NoDataException("No se encontró la sucursal con el ID especificado: " + registry.getId());
+        }
+        return foundRegistry;
+    }
+
+    public List<Registry> getAllRegistry(String token) {
+        return registryMapper.getAll();
+    }
+
+    public List<Registry> findRegistryByQuery(String token, RegistryQuery query) {
+        return registryMapper.findByQuery(query);
+    }
+
+    @Transactional
+    public void saveRegistry(String token, Registry registry, String method) throws NoDataException, UniqueException {
+        validateRegistry(token, registry, method);
+
+        if (registry.getId() == null) {
+            registryMapper.insert(registry);
+        } else {
+            registryMapper.update(registry);
+        }
+    }
+
+    private void validateRegistry(String token, Registry registry, String method) throws NoDataException, UniqueException {
+        if (registry == null) {
+            throw new NoDataException("El cuerpo de la solicitud no contiene la información del rol");
+        }
+
+        if (Boolean.TRUE.equals(registry.getActive())) {
+            if (registry.getStartOfTheDay() == null) {
+                throw new NoDataException("No se especificó el campo inicio del día");
+            }
+            if (registry.getDay() == null) {
+                throw new NoDataException("No se especificó el campo día");
+            }
+            if (registry.getEntry() == null) {
+                throw new NoDataException("No se especificó el campo entrada");
+            }
+            if (registry.getExit() == null) {
+                throw new NoDataException("No se especificó el campo salida");
+            }
+
+        }
+
+        RegistryQuery query = new RegistryQuery();
+        query.setStartOfTheDay(registry.getStartOfTheDay());
+        query.setDay(registry.getDay());
+        query.setEntry(registry.getEntry());
+        query.setExit(registry.getExit());
+        List<Registry> registryDBList = registryMapper.findByQuery(query);
+
+        if (HttpMethod.POST.equalsIgnoreCase(method)) {
+            if (registry.getId() != null) {
+                throw new NoDataException("El campo ID debe ser nulo para el registro");
+            }
+            if (registryDBList != null && !registryDBList.isEmpty()) {
+                throw new UniqueException("El rol ya existe");
+            }
+        } else if (HttpMethod.PUT.equalsIgnoreCase(method)) {
+            if (registry.getId() == null) {
+                throw new NoDataException("No se especificó el campo ID para actualizar el registro");
+            }
+            if (registryDBList != null && !registryDBList.isEmpty()) {
+                for (Registry existingRegistry : registryDBList) {
+                    if (!existingRegistry.getId().equals(registry.getId())) {
+                        throw new UniqueException("El registro ya existe con el mismo tiempo");
+                    }
+                }
+            }
+        }
+    }
+
+    public Registry deleteRegistryById(String token, Long registryId) throws NoDataException {
+        Registry registry = registryMapper.get(registryId);
+        if (registry == null) {
+            throw new NoDataException("No se encontró el registro con el ID especificado");
+        }
+        RegistryQuery registryQuery = new RegistryQuery();
+        registryQuery.setId(registryId);
+        registryMapper.delete(registryId);
+        return registry;
+    }
+
+
 }
