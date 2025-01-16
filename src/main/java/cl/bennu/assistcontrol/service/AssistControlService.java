@@ -12,6 +12,8 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.HttpMethod;
 import org.apache.commons.lang3.StringUtils;
 
+
+import java.util.Base64;
 import java.util.List;
 
 @ApplicationScoped
@@ -46,6 +48,9 @@ public class AssistControlService {
 
     @Inject
     private RegisterMapper registerMapper;
+
+    @Inject
+    private AppUserMapper appUserMapper;
 
     public Commune getCommuneById(String token, Commune commune) throws NoDataException {
         if (commune == null || commune.getId() == null) {
@@ -1021,6 +1026,100 @@ public class AssistControlService {
         return registries;
     }
 
+    //APP USEEEEEEEEEEEEEEEEER
 
+    public AppUser getAppUserById(String token, AppUser appUser) throws NoDataException {
+        if (appUser == null || appUser.getId() == null) {
+            throw new NoDataException("No se especificó el ID del usuario de la aplicación.");
+        }
 
+        AppUser foundAppUser = appUserMapper.get(appUser.getId());
+        if (foundAppUser == null) {
+            throw new NoDataException("No se encontró el usuario con el ID especificado: " + appUser.getId());
+        }
+
+        return foundAppUser;
+    }
+
+    public List<AppUser> getAllAppUser(String token) {
+        return appUserMapper.getAll();
+    }
+
+    public List<AppUser> findAppUserByQuery(String token, AppUserQuery query) {
+        return appUserMapper.findByQuery(query);
+    }
+
+    @Transactional
+    public void saveAppUser(String token, AppUser appUser, String method) throws NoDataException, UniqueException {
+        validateAppUser(token, appUser, method);
+
+        if (appUser.getId() == null) {
+            appUserMapper.insert(appUser);
+        } else {
+            appUserMapper.update(appUser);
+        }
+    }
+
+    private void validateAppUser(String token, AppUser appUser, String method) throws NoDataException, UniqueException {
+        if (appUser == null) {
+            throw new NoDataException("El cuerpo de la solicitud no contiene la información del usuario.");
+        }
+        if (StringUtils.isBlank(appUser.getName())) {
+            throw new NoDataException("No se especificó el nombre de usuario.");
+        }
+        if (StringUtils.isBlank(appUser.getPassword())) {
+            throw new NoDataException("No se especificó la contraseña.");
+        }
+        if (appUser.getCompany() == null || appUser.getCompany().getId() == null) {
+            throw new NoDataException("No se especificó la compañía asociada al usuario.");
+        }
+
+        AppUserQuery query = new AppUserQuery();
+        query.setName(appUser.getName());
+        List<AppUser> appUserDBList = appUserMapper.findByQuery(query);
+
+        if ("POST".equalsIgnoreCase(method)) {
+            if (appUser.getId() != null) {
+                throw new NoDataException("El campo ID debe ser nulo para insertar un nuevo usuario.");
+            }
+            if (appUserDBList != null && !appUserDBList.isEmpty()) {
+                throw new UniqueException("El usuario ya existe.");
+            }
+        } else if ("PUT".equalsIgnoreCase(method)) {
+            if (appUser.getId() == null) {
+                throw new NoDataException("El campo ID es requerido para actualizar un usuario.");
+            }
+            for (AppUser existingAppUser : appUserDBList) {
+                if (!existingAppUser.getId().equals(appUser.getId())) {
+                    throw new UniqueException("Ya existe otro usuario con el mismo nombre.");
+                }
+            }
+        }
+    }
+
+    public AppUser deleteAppUserById(String token, Long appUserId) throws NoDataException {
+        AppUser appUser = appUserMapper.get(appUserId);
+        if (appUser == null) {
+            throw new NoDataException("No se encontró el usuario con el ID especificado.");
+        }
+
+        appUserMapper.delete(appUserId);
+        return appUser;
+    }
+
+    public Company getCompanyInfoByUser(String token, Long userId) throws NoDataException {
+        if (userId == null) {
+            throw new NoDataException("El ID del usuario es requerido.");
+        }
+
+        Company companyInfo = appUserMapper.getCompanyInfoByUser(userId);
+        if (companyInfo == null) {
+            throw new NoDataException("No se encontró información de la compañía asociada al usuario.");
+        }
+
+        return companyInfo;
+    }
 }
+
+
+

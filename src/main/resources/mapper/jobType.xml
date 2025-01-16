@@ -15,11 +15,16 @@
 
     <sql id="sqlJobType">
         <!-- @formatter:off -->
-        SELECT jt.id, jt.name, jt.company_id
+        SELECT
+        jt.id,
+        jt.name,
+        jt.company_id,
+        c.name AS company_name
         FROM job_type jt
         LEFT JOIN company c ON jt.company_id = c.id
         <!-- @formatter:on -->
     </sql>
+
 
     <select id="getAll" resultMap="jobTypeMap">
         <include refid="sqlJobType"/>
@@ -67,13 +72,12 @@
     <update id="update" parameterType="cl.bennu.assistcontrol.domain.JobType">
         UPDATE job_Type
         SET name = #{name},
-        company_id = #{company.id},
+        company_id = #{company.id}
         WHERE id = #{id}
     </update>
 
     <delete id="delete" parameterType="java.lang.Long">
         DELETE FROM job_Type WHERE id = #{id}
     </delete>
-
 
 </mapper>

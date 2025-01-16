@@ -135,7 +135,7 @@
             AND e.active = #{active}
         </if>
         <if test="jobType != null">
-            AND jc.job_type_id = #{jobType.id}
+            AND e.job_type_id = #{jobType.id}
         </if>
         <!-- @formatter:on -->
     </select>

@@ -209,3 +209,16 @@ CREATE TABLE register (
  	, UNIQUE(id)
  	, FOREIGN KEY (employee_id) REFERENCES employee(id)
 );
+
+CREATE TABLE app_user (
+	id SERIAL  NOT null
+	, name VARCHAR(500) NOT NULL
+	, company_id INTEGER NOT NULL
+	, email VARCHAR(500) NULL
+	, password VARCHAR(500) NOT null
+	, img bytea  null
+/*	PREGUNTAR	*/
+ 	, PRIMARY KEY (id)
+ 	, UNIQUE(id)
+ 	, FOREIGN KEY (company_id) REFERENCES company(id)
+);
