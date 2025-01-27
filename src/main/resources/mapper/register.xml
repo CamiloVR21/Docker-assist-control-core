@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cl.bennu.assistcontrol.mapper.RegisterMapper">
 
-    <resultMap id="registryMap" type="cl.bennu.assistcontrol.domain.Register">
+    <resultMap id="registerMap" type="cl.bennu.assistcontrol.domain.Register">
         <id property="id" column="id"/>
         <result property="name" column="name"/>
         <result property="startOfTheDay" column="start_of_the_day"/>
@@ -20,7 +20,7 @@
         </association>
     </resultMap>
 
-    <sql id="sqlRegistry">
+    <sql id="sqlRegister">
         SELECT
         r.id,
         r.start_of_the_day,
@@ -40,19 +40,19 @@
         LEFT JOIN job_type jt ON e.job_type_id = jt.id
     </sql>
 
-    <select id="getAll" resultMap="registryMap">
-        <include refid="sqlRegistry"/>
+    <select id="getAll" resultMap="registerMap">
+        <include refid="sqlRegister"/>
     </select>
 
-    <select id="get" resultMap="registryMap" parameterType="java.lang.Long">
-        <include refid="sqlRegistry"/>
+    <select id="get" resultMap="registerMap" parameterType="java.lang.Long">
+        <include refid="sqlRegister"/>
         <!-- @formatter:off -->
         WHERE r.id = #{id}
         <!-- @formatter:on -->
     </select>
-    <select id="findByQuery" resultMap="registryMap"
+    <select id="findByQuery" resultMap="registerMap"
             parameterType="cl.bennu.assistcontrol.domain.query.RegisterQuery">
-        <include refid="sqlRegistry"/>
+        <include refid="sqlRegister"/>
         <!-- @formatter:off -->
         WHERE 1 = 1
         <if test="employee != null">
@@ -76,7 +76,7 @@
         <!-- @formatter:on -->
     </select>
 
-    <select id="findByCompanyId" resultMap="registryMap" parameterType="java.lang.Long">
+    <select id="findByCompanyId" resultMap="registerMap" parameterType="java.lang.Long">
         SELECT
         r.id, r.start_of_the_day, r.entry, r.exit, r.break_time, r.day,
         e.id AS employee_id, e.name AS employee_name
@@ -87,7 +87,7 @@
         WHERE c.id = #{companyId}
     </select>
 
-    <select id="findByBranchId" resultMap="registryMap" parameterType="java.lang.Long">
+    <select id="findByBranchId" resultMap="registerMap" parameterType="java.lang.Long">
         SELECT
         r.id, r.start_of_the_day, r.entry, r.exit, r.break_time, r.day,
         e.id AS employee_id, e.name AS employee_name
