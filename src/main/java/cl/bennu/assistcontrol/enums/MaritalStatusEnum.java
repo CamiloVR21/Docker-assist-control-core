@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @Getter
-@RegisterForReflection
+@RegisterForReflection(registerFullHierarchy = true)
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum MaritalStatusEnum implements BaseEnum {
 

@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
-@RegisterForReflection
+@RegisterForReflection(registerFullHierarchy = true)
 public class JobTypeQuery extends BaseDomain implements Serializable {
 
     private Long id;

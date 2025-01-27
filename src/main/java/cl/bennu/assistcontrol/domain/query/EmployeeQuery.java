@@ -12,7 +12,7 @@ import java.sql.Time;
 
 @Data
 @NoArgsConstructor
-@RegisterForReflection
+@RegisterForReflection(registerFullHierarchy = true)
 
 public class EmployeeQuery extends BaseDomain implements Serializable {
 

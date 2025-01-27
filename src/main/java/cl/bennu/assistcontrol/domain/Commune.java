@@ -11,7 +11,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-@RegisterForReflection
+@RegisterForReflection(registerFullHierarchy = true)
 public class Commune extends BaseDomain implements Serializable {
 
     private City city;

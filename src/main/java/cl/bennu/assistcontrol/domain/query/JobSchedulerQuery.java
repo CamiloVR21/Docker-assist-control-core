@@ -9,7 +9,7 @@ import java.sql.Time;
 
 @Data
 @NoArgsConstructor
-@RegisterForReflection
+@RegisterForReflection(registerFullHierarchy = true)
 public class JobSchedulerQuery extends BaseDomain implements Serializable {
 
     private Long id;

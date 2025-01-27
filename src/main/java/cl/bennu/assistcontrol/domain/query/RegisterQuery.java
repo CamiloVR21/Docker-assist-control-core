@@ -10,7 +10,7 @@ import java.sql.Time;
 
 @Data
 @NoArgsConstructor
-@RegisterForReflection
+@RegisterForReflection(registerFullHierarchy = true)
 
 public class RegisterQuery extends BaseDomain implements Serializable {
 

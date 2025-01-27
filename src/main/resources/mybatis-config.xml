@@ -9,7 +9,7 @@
     </settings>
 
     <typeHandlers>
-        <typeHandler handler="cl.bennu.commons.enums.handler.EnumTypeHandler"
+        <typeHandler handler="cl.bennu.assistcontrol.enums.handler.EnumTypeHandler"
                      javaType="cl.bennu.commons.enums.base.BaseEnum"/>
     </typeHandlers>
 

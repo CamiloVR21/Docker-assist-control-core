@@ -13,7 +13,7 @@ import java.sql.Time;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-@RegisterForReflection
+@RegisterForReflection(registerFullHierarchy = true)
 
 public class Register extends BaseDomain implements Serializable {
 

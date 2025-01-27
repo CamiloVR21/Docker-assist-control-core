@@ -12,7 +12,7 @@ import java.sql.Time;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-@RegisterForReflection
+@RegisterForReflection(registerFullHierarchy = true)
 
 public class JobScheduler extends BaseDomain implements Serializable {
 

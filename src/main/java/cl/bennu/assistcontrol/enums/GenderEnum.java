@@ -5,13 +5,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Getter;
+
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Map;
 
 @Getter
-@RegisterForReflection
+@RegisterForReflection(registerFullHierarchy = true)
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-public enum GenderEnum implements BaseEnum {
+public enum GenderEnum implements BaseEnum, Serializable {
 
     //@formatter:off
     MALE(1, "Masculino"),
