@@ -3,33 +3,33 @@ package cl.bennu.assistcontrol.domain;
 import cl.bennu.commons.domain.base.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import io.vertx.ext.web.FileUpload;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.io.File;
 import java.io.Serializable;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @RegisterForReflection(registerFullHierarchy = true)
-public class AppUser extends BaseDomain implements Serializable {
+public class Dashboard extends BaseDomain implements Serializable {
 
-    private String name;
-    private Company company;
-    private String email;
-    private String password;
-    private byte[] img;
-    private String base64Img;
+    private List<Branch> branches;
+    private List<Employee> employees;
+    private List<JobType> roles;
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static AppUser valueOf(Long id) {
-        AppUser obj = new AppUser();
+    public static Dashboard valueOf(Long id) {
+        Dashboard obj = new Dashboard();
         obj.setId(id);
         return obj;
     }
 
-
+    public Dashboard(List<Branch> branches, List<Employee> employees, List<JobType> roles) {
+        this.branches = branches;
+        this.employees = employees;
+        this.roles = roles;
+    }
 }

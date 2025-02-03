@@ -2,31 +2,24 @@ package cl.bennu.assistcontrol.api;
 
 import cl.bennu.assistcontrol.api.base.BaseResource;
 import cl.bennu.assistcontrol.domain.AppUser;
-import cl.bennu.assistcontrol.domain.Company;
 import cl.bennu.assistcontrol.domain.query.AppUserQuery;
 import cl.bennu.assistcontrol.domain.query.CompanyQuery;
 import cl.bennu.assistcontrol.service.AssistControlService;
 import cl.bennu.commons.exception.NoDataException;
-import io.vertx.ext.web.FileUpload;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
-import org.jboss.resteasy.reactive.PartType;
-
-
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.List;
 
 @Path("/user")
 @Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.MULTIPART_FORM_DATA)
 public class AppUserResource extends BaseResource {
 
-    private @Inject AssistControlService assistControlService;
+    @Inject
+    private AssistControlService assistControlService;
 
     @SneakyThrows
     @GET
@@ -41,9 +34,7 @@ public class AppUserResource extends BaseResource {
     public Response get(@HeaderParam("Authorization") String token, @PathParam("id") Long id) {
         AppUser appUserRequest = new AppUser();
         appUserRequest.setId(id);
-
         AppUser appUser = assistControlService.getAppUserById(token, appUserRequest);
-
         return Response.ok(appUser).build();
     }
 
@@ -54,44 +45,26 @@ public class AppUserResource extends BaseResource {
                          @QueryParam("company") Long companyId,
                          @QueryParam("name") String name) {
         AppUserQuery query = new AppUserQuery();
-
         if (companyId != null) {
             CompanyQuery companyQuery = new CompanyQuery();
             companyQuery.setId(companyId);
             query.setCompanyId(companyQuery);
         }
-
         query.setName(name);
-
         List<AppUser> appUsers = assistControlService.findAppUserByQuery(token, query);
         return Response.ok(appUsers).build();
     }
 
     @SneakyThrows
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
     @POST
-    public Response insert(@HeaderParam("Authorization") String token,
-                           @FormParam("name") String name,
-                           @FormParam("email") String email,
-                           @FormParam("password") String password,
-                           @FormParam("companyId") Long companyId,
-                           @FormParam("img") @PartType(MediaType.APPLICATION_OCTET_STREAM) InputStream imgStream) {
-
-        if (name == null || password == null || companyId == null) {
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response insert(@HeaderParam("Authorization") String token, AppUser appUser) {
+        if (appUser.getName() == null || appUser.getPassword() == null || appUser.getCompany() == null) {
             throw new NoDataException("Faltan datos requeridos.");
         }
 
-        AppUser appUser = new AppUser();
-        appUser.setName(name);
-        appUser.setEmail(email);
-        appUser.setPassword(password);
-
-        Company company = new Company();
-        company.setId(companyId);
-        appUser.setCompany(company);
-
-        if (imgStream != null) {
-            byte[] imageBytes = imgStream.readAllBytes();
+        if (appUser.getBase64Img() != null) {
+            byte[] imageBytes = Base64.getDecoder().decode(appUser.getBase64Img());
             appUser.setImg(imageBytes);
         }
 
@@ -99,8 +72,10 @@ public class AppUserResource extends BaseResource {
         return Response.status(Response.Status.CREATED).entity(appUser).build();
     }
 
+
     @SneakyThrows
     @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response update(@HeaderParam("Authorization") String token, AppUser appUser) {
         if (appUser == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información del usuario");

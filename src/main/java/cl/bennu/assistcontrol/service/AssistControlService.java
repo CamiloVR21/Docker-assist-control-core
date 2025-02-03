@@ -142,6 +142,22 @@ public class AssistControlService {
         return companyMapper.findByQuery(query);
     }
 
+    public List<Branch> getBranchesByCompany(Long companyId) throws NoDataException {
+        BranchQuery branchQuery = new BranchQuery();
+        CompanyQuery companyQuery = new CompanyQuery();
+        companyQuery.setId(companyId);
+        branchQuery.setCompanyId(companyQuery);
+
+        List<Branch> branches = branchMapper.findByQuery(branchQuery);
+
+        if (branches == null || branches.isEmpty()) {
+            throw new NoDataException("No se encontraron sucursales para la compañía con ID: " + companyId);
+        }
+        return branches;
+    }
+
+
+
     @Transactional
     public void saveCompany(String token, SaveCompanyRequest saveCompanyRequest, String method) throws NoDataException, UniqueException {
         Company company = saveCompanyRequest.getCompany();
@@ -849,6 +865,20 @@ public class AssistControlService {
         }
     }
 
+    public List<JobType> getJobTypesByCompany(Long companyId) throws NoDataException {
+        JobTypeQuery query = new JobTypeQuery();
+        CompanyQuery companyQuery = new CompanyQuery();
+        companyQuery.setId(companyId);
+        query.setCompany(companyQuery);
+
+        List<JobType> jobTypes = jobTypeMapper.findByQuery(query);
+        if (jobTypes == null || jobTypes.isEmpty()) {
+            throw new NoDataException("No se encontraron roles para la compañía con ID: " + companyId);
+        }
+        return jobTypes;
+    }
+
+
     private void validateJobType(String token, JobType jobType, String method) throws NoDataException, UniqueException {
         if (jobType == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información del rol");
@@ -1119,6 +1149,12 @@ public class AssistControlService {
 
         return companyInfo;
     }
+
+    public AppUser login(String email, String password) {
+        // Nota: Es importante comparar las contraseñas de forma segura (idealmente, usando encriptación).
+        return appUserMapper.findByEmailAndPassword(email, password);
+    }
+
 }
 
 

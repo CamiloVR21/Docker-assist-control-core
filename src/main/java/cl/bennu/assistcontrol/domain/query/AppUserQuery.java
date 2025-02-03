@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Base64;
 
 @Data
 @NoArgsConstructor
@@ -18,5 +19,16 @@ public class AppUserQuery extends BaseDomain implements Serializable {
     private String email;
     private String password;
     private byte[] img;
+
+    public String getImgBase64() {
+        return img != null ? Base64.getEncoder().encodeToString(img) : null;
+    }
+
+    public void setImg(byte[] img) {
+        if (img != null && img.length > 1048576) {
+            throw new IllegalArgumentException("El tamaño de la imagen no puede exceder 1 MB.");
+        }
+        this.img = img;
+    }
 
 }

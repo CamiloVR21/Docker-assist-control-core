@@ -15,7 +15,11 @@ import java.util.List;
 public interface AppUserMapper extends BaseMapper<AppUser> {
 
     List<AppUser> findByQuery(AppUserQuery query);
+
     AppUser getByQuery(AppUserQuery query);
+
     Company getCompanyInfoByUser(@Param("userId") Long userId);
 
+    AppUser findByEmailAndPassword(@Param("email") String email,
+                                   @Param("password") String password);
 }

@@ -8,28 +8,22 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.io.File;
 import java.io.Serializable;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @RegisterForReflection(registerFullHierarchy = true)
-public class AppUser extends BaseDomain implements Serializable {
 
-    private String name;
-    private Company company;
+public class Credential extends BaseDomain implements Serializable{
+
     private String email;
     private String password;
-    private byte[] img;
-    private String base64Img;
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static AppUser valueOf(Long id) {
-        AppUser obj = new AppUser();
+    public static Credential valueOf(Long id) {
+        Credential obj = new Credential();
         obj.setId(id);
         return obj;
     }
-
-
 }

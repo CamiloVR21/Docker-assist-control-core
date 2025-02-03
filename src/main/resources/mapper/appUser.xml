@@ -61,7 +61,7 @@
 
     <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.AppUser" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO app_user (name, company_id, email, password, img)
-        VALUES (#{name}, #{company.id}, #{email}, #{password}, #{img, jdbcType=BLOB})
+        VALUES (#{name}, #{company.id}, #{email}, #{password}, #{img, jdbcType=BINARY})
     </insert>
 
     <update id="update" parameterType="cl.bennu.assistcontrol.domain.AppUser">
