@@ -6,8 +6,10 @@
         <id property="id" column="id"/>
         <result property="name" column="name"/>
         <result property="email" column="email"/>
+        <result property="code" column="code"/>
         <result property="password" column="password"/>
         <result property="img" column="img"/>
+        <result property="admin" column="admin"/>
         <association property="company" javaType="cl.bennu.assistcontrol.domain.Company">
             <id property="id" column="company_id"/>
             <result property="code" column="company_code"/>
@@ -24,7 +26,7 @@
     </resultMap>
 
     <sql id="sqlAppUser">
-        SELECT a.id, a.company_id, a.name, a.email, a.password, a.img,
+        SELECT a.id, a.company_id, a.name, a.email, a.code, a.password, a.img, a.admin,
         c.id as company_id_fk, c.code as company_code, c.name as company_name,
         c.address as company_address, c.phone as company_phone, c.alias as company_alias,
         c.giro as company_giro, c.email as company_email, c.geolocation as company_geolocation,
@@ -60,8 +62,8 @@
     </select>
 
     <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.AppUser" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO app_user (name, company_id, email, password, img)
-        VALUES (#{name}, #{company.id}, #{email}, #{password}, #{img, jdbcType=BINARY})
+        INSERT INTO app_user (name, company_id, email, code, password, img, admin)
+        VALUES (#{name}, #{company.id}, #{email}, #{code}, #{password}, #{img, jdbcType=BINARY}, #{admin})
     </insert>
 
     <update id="update" parameterType="cl.bennu.assistcontrol.domain.AppUser">
@@ -69,8 +71,10 @@
         SET company_id = #{company.id},
         name = #{name},
         email = #{email},
+        code = #{code},
         password = #{password},
-        img = #{img, jdbcType=BLOB}
+        img = #{img, jdbcType=BLOB},
+        admin = #{admin}
         WHERE id = #{id}
     </update>
 

@@ -265,7 +265,22 @@ public class AssistControlService {
 
         List<Branch> branches = findBranchByQuery(token, branchQuery);
         if (branches != null && !branches.isEmpty()) {
-            throw new NoDataException("No se puede eliminar la compañía porque tiene sucursales asociadas.");
+            for (Branch branch : branches) {
+                EmployeeQuery employeeQuery = new EmployeeQuery();
+                BranchQuery branchQueryForEmployee = new BranchQuery();
+                branchQueryForEmployee.setId(branch.getId());
+                employeeQuery.setBranch(branchQueryForEmployee);
+                List<Employee> employees = findEmployeesByQuery(token, employeeQuery);
+                if (employees != null && !employees.isEmpty()) {
+                    throw new NoDataException("No se puede eliminar la compañía porque la sucursal " + branch.getName() + " tiene empleados asociados.");
+                }
+            }
+
+            if (branches.size() == 1) {
+                branchMapper.delete(branches.get(0).getId());
+            } else {
+                throw new NoDataException("No se puede eliminar la compañía porque tiene sucursales asociadas.");
+            }
         }
 
         companyMapper.delete(companyId);
@@ -1150,10 +1165,27 @@ public class AssistControlService {
         return companyInfo;
     }
 
-    public AppUser login(String email, String password) {
-        // Nota: Es importante comparar las contraseñas de forma segura (idealmente, usando encriptación).
-        return appUserMapper.findByEmailAndPassword(email, password);
+    public AppUser login(String code, String password, boolean isAdminRequested) throws NoDataException {
+
+        AppUser appUser = appUserMapper.findByCode(code);
+        if (appUser == null) {
+            throw new NoDataException("Credenciales inválidas: usuario no encontrado.");
+        }
+        if (!appUser.getPassword().equals(password)) {
+            throw new NoDataException("Credenciales inválidas: contraseña incorrecta.");
+        }
+        boolean isAdmin = Boolean.TRUE.equals(appUser.getAdmin());
+        if (isAdminRequested && !isAdmin) {
+            throw new NoDataException("Acceso denegado: no tienes permisos de administrador.");
+        }
+
+        return appUser;
     }
+
+
+
+
+
 
 }
 

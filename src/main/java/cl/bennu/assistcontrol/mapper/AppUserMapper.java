@@ -20,6 +20,8 @@ public interface AppUserMapper extends BaseMapper<AppUser> {
 
     Company getCompanyInfoByUser(@Param("userId") Long userId);
 
-    AppUser findByEmailAndPassword(@Param("email") String email,
-                                   @Param("password") String password);
+    AppUser findByCodeAndPassword(@Param("code") String code, @Param("password") String password);
+
+    AppUser findByCode(@Param("code") String code);
 }
+

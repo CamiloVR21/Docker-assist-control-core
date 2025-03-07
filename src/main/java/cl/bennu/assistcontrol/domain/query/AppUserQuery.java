@@ -17,7 +17,9 @@ public class AppUserQuery extends BaseDomain implements Serializable {
     private String name;
     private CompanyQuery companyId;
     private String email;
+    private String code;
     private String password;
+    private Boolean admin;
     private byte[] img;
 
     public String getImgBase64() {

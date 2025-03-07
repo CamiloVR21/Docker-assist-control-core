@@ -15,6 +15,8 @@ public interface EmployeeMapper extends BaseMapper<Employee> {
     List<Employee> findByQuery(EmployeeQuery query);
     Employee getByQuery(EmployeeQuery query);
     List<Employee> findByCompany(@Param("companyId") Long companyId);
+   // Employee findByCodeAndPassword(@Param("code") String code,
+    //                             @Param("password") String password);
 
 
 

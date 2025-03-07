@@ -17,7 +17,7 @@ import java.io.Serializable;
 
 public class Credential extends BaseDomain implements Serializable{
 
-    private String email;
+    private String code;
     private String password;
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)

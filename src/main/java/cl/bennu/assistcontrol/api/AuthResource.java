@@ -24,15 +24,18 @@ public class AuthResource {
 
     @POST
     @Path("/login")
-    public Response login(Credential credentials) {
-        AppUser appUser = assistControlService.login(credentials.getEmail(), credentials.getPassword());
-        if (appUser == null) {
-            return Response.status(Response.Status.UNAUTHORIZED)
-                    .entity("Credenciales inválidas")
+    public Response login(Credential credentials, @QueryParam("isAdmin") boolean isAdminRequested) {
+        try {
+            AppUser appUser = assistControlService.login(credentials.getCode(), credentials.getPassword(), isAdminRequested);
+            return Response.ok(appUser)
+                    .header("Role", Boolean.TRUE.equals(appUser.getAdmin()) ? "ADMIN" : "USER")
                     .build();
+        } catch (NoDataException ex) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         }
-        return Response.ok(appUser).build();
     }
+
+
 
     @GET
     @Path("/dashboard")
