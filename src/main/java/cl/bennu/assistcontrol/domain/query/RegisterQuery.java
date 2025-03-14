@@ -20,5 +20,6 @@ public class RegisterQuery extends BaseDomain implements Serializable {
     private Time entry;
     private Time exit;
     private Time breakTime;
+    private Time backToWork;
     private Date day;
 }

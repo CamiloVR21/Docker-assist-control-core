@@ -1,5 +1,6 @@
 package cl.bennu.assistcontrol.domain;
 
+import cl.bennu.assistcontrol.enums.TypeUserEnum;
 import cl.bennu.commons.domain.base.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.quarkus.runtime.annotations.RegisterForReflection;
@@ -21,8 +22,8 @@ public class AppUser extends BaseDomain implements Serializable {
     private String code;
     private String password;
     private byte[] img;
-    private Boolean admin;
     private String base64Img;
+    private TypeUserEnum typeUser;
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static AppUser valueOf(Long id) {

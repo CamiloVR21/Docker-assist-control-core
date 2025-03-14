@@ -22,6 +22,7 @@ public class Register extends BaseDomain implements Serializable {
     private Time entry;
     private Time exit;
     private Time breakTime;
+    private Time backToWork;
     private Date day;
     private JobType jobType;
 

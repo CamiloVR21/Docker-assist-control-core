@@ -1,5 +1,6 @@
 package cl.bennu.assistcontrol.domain.query;
 
+import cl.bennu.assistcontrol.enums.TypeUserEnum;
 import cl.bennu.commons.domain.base.BaseDomain;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Data;
@@ -19,8 +20,8 @@ public class AppUserQuery extends BaseDomain implements Serializable {
     private String email;
     private String code;
     private String password;
-    private Boolean admin;
     private byte[] img;
+    private TypeUserEnum typeUser;
 
     public String getImgBase64() {
         return img != null ? Base64.getEncoder().encodeToString(img) : null;

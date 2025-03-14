@@ -1165,22 +1165,14 @@ public class AssistControlService {
         return companyInfo;
     }
 
-    public AppUser login(String code, String password, boolean isAdminRequested) throws NoDataException {
-
-        AppUser appUser = appUserMapper.findByCode(code);
+    public AppUser login(String code, String password) throws NoDataException {
+        AppUser appUser = appUserMapper.findByCodeAndPassword(code, password);
         if (appUser == null) {
-            throw new NoDataException("Credenciales inválidas: usuario no encontrado.");
+            throw new NoDataException("Credenciales inválidas: usuario o contraseña incorrecta.");
         }
-        if (!appUser.getPassword().equals(password)) {
-            throw new NoDataException("Credenciales inválidas: contraseña incorrecta.");
-        }
-        boolean isAdmin = Boolean.TRUE.equals(appUser.getAdmin());
-        if (isAdminRequested && !isAdmin) {
-            throw new NoDataException("Acceso denegado: no tienes permisos de administrador.");
-        }
-
         return appUser;
     }
+
 
 
 

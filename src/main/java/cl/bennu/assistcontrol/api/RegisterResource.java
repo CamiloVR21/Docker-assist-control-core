@@ -87,6 +87,8 @@ public class RegisterResource extends BaseResource {
         return Response.status(Response.Status.CREATED).entity(request).build();
     }
 
+
+
     @SneakyThrows
     @PUT
     public Response update(@HeaderParam("Authorization") String token, Register register) {
@@ -107,5 +109,12 @@ public class RegisterResource extends BaseResource {
         Register register = assistControlService.deleteRegistryById(token, id);
         return Response.ok(register).build();
     }
+
+
+
+
+
+
+
 }
 

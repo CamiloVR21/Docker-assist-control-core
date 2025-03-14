@@ -9,6 +9,7 @@
         <result property="entry" column="entry"/>
         <result property="exit" column="exit"/>
         <result property="breakTime" column="break_time"/>
+        <result property="backToWork" column="back_to_work"/>
         <result property="day" column="day"/>
         <association property="jobType" javaType="cl.bennu.assistcontrol.domain.JobType">
             <id property="id" column="jobTypeId"/>
@@ -27,6 +28,7 @@
         r.entry,
         r.exit,
         r.break_time,
+        r.back_to_work,
         r.day,
         e.id AS employee_id,
         e.name AS employee_name,
@@ -70,6 +72,9 @@
         <if test="breakTime != null">
             AND r.break_time = #{breakTime}
         </if>
+        <if test="backToWork != null">
+            AND r.back_to_work = #{backToWork}
+        </if>
         <if test="day != null">
             AND r.day = #{day}
         </if>
@@ -78,7 +83,7 @@
 
     <select id="findByCompanyId" resultMap="registerMap" parameterType="java.lang.Long">
         SELECT
-        r.id, r.start_of_the_day, r.entry, r.exit, r.break_time, r.day,
+        r.id, r.start_of_the_day, r.entry, r.exit, r.break_time, r.back_to_work , r.day,
         e.id AS employee_id, e.name AS employee_name
         FROM register r
         LEFT JOIN employee e ON r.employee_id = e.id
@@ -89,7 +94,7 @@
 
     <select id="findByBranchId" resultMap="registerMap" parameterType="java.lang.Long">
         SELECT
-        r.id, r.start_of_the_day, r.entry, r.exit, r.break_time, r.day,
+        r.id, r.start_of_the_day, r.entry, r.exit, r.break_time, r.back_to_work, r.day,
         e.id AS employee_id, e.name AS employee_name
         FROM register r
         LEFT JOIN employee e ON r.employee_id = e.id
@@ -99,8 +104,8 @@
 
     <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.Register" useGeneratedKeys="true"
             keyProperty="id">
-        INSERT INTO register (employee_id,start_of_the_day, entry, exit, break_time, day)
-        VALUES (#{employee.id}, #{startOfTheDay}, #{entry}, #{exit}, #{breakTime}, #{day})
+        INSERT INTO register (employee_id,start_of_the_day, entry, exit, break_time, back_to_work, day)
+        VALUES (#{employee.id}, #{startOfTheDay}, #{entry}, #{exit}, #{breakTime}, #{backToWork} #{day})
     </insert>
 
     <update id="update" parameterType="cl.bennu.assistcontrol.domain.Register">
@@ -111,6 +116,7 @@
         entry = #{entry},
         exit = #{exit},
         break_time = #{breakTime},
+        back_to_work = #{backToWork},
         day = #{day}
         WHERE id = #{id}
     </update>
@@ -119,4 +125,27 @@
         DELETE FROM register WHERE id = #{id}
     </delete>
 
+
+
+    <!--        agrergar el sysdate qlo-->
+    <insert id="insertSucursal" parameterType="cl.bicevida.syssinsaludcol.dto.Sucursal">
+    MERGE INTO BUP_SUCURSAL target
+        USING (
+        SELECT
+        #{nombre, jdbcType=VARCHAR} AS nombre,
+        #{fecha_actualizacion, jdbcType=TIMESTAMP} AS fecha_actualizacion
+        FROM dual
+        ) source
+        ON (target.NOMBRE = source.nombre)
+        WHEN MATCHED THEN
+        UPDATE SET
+        target.SYS_FECHA_MODIFICACION = source.fecha_actualizacion
+        WHEN NOT MATCHED THEN
+        INSERT (NOMBRE, SYS_FECHA_MODIFICACION)
+        VALUES (source.nombre, source.fecha_actualizacion)
+    </insert>
+
 </mapper>
+
+
+

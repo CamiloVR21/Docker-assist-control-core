@@ -9,7 +9,7 @@
         <result property="code" column="code"/>
         <result property="password" column="password"/>
         <result property="img" column="img"/>
-        <result property="admin" column="admin"/>
+        <result property="typeUser" column="type_user_id"/>
         <association property="company" javaType="cl.bennu.assistcontrol.domain.Company">
             <id property="id" column="company_id"/>
             <result property="code" column="company_code"/>
@@ -26,7 +26,7 @@
     </resultMap>
 
     <sql id="sqlAppUser">
-        SELECT a.id, a.company_id, a.name, a.email, a.code, a.password, a.img, a.admin,
+        SELECT a.id, a.company_id, a.name, a.email, a.code, a.password, a.img, a.type_user_id,
         c.id as company_id_fk, c.code as company_code, c.name as company_name,
         c.address as company_address, c.phone as company_phone, c.alias as company_alias,
         c.giro as company_giro, c.email as company_email, c.geolocation as company_geolocation,
@@ -62,8 +62,8 @@
     </select>
 
     <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.AppUser" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO app_user (name, company_id, email, code, password, img, admin)
-        VALUES (#{name}, #{company.id}, #{email}, #{code}, #{password}, #{img, jdbcType=BINARY}, #{admin})
+        INSERT INTO app_user (name, company_id, email, code, password, img, type_user_id)
+        VALUES (#{name}, #{company.id}, #{email}, #{code}, #{password}, #{img, jdbcType=BINARY}, #{typeUser})
     </insert>
 
     <update id="update" parameterType="cl.bennu.assistcontrol.domain.AppUser">
@@ -74,13 +74,18 @@
         code = #{code},
         password = #{password},
         img = #{img, jdbcType=BLOB},
-        admin = #{admin}
+        type_user_id = #{typeUser.id}
         WHERE id = #{id}
     </update>
 
     <delete id="delete" parameterType="java.lang.Long">
         DELETE FROM app_user WHERE id = #{id}
     </delete>
+
+    <select id="findByCodeAndPassword" parameterType="map" resultMap="appUserMap">
+        <include refid="sqlAppUser"/>
+        WHERE a.code = #{code} AND a.password = #{password}
+    </select>
 
 
 </mapper>

@@ -24,12 +24,11 @@ public class AuthResource {
 
     @POST
     @Path("/login")
-    public Response login(Credential credentials, @QueryParam("isAdmin") boolean isAdminRequested) {
+    public Response login(AppUser loginUser) {
         try {
-            AppUser appUser = assistControlService.login(credentials.getCode(), credentials.getPassword(), isAdminRequested);
-            return Response.ok(appUser)
-                    .header("Role", Boolean.TRUE.equals(appUser.getAdmin()) ? "ADMIN" : "USER")
-                    .build();
+            AppUser appUser = assistControlService.login(loginUser.getCode(), loginUser.getPassword());
+            return Response.ok(appUser).build();
+
         } catch (NoDataException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         }
