@@ -127,23 +127,6 @@
 
 
 
-    <!--        agrergar el sysdate qlo-->
-    <insert id="insertSucursal" parameterType="cl.bicevida.syssinsaludcol.dto.Sucursal">
-    MERGE INTO BUP_SUCURSAL target
-        USING (
-        SELECT
-        #{nombre, jdbcType=VARCHAR} AS nombre,
-        #{fecha_actualizacion, jdbcType=TIMESTAMP} AS fecha_actualizacion
-        FROM dual
-        ) source
-        ON (target.NOMBRE = source.nombre)
-        WHEN MATCHED THEN
-        UPDATE SET
-        target.SYS_FECHA_MODIFICACION = source.fecha_actualizacion
-        WHEN NOT MATCHED THEN
-        INSERT (NOMBRE, SYS_FECHA_MODIFICACION)
-        VALUES (source.nombre, source.fecha_actualizacion)
-    </insert>
 
 </mapper>
 

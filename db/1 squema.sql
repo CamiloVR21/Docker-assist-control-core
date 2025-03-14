@@ -211,6 +211,15 @@ CREATE TABLE register (
  	, FOREIGN KEY (employee_id) REFERENCES employee(id)
 );
 
+CREATE TABLE type_user (
+	id INTEGER  NOT null
+	, name VARCHAR(500) NOT NULL
+ 	, PRIMARY KEY (id)
+ 	, UNIQUE(id)
+ 	, UNIQUE(name)
+
+);
+
 CREATE TABLE app_user (
 	id SERIAL  NOT null
 	, name VARCHAR(500) NOT NULL
@@ -228,11 +237,3 @@ CREATE TABLE app_user (
  	, FOREIGN KEY (type_user_id) REFERENCES type_user(id)
 );
 
-CREATE TABLE type_user (
-	id INTEGER  NOT null
-	, name VARCHAR(500) NOT NULL
- 	, PRIMARY KEY (id)
- 	, UNIQUE(id)
- 	, UNIQUE(name)
-
-);
