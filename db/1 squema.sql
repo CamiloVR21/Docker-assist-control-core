@@ -200,10 +200,10 @@ CREATE TABLE register (
 	id SERIAL  NOT NULL
 	, employee_id INTEGER NOT NULL
 	,start_of_the_day time NOT null
-	, entry time NOT null
-	, exit time NOT null
-	, break_time time NOT null
-	, back_to_work time NOT null
+	, entry time null
+	, exit time null
+	, break_time time  null
+	, back_to_work time  null
 	, day date NOT NULL
 
  	, PRIMARY KEY (id)
@@ -223,7 +223,7 @@ CREATE TABLE type_user (
 CREATE TABLE app_user (
 	id SERIAL  NOT null
 	, name VARCHAR(500) NOT NULL
-	, company_id INTEGER NOT NULL
+	, employee_id INTEGER NOT NULL
 	, email VARCHAR(500) NOT null
 	, code VARCHAR(500) NOT NULL
 	, password VARCHAR(500) NOT null
@@ -233,7 +233,7 @@ CREATE TABLE app_user (
  	, PRIMARY KEY (id)
  	, UNIQUE(id)
  	, UNIQUE(code)
- 	, FOREIGN KEY (company_id) REFERENCES company(id)
+ 	, FOREIGN KEY (employee_id) REFERENCES employee(id)
  	, FOREIGN KEY (type_user_id) REFERENCES type_user(id)
 );
 

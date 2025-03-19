@@ -17,7 +17,7 @@ import java.io.Serializable;
 public class AppUser extends BaseDomain implements Serializable {
 
     private String name;
-    private Company company;
+    private Employee employee;
     private String email;
     private String code;
     private String password;

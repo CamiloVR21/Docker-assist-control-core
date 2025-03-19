@@ -4,6 +4,7 @@ import cl.bennu.assistcontrol.domain.*;
 import cl.bennu.assistcontrol.domain.query.*;
 import cl.bennu.assistcontrol.mapper.*;
 import cl.bennu.assistcontrol.request.SaveCompanyRequest;
+import cl.bennu.assistcontrol.request.SaveRegisterRequest;
 import cl.bennu.commons.exception.NoDataException;
 import cl.bennu.commons.exception.UniqueException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -13,6 +14,8 @@ import jakarta.ws.rs.HttpMethod;
 import org.apache.commons.lang3.StringUtils;
 
 
+import java.sql.Date;
+import java.sql.Time;
 import java.util.Base64;
 import java.util.List;
 
@@ -155,7 +158,6 @@ public class AssistControlService {
         }
         return branches;
     }
-
 
 
     @Transactional
@@ -961,7 +963,7 @@ public class AssistControlService {
         }
         Register foundRegister = registerMapper.get(register.getId());
         if (foundRegister == null) {
-            throw new NoDataException("No se encontró la sucursal con el ID especificado: " + register.getId());
+            throw new NoDataException("No se encontró el registro con el ID especificado: " + register.getId());
         }
         return foundRegister;
     }
@@ -977,7 +979,6 @@ public class AssistControlService {
     @Transactional
     public void saveRegistry(String token, Register register, String method) throws NoDataException, UniqueException {
         validateRegistry(token, register, method);
-
         if (register.getId() == null) {
             registerMapper.insert(register);
         } else {
@@ -987,9 +988,8 @@ public class AssistControlService {
 
     private void validateRegistry(String token, Register register, String method) throws NoDataException, UniqueException {
         if (register == null) {
-            throw new NoDataException("El cuerpo de la solicitud no contiene la información del rol");
+            throw new NoDataException("El cuerpo de la solicitud no contiene la información del registro");
         }
-
         if (Boolean.TRUE.equals(register.getActive())) {
             if (register.getStartOfTheDay() == null) {
                 throw new NoDataException("No se especificó el campo inicio del día");
@@ -1003,31 +1003,28 @@ public class AssistControlService {
             if (register.getExit() == null) {
                 throw new NoDataException("No se especificó el campo salida");
             }
-
         }
-
         RegisterQuery query = new RegisterQuery();
         query.setStartOfTheDay(register.getStartOfTheDay());
         query.setDay(register.getDay());
         query.setEntry(register.getEntry());
         query.setExit(register.getExit());
         List<Register> registerDBList = registerMapper.findByQuery(query);
-
-        if (HttpMethod.POST.equalsIgnoreCase(method)) {
+        if ("POST".equalsIgnoreCase(method)) {
             if (register.getId() != null) {
                 throw new NoDataException("El campo ID debe ser nulo para el registro");
             }
             if (registerDBList != null && !registerDBList.isEmpty()) {
-                throw new UniqueException("El rol ya existe");
+                throw new UniqueException("El registro ya existe");
             }
-        } else if (HttpMethod.PUT.equalsIgnoreCase(method)) {
+        } else if ("PUT".equalsIgnoreCase(method)) {
             if (register.getId() == null) {
                 throw new NoDataException("No se especificó el campo ID para actualizar el registro");
             }
             if (registerDBList != null && !registerDBList.isEmpty()) {
                 for (Register existingRegister : registerDBList) {
                     if (!existingRegister.getId().equals(register.getId())) {
-                        throw new UniqueException("El registro ya existe con el mismo tiempo");
+                        throw new UniqueException("Ya existe otro registro con el mismo tiempo");
                     }
                 }
             }
@@ -1049,12 +1046,10 @@ public class AssistControlService {
         if (companyId == null) {
             throw new NoDataException("El ID de la compañía no puede ser nulo.");
         }
-
         List<Register> registries = registerMapper.findByCompanyId(companyId);
         if (registries == null || registries.isEmpty()) {
             throw new NoDataException("No se encontraron registros para la compañía con ID: " + companyId);
         }
-
         return registries;
     }
 
@@ -1062,14 +1057,68 @@ public class AssistControlService {
         if (branchId == null) {
             throw new NoDataException("El ID de la sucursal no puede ser nulo.");
         }
-
         List<Register> registries = registerMapper.findByBranchId(branchId);
         if (registries == null || registries.isEmpty()) {
             throw new NoDataException("No se encontraron registros para la sucursal con ID: " + branchId);
         }
-
         return registries;
     }
+
+    public Register saveRegister(String token, SaveRegisterRequest request) throws NoDataException, UniqueException {
+        if (request == null || request.getRegister() == null) {
+            throw new NoDataException("La solicitud de registro está vacía");
+        }
+        registerMapper.mergeRegister(request);
+        return request.getRegister();
+    }
+
+    @Transactional
+    public Register processRegister(String token, SaveRegisterRequest request) throws NoDataException, UniqueException {
+        if (request == null || request.getRegister() == null) {
+            throw new NoDataException("La solicitud de registro está vacía");
+        }
+        Long type = request.getTypeRegister();
+        Register reg = request.getRegister();
+        switch (type.intValue()) {
+            case 1:
+                reg.setDay(new java.sql.Date(System.currentTimeMillis()));
+                reg.setStartOfTheDay(new Time(System.currentTimeMillis()));
+                reg.setEntry(new Time(System.currentTimeMillis()));
+                saveRegistry(token, reg, "POST");
+                break;
+            case 2:
+                Register regBreak = getRegistryById(token, reg);
+                if (regBreak == null) {
+                    throw new NoDataException("Registro no encontrado para iniciar break");
+                }
+                regBreak.setBreakTime(new Time(System.currentTimeMillis()));
+                saveRegistry(token, regBreak, "PUT");
+                reg = regBreak;
+                break;
+            case 3:
+                Register regBack = getRegistryById(token, reg);
+                if (regBack == null) {
+                    throw new NoDataException("Registro no encontrado para finalizar break");
+                }
+                regBack.setBackToWork(new Time(System.currentTimeMillis()));
+                saveRegistry(token, regBack, "PUT");
+                reg = regBack;
+                break;
+            case 4:
+                Register regExit = getRegistryById(token, reg);
+                if (regExit == null) {
+                    throw new NoDataException("Registro no encontrado para salida");
+                }
+                regExit.setExit(new Time(System.currentTimeMillis()));
+                saveRegistry(token, regExit, "PUT");
+                reg = regExit;
+                break;
+            default:
+                throw new NoDataException("Tipo de registro no válido: " + type);
+        }
+        return reg;
+    }
+
 
     //APP USEEEEEEEEEEEEEEEEER
 
@@ -1115,8 +1164,8 @@ public class AssistControlService {
         if (StringUtils.isBlank(appUser.getPassword())) {
             throw new NoDataException("No se especificó la contraseña.");
         }
-        if (appUser.getCompany() == null || appUser.getCompany().getId() == null) {
-            throw new NoDataException("No se especificó la compañía asociada al usuario.");
+        if (appUser.getEmployee() == null || appUser.getEmployee().getId() == null) {
+            throw new NoDataException("No se especificó el empleado asociada al usuario.");
         }
 
         AppUserQuery query = new AppUserQuery();
@@ -1172,11 +1221,6 @@ public class AssistControlService {
         }
         return appUser;
     }
-
-
-
-
-
 
 
 }

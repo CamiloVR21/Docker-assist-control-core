@@ -24,7 +24,6 @@ public class Register extends BaseDomain implements Serializable {
     private Time breakTime;
     private Time backToWork;
     private Date day;
-    private JobType jobType;
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static Register valueOf(Long id) {

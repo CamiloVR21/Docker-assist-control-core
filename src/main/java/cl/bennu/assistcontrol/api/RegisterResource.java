@@ -4,8 +4,10 @@ import cl.bennu.assistcontrol.api.base.BaseResource;
 import cl.bennu.assistcontrol.domain.Register;
 import cl.bennu.assistcontrol.domain.query.EmployeeQuery;
 import cl.bennu.assistcontrol.domain.query.RegisterQuery;
+import cl.bennu.assistcontrol.request.SaveRegisterRequest;
 import cl.bennu.assistcontrol.service.AssistControlService;
 import cl.bennu.commons.exception.NoDataException;
+import cl.bennu.commons.exception.UniqueException;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -24,8 +26,8 @@ public class RegisterResource extends BaseResource {
     @SneakyThrows
     @GET
     public Response getAll(@HeaderParam("Authorization") String token) {
-        List<Register> register = assistControlService.getAllRegistry(token);
-        return Response.ok(register).build();
+        List<Register> registers = assistControlService.getAllRegistry(token);
+        return Response.ok(registers).build();
     }
 
     @SneakyThrows
@@ -51,10 +53,8 @@ public class RegisterResource extends BaseResource {
             query.setEmployee(employeeQuery);
         }
         query.setDay(day);
-
-
-        List<Register> register = assistControlService.findRegistryByQuery(token, query);
-        return Response.ok(register).build();
+        List<Register> registers = assistControlService.findRegistryByQuery(token, query);
+        return Response.ok(registers).build();
     }
 
     @GET
@@ -79,15 +79,12 @@ public class RegisterResource extends BaseResource {
         }
     }
 
-
-    @SneakyThrows
     @POST
-    public Response insert(@HeaderParam("Authorization") String token, Register request) {
-        assistControlService.saveRegistry(token, request, HttpMethod.POST);
-        return Response.status(Response.Status.CREATED).entity(request).build();
+    @SneakyThrows
+    public Response saveRegister(@HeaderParam("Authorization") String token, SaveRegisterRequest request) throws NoDataException, UniqueException {
+        Register reg = assistControlService.processRegister(token, request);
+        return Response.status(Response.Status.OK).entity(reg).build();
     }
-
-
 
     @SneakyThrows
     @PUT
@@ -109,12 +106,4 @@ public class RegisterResource extends BaseResource {
         Register register = assistControlService.deleteRegistryById(token, id);
         return Response.ok(register).build();
     }
-
-
-
-
-
-
-
 }
-

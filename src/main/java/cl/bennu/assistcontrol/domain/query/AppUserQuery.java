@@ -16,7 +16,7 @@ public class AppUserQuery extends BaseDomain implements Serializable {
 
     private Long id;
     private String name;
-    private CompanyQuery companyId;
+    private EmployeeQuery employeeId;
     private String email;
     private String code;
     private String password;

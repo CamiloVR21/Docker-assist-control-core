@@ -56,7 +56,7 @@ public class AuthResource {
                     .build();
         }
 
-        Long companyId = appUser.getCompany().getId();
+        Long companyId = appUser.getEmployee().getId();
 
         try {
             List<Branch> branches = assistControlService.getBranchesByCompany(companyId);

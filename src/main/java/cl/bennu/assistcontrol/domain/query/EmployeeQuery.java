@@ -30,7 +30,7 @@ public class EmployeeQuery extends BaseDomain implements Serializable {
     private String lastName;
     private String motherLastName;
     private Time birthDate;
-    private String phone;
+    private Integer phone;
     private String email;
     private String address;
     private Time contractDate;

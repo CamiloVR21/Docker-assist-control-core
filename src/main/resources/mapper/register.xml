@@ -1,22 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cl.bennu.assistcontrol.mapper.RegisterMapper">
-
     <resultMap id="registerMap" type="cl.bennu.assistcontrol.domain.Register">
         <id property="id" column="id"/>
-        <result property="name" column="name"/>
         <result property="startOfTheDay" column="start_of_the_day"/>
         <result property="entry" column="entry"/>
         <result property="exit" column="exit"/>
         <result property="breakTime" column="break_time"/>
         <result property="backToWork" column="back_to_work"/>
         <result property="day" column="day"/>
-        <association property="jobType" javaType="cl.bennu.assistcontrol.domain.JobType">
-            <id property="id" column="jobTypeId"/>
-            <result property="name" column="job_Type_Name"/>
-        </association>
         <association property="employee" javaType="cl.bennu.assistcontrol.domain.Employee">
-            <id property="id" column="employeeId"/>
+            <id property="id" column="employee_id"/>
             <result property="name" column="employee_name"/>
         </association>
     </resultMap>
@@ -31,15 +25,9 @@
         r.back_to_work,
         r.day,
         e.id AS employee_id,
-        e.name AS employee_name,
-        e.last_name AS employee_last_name,
-        e.mother_last_name AS employee_mother_last_name,
-        e.birth_date AS employee_birth_date,
-        jt.id AS job_type_id,
-        jt.name AS job_type_name
+        e.name AS employee_name
         FROM register r
         LEFT JOIN employee e ON r.employee_id = e.id
-        LEFT JOIN job_type jt ON e.job_type_id = jt.id
     </sql>
 
     <select id="getAll" resultMap="registerMap">
@@ -48,14 +36,11 @@
 
     <select id="get" resultMap="registerMap" parameterType="java.lang.Long">
         <include refid="sqlRegister"/>
-        <!-- @formatter:off -->
         WHERE r.id = #{id}
-        <!-- @formatter:on -->
     </select>
-    <select id="findByQuery" resultMap="registerMap"
-            parameterType="cl.bennu.assistcontrol.domain.query.RegisterQuery">
+
+    <select id="findByQuery" resultMap="registerMap" parameterType="cl.bennu.assistcontrol.domain.query.RegisterQuery">
         <include refid="sqlRegister"/>
-        <!-- @formatter:off -->
         WHERE 1 = 1
         <if test="employee != null">
             AND r.employee_id = #{employee.id}
@@ -78,16 +63,15 @@
         <if test="day != null">
             AND r.day = #{day}
         </if>
-        <!-- @formatter:on -->
     </select>
 
     <select id="findByCompanyId" resultMap="registerMap" parameterType="java.lang.Long">
         SELECT
-        r.id, r.start_of_the_day, r.entry, r.exit, r.break_time, r.back_to_work , r.day,
+        r.id, r.start_of_the_day, r.entry, r.exit, r.break_time, r.back_to_work, r.day,
         e.id AS employee_id, e.name AS employee_name
         FROM register r
         LEFT JOIN employee e ON r.employee_id = e.id
-        left join branch b on e.branch_id = b.id
+        LEFT JOIN branch b ON e.branch_id = b.id
         LEFT JOIN company c ON b.company_id = c.id
         WHERE c.id = #{companyId}
     </select>
@@ -102,11 +86,49 @@
         WHERE b.id = #{branchId}
     </select>
 
-    <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.Register" useGeneratedKeys="true"
-            keyProperty="id">
-        INSERT INTO register (employee_id,start_of_the_day, entry, exit, break_time, back_to_work, day)
-        VALUES (#{employee.id}, #{startOfTheDay}, #{entry}, #{exit}, #{breakTime}, #{backToWork} #{day})
+    <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.Register"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO register (employee_id, start_of_the_day, entry, exit, break_time, back_to_work, day)
+        VALUES (#{employee.id}, #{startOfTheDay}, #{entry}, #{exit}, #{breakTime}, #{backToWork}, #{day})
     </insert>
+
+    <insert id="mergeRegister" parameterType="cl.bennu.assistcontrol.request.SaveRegisterRequest">
+        MERGE INTO register target
+        USING (
+        SELECT
+        #{register.employeeId} AS employee_id,
+        SYSDATE AS current_date
+        FROM dual
+        ) source
+        ON (target.employee_id = source.employee_id AND TRUNC(target.day) = TRUNC(source.current_date))
+        WHEN MATCHED THEN
+        UPDATE SET
+        target.break_time = CASE
+        WHEN #{typeRegister} = 2 THEN source.current_date
+        ELSE target.break_time
+        END,
+        target.back_to_work = CASE
+        WHEN #{typeRegister} = 3 THEN source.current_date
+        ELSE target.back_to_work
+        END,
+        target.exit = CASE
+        WHEN #{typeRegister} = 4 THEN source.current_date
+        ELSE target.exit
+        END
+        WHEN NOT MATCHED THEN
+        INSERT (id, employee_id, day, start_of_the_day, entry, exit, break_time, back_to_work)
+        VALUES (
+        register_seq.NEXTVAL, |
+        #{register.employeeId},
+        TRUNC(source.current_date),
+        CASE WHEN #{typeRegister} = 1 THEN source.current_date ELSE NULL END,
+        CASE WHEN #{typeRegister} = 1 THEN source.current_date ELSE NULL END,
+        CASE WHEN #{typeRegister} = 4 THEN source.current_date ELSE NULL END,
+        CASE WHEN #{typeRegister} = 2 THEN source.current_date ELSE NULL END,
+        CASE WHEN #{typeRegister} = 3 THEN source.current_date ELSE NULL END
+        )
+    </insert>
+
 
     <update id="update" parameterType="cl.bennu.assistcontrol.domain.Register">
         UPDATE register
@@ -124,11 +146,4 @@
     <delete id="delete" parameterType="java.lang.Long">
         DELETE FROM register WHERE id = #{id}
     </delete>
-
-
-
-
 </mapper>
-
-
-

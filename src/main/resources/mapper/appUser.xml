@@ -1,91 +1,101 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cl.bennu.assistcontrol.mapper.AppUserMapper">
 
     <resultMap id="appUserMap" type="cl.bennu.assistcontrol.domain.AppUser">
-        <id property="id" column="id"/>
-        <result property="name" column="name"/>
-        <result property="email" column="email"/>
-        <result property="code" column="code"/>
-        <result property="password" column="password"/>
-        <result property="img" column="img"/>
-        <result property="typeUser" column="type_user_id"/>
-        <association property="company" javaType="cl.bennu.assistcontrol.domain.Company">
-            <id property="id" column="company_id"/>
-            <result property="code" column="company_code"/>
-            <result property="name" column="company_name"/>
-            <result property="address" column="company_address"/>
-            <result property="phone" column="company_phone"/>
-            <result property="alias" column="company_alias"/>
-            <result property="giro" column="company_giro"/>
-            <result property="email" column="company_email"/>
-            <result property="geolocation" column="company_geolocation"/>
-            <result property="selfie" column="company_selfie"/>
-            <result property="lag" column="company_lag"/>
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="email" column="email" />
+        <result property="code" column="code" />
+        <result property="password" column="password" />
+        <result property="img" column="img" />
+        <result property="typeUser" column="type_user_id" />
+
+        <association property="employee" javaType="cl.bennu.assistcontrol.domain.Employee">
+            <id property="id" column="employee_id" />
+            <result property="code" column="employee_code" />
+            <result property="name" column="employee_name" />
+            <result property="email" column="employee_email" />
         </association>
     </resultMap>
 
     <sql id="sqlAppUser">
-        SELECT a.id, a.company_id, a.name, a.email, a.code, a.password, a.img, a.type_user_id,
-        c.id as company_id_fk, c.code as company_code, c.name as company_name,
-        c.address as company_address, c.phone as company_phone, c.alias as company_alias,
-        c.giro as company_giro, c.email as company_email, c.geolocation as company_geolocation,
-        c.selfie as company_selfie, c.lag as company_lag
+        SELECT
+        a.id,
+        a.name,
+        a.email,
+        a.code,
+        a.password,
+        a.img,
+        a.type_user_id,
+        e.id        AS employee_id,
+        e.code      AS employee_code,
+        e.name      AS employee_name,
+        e.email     AS employee_email
         FROM app_user a
-        LEFT JOIN company c ON a.company_id = c.id
+        LEFT JOIN employee e ON a.employee_id = e.id
     </sql>
 
     <select id="getAll" resultMap="appUserMap">
-        <include refid="sqlAppUser"/>
+        <include refid="sqlAppUser" />
     </select>
 
     <select id="get" resultMap="appUserMap" parameterType="java.lang.Long">
-        <include refid="sqlAppUser"/>
+        <include refid="sqlAppUser" />
         WHERE a.id = #{id}
     </select>
 
     <select id="findByQuery" resultMap="appUserMap"
             parameterType="cl.bennu.assistcontrol.domain.query.AppUserQuery">
-        <include refid="sqlAppUser"/>
+        <include refid="sqlAppUser" />
         WHERE 1 = 1
-        <if test="companyId != null and company.id != null">
-            AND a.company_id = #{company.id}
-        </if>
         <if test="name != null">
-            <bind name="_name" value="'%' + name + '%'"/>
+            <bind name="_name" value="'%' + name + '%'" />
             AND a.name ILIKE #{_name}
         </if>
         <if test="email != null">
-            <bind name="_email" value="'%' + email + '%'"/>
+            <bind name="_email" value="'%' + email + '%'" />
             AND a.email ILIKE #{_email}
         </if>
     </select>
 
     <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.AppUser" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO app_user (name, company_id, email, code, password, img, type_user_id)
-        VALUES (#{name}, #{company.id}, #{email}, #{code}, #{password}, #{img, jdbcType=BINARY}, #{typeUser})
+        INSERT INTO app_user
+        (name, employee_id, email, code, password, img, type_user_id)
+        VALUES
+        (#{name},
+        #{employee.id},
+        #{email},
+        #{code},
+        #{password},
+        #{img, jdbcType=BINARY},
+        #{typeUser})
     </insert>
 
     <update id="update" parameterType="cl.bennu.assistcontrol.domain.AppUser">
         UPDATE app_user
-        SET company_id = #{company.id},
-        name = #{name},
-        email = #{email},
-        code = #{code},
-        password = #{password},
-        img = #{img, jdbcType=BLOB},
-        type_user_id = #{typeUser.id}
+        SET
+        employee_id   = #{employee.id},
+        name          = #{name},
+        email         = #{email},
+        code          = #{code},
+        password      = #{password},
+        img           = #{img, jdbcType=BLOB},
+        type_user_id  = #{typeUser.id}
         WHERE id = #{id}
     </update>
 
     <delete id="delete" parameterType="java.lang.Long">
-        DELETE FROM app_user WHERE id = #{id}
+        DELETE FROM app_user
+        WHERE id = #{id}
     </delete>
 
     <select id="findByCodeAndPassword" parameterType="map" resultMap="appUserMap">
-        <include refid="sqlAppUser"/>
-        WHERE a.code = #{code} AND a.password = #{password}
+        <include refid="sqlAppUser" />
+        WHERE a.code = #{code}
+        AND a.password = #{password}
     </select>
-
 
 </mapper>
