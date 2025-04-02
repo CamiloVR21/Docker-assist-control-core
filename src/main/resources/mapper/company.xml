@@ -44,6 +44,23 @@
         <!-- @formatter:on -->
     </select>
 
+    <select id="getCompanyByEmployee" parameterType="long" resultType="cl.bennu.assistcontrol.domain.Company">
+        SELECT c.*
+        FROM company c
+        INNER JOIN branch b ON c.id = b.company_id
+        INNER JOIN employee e ON b.id = e.branch_id
+        WHERE e.id = #{employeeId}
+    </select>
+
+    <select id="getCompanyByAppUser" parameterType="long" resultType="cl.bennu.assistcontrol.domain.Company">
+        SELECT c.*
+        FROM company c
+        INNER JOIN branch b ON c.id = b.company_id
+        INNER JOIN employee e ON b.id = e.branch_id
+        INNER JOIN app_user au ON e.id = au.employee_id
+        WHERE au.id = #{appUserId}
+    </select>
+
     <select id="findByQuery" resultMap="companyMap"
             parameterType="cl.bennu.assistcontrol.domain.query.CompanyQuery">
         <include refid="sqlCompany"/>

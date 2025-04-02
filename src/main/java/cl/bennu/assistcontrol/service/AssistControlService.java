@@ -145,6 +145,14 @@ public class AssistControlService {
         return companyMapper.findByQuery(query);
     }
 
+    public List<Company> getCompanyByEmployeeId(String token, Long employeeId) throws NoDataException {
+        return companyMapper.getCompanyByEmployee(employeeId);
+    }
+
+    public List<Company> getCompanyByAppUser(String token, Long appUserId) throws NoDataException {
+        return companyMapper.getCompanyByAppUser(appUserId);
+    }
+
     public List<Branch> getBranchesByCompany(Long companyId) throws NoDataException {
         BranchQuery branchQuery = new BranchQuery();
         CompanyQuery companyQuery = new CompanyQuery();

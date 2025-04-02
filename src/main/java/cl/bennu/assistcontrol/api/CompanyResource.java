@@ -62,6 +62,24 @@ public class CompanyResource extends BaseResource {
     }
 
     @SneakyThrows
+    @GET
+    @Path("/-/by-employee/{employeeId}")
+    public Response getByEmployeeId(@HeaderParam("Authorization") String token, @PathParam("employeeId") Long employeeId) {
+        List<Company> companies = assistControlService.getCompanyByEmployeeId(token, employeeId);
+        return Response.ok(companies).build();
+    }
+
+    @SneakyThrows
+    @GET
+    @Path("/-/by-app-user/{appUserId}")
+    public Response getByAppUserId(@HeaderParam("Authorization") String token, @PathParam("appUserId") Long appUserId) {
+        List<Company> companies = assistControlService.getCompanyByAppUser(token, appUserId);
+        return Response.ok(companies).build();
+    }
+
+
+
+    @SneakyThrows
     @POST
     public Response insert(@HeaderParam("Authorization") String token, SaveCompanyRequest request) {
         assistControlService.saveCompany(token, request, HttpMethod.POST);

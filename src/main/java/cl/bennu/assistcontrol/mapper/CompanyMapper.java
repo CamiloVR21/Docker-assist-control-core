@@ -5,6 +5,8 @@ import cl.bennu.assistcontrol.domain.query.CompanyQuery;
 import cl.bennu.assistcontrol.mapper.base.BaseMapper;
 import org.apache.ibatis.annotations.CacheNamespace;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 @Mapper
@@ -13,5 +15,10 @@ public interface CompanyMapper extends BaseMapper<Company> {
 
     List<Company> findByQuery(CompanyQuery query);
     Company getByQuery(CompanyQuery query);
+    List<Company> getCompanyByEmployee(@Param("employeeId") Long employeeId);
+    List<Company> getCompanyByAppUser(@Param("appUserId") Long appUserId);
+
+
+
 
 }

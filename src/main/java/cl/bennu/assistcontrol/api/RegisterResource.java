@@ -78,7 +78,7 @@ public class RegisterResource extends BaseResource {
             return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
         }
     }
-
+ 
     @POST
     @SneakyThrows
     public Response saveRegister(@HeaderParam("Authorization") String token, SaveRegisterRequest request) throws NoDataException, UniqueException {
