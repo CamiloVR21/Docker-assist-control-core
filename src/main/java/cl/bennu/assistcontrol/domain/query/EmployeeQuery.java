@@ -1,3 +1,9 @@
+/**
+ * EmployeeQuery se utiliza para definir los criterios de búsqueda de empleados en la aplicación.
+ * Permite filtrar por propiedades como id, sucursal, programador de trabajos, comuna, país, género,
+ * estado civil, tipo de contrato, tipo de trabajo, código, nombre, apellidos, fecha de nacimiento,
+ * teléfono, email, dirección, fecha de contrato, fecha de fin de contrato y estado activo.
+ */
 package cl.bennu.assistcontrol.domain.query;
 
 import cl.bennu.assistcontrol.enums.ContractTypeEnum;
@@ -13,7 +19,6 @@ import java.sql.Time;
 @Data
 @NoArgsConstructor
 @RegisterForReflection(registerFullHierarchy = true)
-
 public class EmployeeQuery extends BaseDomain implements Serializable {
 
     private Long id;

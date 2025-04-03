@@ -20,6 +20,14 @@ public class CompanyResource extends BaseResource {
 
     private @Inject AssistControlService assistControlService;
 
+    /**
+     * Función: getAll
+     * Descripción: Retorna la lista de todas las compañías registradas.
+     * Requiere el token de autorización en la cabecera para validar el acceso.
+     *
+     * @param token Token de autorización.
+     * @return Response con la lista de compañías.
+     */
     @SneakyThrows
     @GET
     public Response getAll(@HeaderParam("Authorization") String token) {
@@ -27,6 +35,15 @@ public class CompanyResource extends BaseResource {
         return Response.ok(companies).build();
     }
 
+    /**
+     * Función: get
+     * Descripción: Retorna la información detallada de una compañía específica identificada por su id.
+     * Requiere el token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param id Identificador de la compañía.
+     * @return Response con los detalles de la compañía.
+     */
     @SneakyThrows
     @GET
     @Path("/{id}")
@@ -37,6 +54,22 @@ public class CompanyResource extends BaseResource {
         return Response.ok(result).build();
     }
 
+    /**
+     * Función: find
+     * Descripción: Busca compañías basándose en parámetros de consulta:
+     * - commune-id: Identificador de la comuna asociada a la compañía.
+     * - code: Código de la compañía.
+     * - name: Nombre de la compañía.
+     * - address: Dirección de la compañía.
+     * Requiere el token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param communeId Identificador de la comuna.
+     * @param code Código de la compañía.
+     * @param name Nombre de la compañía.
+     * @param address Dirección de la compañía.
+     * @return Response con la lista de compañías que cumplen los criterios de búsqueda.
+     */
     @SneakyThrows
     @GET
     @Path("/-/by-params")
@@ -61,6 +94,15 @@ public class CompanyResource extends BaseResource {
         return Response.ok(companies).build();
     }
 
+    /**
+     * Función: getByEmployeeId
+     * Descripción: Retorna la lista de compañías asociadas a un empleado específico.
+     * Requiere el token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param employeeId Identificador del empleado.
+     * @return Response con la lista de compañías del empleado.
+     */
     @SneakyThrows
     @GET
     @Path("/-/by-employee/{employeeId}")
@@ -69,6 +111,15 @@ public class CompanyResource extends BaseResource {
         return Response.ok(companies).build();
     }
 
+    /**
+     * Función: getByAppUserId
+     * Descripción: Retorna la lista de compañías asociadas a un usuario de la aplicación específico.
+     * Requiere el token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param appUserId Identificador del usuario de la aplicación.
+     * @return Response con la lista de compañías del usuario.
+     */
     @SneakyThrows
     @GET
     @Path("/-/by-app-user/{appUserId}")
@@ -77,8 +128,16 @@ public class CompanyResource extends BaseResource {
         return Response.ok(companies).build();
     }
 
-
-
+    /**
+     * Función: insert
+     * Descripción: Inserta una nueva compañía en la aplicación.
+     * Requiere el token de autorización en la cabecera y un objeto SaveCompanyRequest en el cuerpo de la solicitud.
+     * Retorna la compañía insertada con el código de estado CREATED.
+     *
+     * @param token Token de autorización.
+     * @param request Objeto que contiene la información de la compañía a insertar.
+     * @return Response con la compañía insertada.
+     */
     @SneakyThrows
     @POST
     public Response insert(@HeaderParam("Authorization") String token, SaveCompanyRequest request) {
@@ -86,6 +145,16 @@ public class CompanyResource extends BaseResource {
         return Response.status(Response.Status.CREATED).entity(request.getCompany()).build();
     }
 
+    /**
+     * Función: update
+     * Descripción: Actualiza la información de una compañía existente.
+     * Verifica que el cuerpo de la solicitud contenga la información de la compañía.
+     * Requiere el token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param saveCompanyRequest Objeto que contiene la información actualizada de la compañía.
+     * @return Response con la información actualizada de la compañía.
+     */
     @SneakyThrows
     @PUT
     public Response update(@HeaderParam("Authorization") String token, SaveCompanyRequest saveCompanyRequest) {
@@ -97,6 +166,15 @@ public class CompanyResource extends BaseResource {
         return Response.ok(saveCompanyRequest).build();
     }
 
+    /**
+     * Función: delete
+     * Descripción: Elimina una compañía identificada por su id.
+     * Requiere el token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param id Identificador de la compañía a eliminar.
+     * @return Response con la compañía eliminada.
+     */
     @SneakyThrows
     @DELETE
     @Path("/{id}")

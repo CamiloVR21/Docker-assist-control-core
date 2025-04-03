@@ -16,6 +16,14 @@ import java.util.List;
 public class CountryResource extends BaseResource {
     private @Inject AssistControlService assistControlService;
 
+    /**
+     * Función: getAll
+     * Descripción: Retorna la lista de todos los países registrados en la aplicación.
+     * Requiere un token de autorización en la cabecera para validar el acceso.
+     *
+     * @param token Token de autorización.
+     * @return Response con la lista de países.
+     */
     @SneakyThrows
     @GET
     public Response getAll(@HeaderParam("Authorization") String token) {
@@ -23,6 +31,15 @@ public class CountryResource extends BaseResource {
         return Response.ok(country).build();
     }
 
+    /**
+     * Función: get
+     * Descripción: Retorna la información detallada de un país específico identificado por su id.
+     * Requiere un token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param id Identificador del país.
+     * @return Response con la información del país.
+     */
     @SneakyThrows
     @GET
     @Path("/{id}")
@@ -33,6 +50,18 @@ public class CountryResource extends BaseResource {
         return Response.ok(country).build();
     }
 
+    /**
+     * Función: find
+     * Descripción: Busca países basándose en parámetros de consulta:
+     * - name: Nombre del país.
+     * - nationality: Nacionalidad asociada.
+     * Requiere un token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param name Nombre del país.
+     * @param nationality Nacionalidad del país.
+     * @return Response con la lista de países que cumplen los criterios de búsqueda.
+     */
     @SneakyThrows
     @GET
     @Path("/-/by-params")
@@ -47,6 +76,15 @@ public class CountryResource extends BaseResource {
         return Response.ok(country).build();
     }
 
+    /**
+     * Función: insert
+     * Descripción: Inserta un nuevo país en la aplicación.
+     * Requiere un token de autorización en la cabecera y un objeto Country en el cuerpo de la solicitud.
+     *
+     * @param token Token de autorización.
+     * @param country Objeto Country a insertar.
+     * @return Response con el país insertado.
+     */
     @SneakyThrows
     @POST
     public Response insert(@HeaderParam("Authorization") String token, Country country) {

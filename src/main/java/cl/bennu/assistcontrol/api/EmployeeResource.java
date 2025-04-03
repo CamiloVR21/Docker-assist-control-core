@@ -18,6 +18,14 @@ public class EmployeeResource extends BaseResource {
 
     private @Inject AssistControlService assistControlService;
 
+    /**
+     * Función: getAll
+     * Descripción: Retorna la lista completa de empleados registrados en la aplicación.
+     * Requiere un token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @return Response con la lista de empleados.
+     */
     @SneakyThrows
     @GET
     public Response getAll(@HeaderParam("Authorization") String token) {
@@ -25,6 +33,15 @@ public class EmployeeResource extends BaseResource {
         return Response.ok(employees).build();
     }
 
+    /**
+     * Función: get
+     * Descripción: Retorna la información detallada de un empleado específico identificado por su id.
+     * Requiere un token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param id Identificador del empleado.
+     * @return Response con los detalles del empleado.
+     */
     @SneakyThrows
     @GET
     @Path("/{id}")
@@ -33,6 +50,15 @@ public class EmployeeResource extends BaseResource {
         return Response.ok(employee).build();
     }
 
+    /**
+     * Función: findByCompany
+     * Descripción: Retorna la lista de empleados asociados a una compañía específica.
+     * Requiere un token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param companyId Identificador de la compañía.
+     * @return Response con la lista de empleados vinculados a la compañía.
+     */
     @SneakyThrows
     @GET
     @Path("/-/by-company/{companyId}")
@@ -42,6 +68,20 @@ public class EmployeeResource extends BaseResource {
         return Response.ok(employees).build();
     }
 
+    /**
+     * Función: find
+     * Descripción: Busca empleados basándose en varios parámetros de consulta:
+     * nombre, id del tipo de trabajo, apellido, dirección y estado de actividad.
+     * Requiere un token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param name Nombre del empleado.
+     * @param jobTypeId Identificador del tipo de trabajo.
+     * @param lastName Apellido del empleado.
+     * @param address Dirección del empleado.
+     * @param active Estado de actividad del empleado.
+     * @return Response con la lista de empleados que cumplen con los criterios de búsqueda.
+     */
     @SneakyThrows
     @GET
     @Path("/-/by-params")
@@ -66,6 +106,15 @@ public class EmployeeResource extends BaseResource {
         return Response.ok(employees).build();
     }
 
+    /**
+     * Función: searchEmployees
+     * Descripción: Permite buscar empleados mediante un objeto EmployeeQuery enviado en el cuerpo de la solicitud.
+     * Requiere un token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param query Objeto de consulta con los parámetros de búsqueda para empleados.
+     * @return Response con la lista de empleados que cumplen los criterios.
+     */
     @SneakyThrows
     @POST
     @Path("/search")
@@ -75,6 +124,15 @@ public class EmployeeResource extends BaseResource {
         return Response.ok(employees).build();
     }
 
+    /**
+     * Función: insert
+     * Descripción: Inserta un nuevo empleado en la aplicación.
+     * Requiere un token de autorización en la cabecera y un objeto Employee en el cuerpo de la solicitud.
+     *
+     * @param token Token de autorización.
+     * @param employee Objeto Employee a insertar.
+     * @return Response con el empleado insertado y estado CREATED.
+     */
     @SneakyThrows
     @POST
     public Response insert(@HeaderParam("Authorization") String token, Employee employee) {
@@ -82,6 +140,16 @@ public class EmployeeResource extends BaseResource {
         return Response.status(Response.Status.CREATED).entity(employee).build();
     }
 
+    /**
+     * Función: update
+     * Descripción: Actualiza la información de un empleado existente.
+     * Requiere que el objeto Employee contenga un id válido y un token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param employee Objeto Employee con la información a actualizar.
+     * @return Response con el empleado actualizado.
+     * @throws BadRequestException si no se proporciona el id del empleado.
+     */
     @SneakyThrows
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
@@ -93,6 +161,15 @@ public class EmployeeResource extends BaseResource {
         return Response.ok(employee).build();
     }
 
+    /**
+     * Función: delete
+     * Descripción: Elimina un empleado identificado por su id.
+     * Requiere un token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param id Identificador del empleado a eliminar.
+     * @return Response con el empleado eliminado.
+     */
     @SneakyThrows
     @DELETE
     @Path("/{id}")

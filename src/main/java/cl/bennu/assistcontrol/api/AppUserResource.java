@@ -23,6 +23,11 @@ public class AppUserResource extends BaseResource {
     @Inject
     private AssistControlService assistControlService;
 
+    /**
+     * Función: getAll
+     * Descripción: Retorna una lista con todos los usuarios de la aplicación.
+     * Requiere el token de autorización en la cabecera para validar el acceso.
+     */
     @SneakyThrows
     @GET
     public Response getAll(@HeaderParam("Authorization") String token) {
@@ -30,6 +35,11 @@ public class AppUserResource extends BaseResource {
         return Response.ok(appUsers).build();
     }
 
+    /**
+     * Función: get
+     * Descripción: Retorna los detalles de un usuario específico identificado por su id.
+     * Utiliza el token de autorización y el id del usuario recibido en la URL.
+     */
     @SneakyThrows
     @GET
     @Path("/{id}")
@@ -40,7 +50,11 @@ public class AppUserResource extends BaseResource {
         return Response.ok(appUser).build();
     }
 
-
+    /**
+     * Función: find
+     * Descripción: Busca y retorna usuarios de la aplicación basándose en parámetros de consulta.
+     * Se puede filtrar por id del empleado y/o nombre del usuario.
+     */
     @SneakyThrows
     @GET
     @Path("/-")
@@ -58,7 +72,13 @@ public class AppUserResource extends BaseResource {
         return Response.ok(appUsers).build();
     }
 
-
+    /**
+     * Función: insert
+     * Descripción: Inserta un nuevo usuario en la aplicación.
+     * Valida que se proporcionen los datos requeridos (nombre, contraseña y empleado).
+     * Si se envía una imagen en formato Base64, la decodifica y la almacena.
+     * Retorna el usuario creado y un código de estado 201 (CREATED).
+     */
     @SneakyThrows
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -74,6 +94,12 @@ public class AppUserResource extends BaseResource {
         return Response.status(Response.Status.CREATED).entity(appUser).build();
     }
 
+    /**
+     * Función: update
+     * Descripción: Actualiza la información de un usuario existente.
+     * Verifica que se proporcione el cuerpo de la solicitud y el id del usuario.
+     * Retorna el usuario actualizado.
+     */
     @SneakyThrows
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
@@ -88,6 +114,11 @@ public class AppUserResource extends BaseResource {
         return Response.ok(appUser).build();
     }
 
+    /**
+     * Función: delete
+     * Descripción: Elimina un usuario de la aplicación basado en su id.
+     * Retorna el usuario eliminado.
+     */
     @SneakyThrows
     @DELETE
     @Path("/{id}")

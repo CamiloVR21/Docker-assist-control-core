@@ -1,3 +1,7 @@
+/**
+ * TypeUserEnum se utiliza para definir los tipos de usuario en la aplicación.
+ * Permite distinguir entre administrador y trabajador, implementando BaseEnum y soportando la deserialización desde JSON.
+ */
 package cl.bennu.assistcontrol.enums;
 
 import cl.bennu.commons.enums.base.BaseEnum;

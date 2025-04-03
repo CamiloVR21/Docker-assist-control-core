@@ -1,5 +1,8 @@
+/**
+ * RegionQuery se utiliza para definir los criterios de búsqueda de regiones en la aplicación.
+ * Permite filtrar por propiedades como id, país y nombre.
+ */
 package cl.bennu.assistcontrol.domain.query;
-
 
 import cl.bennu.commons.domain.base.BaseDomain;
 import io.quarkus.runtime.annotations.RegisterForReflection;
@@ -10,7 +13,6 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @RegisterForReflection(registerFullHierarchy = true)
-
 public class RegionQuery extends BaseDomain implements Serializable {
 
     private Long id;

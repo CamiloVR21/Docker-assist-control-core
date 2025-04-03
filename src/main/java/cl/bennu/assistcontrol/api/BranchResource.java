@@ -19,6 +19,14 @@ public class BranchResource extends BaseResource {
 
     private @Inject AssistControlService assistControlService;
 
+    /**
+     * Función: getAll
+     * Descripción: Retorna la lista de todas las sucursales registradas en la aplicación.
+     * Requiere un token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @return Response con la lista de sucursales.
+     */
     @SneakyThrows
     @GET
     public Response getAll(@HeaderParam("Authorization") String token) {
@@ -26,6 +34,15 @@ public class BranchResource extends BaseResource {
         return Response.ok(branchies).build();
     }
 
+    /**
+     * Función: get
+     * Descripción: Retorna la información de una sucursal específica identificada por su id.
+     * Requiere un token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param id Identificador de la sucursal.
+     * @return Response con los detalles de la sucursal.
+     */
     @SneakyThrows
     @GET
     @Path("/{id}")
@@ -34,10 +51,22 @@ public class BranchResource extends BaseResource {
         branchRequest.setId(id);
 
         Branch branch = assistControlService.getBranchById(token, branchRequest);
-
         return Response.ok(branch).build();
     }
 
+    /**
+     * Función: find
+     * Descripción: Busca sucursales basándose en diferentes criterios de consulta:
+     * empresa (company), nombre, dirección y estado de actividad.
+     * Requiere un token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param companyId Identificador de la empresa asociada.
+     * @param name Nombre de la sucursal.
+     * @param address Dirección de la sucursal.
+     * @param active Estado de actividad de la sucursal.
+     * @return Response con la lista de sucursales que cumplen los criterios.
+     */
     @SneakyThrows
     @GET
     @Path("/-")
@@ -62,6 +91,15 @@ public class BranchResource extends BaseResource {
         return Response.ok(branches).build();
     }
 
+    /**
+     * Función: insert
+     * Descripción: Inserta una nueva sucursal en la aplicación.
+     * Requiere un token de autorización en la cabecera y un objeto Branch en el cuerpo de la solicitud.
+     *
+     * @param token Token de autorización.
+     * @param branch Objeto Branch a insertar.
+     * @return Response con el objeto Branch insertado y el código de estado CREATED.
+     */
     @SneakyThrows
     @POST
     public Response insert(@HeaderParam("Authorization") String token, Branch branch) {
@@ -69,6 +107,16 @@ public class BranchResource extends BaseResource {
         return Response.status(Response.Status.CREATED).entity(branch).build();
     }
 
+    /**
+     * Función: update
+     * Descripción: Actualiza la información de una sucursal existente.
+     * Verifica que el cuerpo de la solicitud contenga la información y que se provea el id de la sucursal.
+     * Requiere un token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param branch Objeto Branch con la información a actualizar.
+     * @return Response con el objeto Branch actualizado.
+     */
     @SneakyThrows
     @PUT
     public Response update(@HeaderParam("Authorization") String token, Branch branch) {
@@ -82,6 +130,15 @@ public class BranchResource extends BaseResource {
         return Response.ok(branch).build();
     }
 
+    /**
+     * Función: delete
+     * Descripción: Elimina una sucursal identificada por su id.
+     * Requiere un token de autorización en la cabecera.
+     *
+     * @param token Token de autorización.
+     * @param id Identificador de la sucursal a eliminar.
+     * @return Response con el objeto Branch eliminado.
+     */
     @SneakyThrows
     @DELETE
     @Path("/{id}")

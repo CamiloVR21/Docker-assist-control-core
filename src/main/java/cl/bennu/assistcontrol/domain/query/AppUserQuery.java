@@ -9,6 +9,14 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.util.Base64;
 
+/**
+ * AppUserQuery se utiliza para definir los criterios de búsqueda de usuarios en la aplicación.
+ * Permite filtrar por propiedades como id, nombre, email, código, password, imagen y tipo de usuario.
+ * Además, incluye un método para obtener la imagen en formato Base64 y valida que el tamaño de la imagen no
+ * exceda 1 MB al asignarla.
+ */
+
+
 @Data
 @NoArgsConstructor
 @RegisterForReflection(registerFullHierarchy = true)

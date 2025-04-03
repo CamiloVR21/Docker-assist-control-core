@@ -1,3 +1,7 @@
+/**
+ * MaritalStatusEnum se utiliza para definir los estados civiles en la aplicación.
+ * Permite distinguir entre casado, viudo, divorciado y soltero, implementando BaseEnum y soportando la deserialización desde JSON.
+ */
 package cl.bennu.assistcontrol.enums;
 
 import cl.bennu.commons.enums.base.BaseEnum;
@@ -18,7 +22,6 @@ public enum MaritalStatusEnum implements BaseEnum {
     WIDOWED(2, "Viudo"),
     DIVORCED(3, "Divorciado"),
     SINGLE(4, "Soltero");
-
     //@formatter:on
 
     MaritalStatusEnum(Integer id, String name) {
@@ -40,5 +43,4 @@ public enum MaritalStatusEnum implements BaseEnum {
             return null;
         }
     }
-
 }

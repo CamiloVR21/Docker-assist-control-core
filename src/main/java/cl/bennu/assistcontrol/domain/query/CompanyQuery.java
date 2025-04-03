@@ -1,3 +1,8 @@
+/**
+ * CompanyQuery se utiliza para definir los criterios de búsqueda de compañías en la aplicación.
+ * Permite filtrar por propiedades como id, comuna, código, nombre, dirección, teléfono, alias, giro, email,
+ * geolocalización, selfie y lag.
+ */
 package cl.bennu.assistcontrol.domain.query;
 
 import cl.bennu.commons.domain.base.BaseDomain;

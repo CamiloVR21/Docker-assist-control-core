@@ -1,3 +1,7 @@
+/**
+ * GenderEnum se utiliza para definir los géneros en la aplicación.
+ * Permite distinguir entre masculino y femenino, implementando BaseEnum y soportando la deserialización desde JSON.
+ */
 package cl.bennu.assistcontrol.enums;
 
 import cl.bennu.commons.enums.base.BaseEnum;

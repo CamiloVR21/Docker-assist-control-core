@@ -1,3 +1,8 @@
+/**
+ * ContractTypeEnum se utiliza para definir los tipos de contrato en la aplicación.
+ * Permite diferenciar entre contratos fijos, indefinidos y por obra, implementando BaseEnum
+ * y soportando la deserialización desde JSON.
+ */
 package cl.bennu.assistcontrol.enums;
 
 import cl.bennu.commons.enums.base.BaseEnum;

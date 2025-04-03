@@ -22,20 +22,39 @@ public class AuthResource {
     @Inject
     private AssistControlService assistControlService;
 
+    /**
+     * Función: login
+     * Descripción: Autentica al usuario a partir de sus credenciales (código y contraseña).
+     * Si la autenticación es exitosa, retorna el objeto AppUser correspondiente.
+     * En caso de fallar (por ejemplo, credenciales inválidas), retorna una respuesta con estado UNAUTHORIZED.
+     *
+     * @param loginUser Objeto AppUser que contiene el código y la contraseña para iniciar sesión.
+     * @return Response con el usuario autenticado o un mensaje de error.
+     */
     @POST
     @Path("/login")
     public Response login(AppUser loginUser) {
         try {
             AppUser appUser = assistControlService.login(loginUser.getCode(), loginUser.getPassword());
             return Response.ok(appUser).build();
-
         } catch (NoDataException ex) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity(ex.getMessage())
+                    .build();
         }
     }
 
-
-
+    /**
+     * Función: getDashboard
+     * Descripción: Obtiene la información del dashboard para un usuario específico.
+     * Requiere el parámetro de consulta "userId" para identificar al usuario.
+     * Se busca el usuario y, a partir de este, se obtienen las sucursales, empleados y tipos de trabajo asociados a la empresa.
+     * Retorna un objeto Dashboard que consolida estos datos.
+     * Si falta el parámetro o no se encuentra el usuario, se retorna un error con el código correspondiente.
+     *
+     * @param userId Identificador del usuario cuyo dashboard se desea obtener.
+     * @return Response con el dashboard o un mensaje de error según el caso.
+     */
     @GET
     @Path("/dashboard")
     public Response getDashboard(@QueryParam("userId") Long userId) {

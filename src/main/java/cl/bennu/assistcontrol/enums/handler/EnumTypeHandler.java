@@ -1,3 +1,7 @@
+/**
+ * EnumTypeHandler se utiliza para mapear enumeraciones que implementan BaseEnum a columnas de tipo entero en la base de datos.
+ * Facilita la conversión entre el valor numérico almacenado y el valor enumerado en Java.
+ */
 package cl.bennu.assistcontrol.enums.handler;
 
 import cl.bennu.commons.enums.base.BaseEnum;

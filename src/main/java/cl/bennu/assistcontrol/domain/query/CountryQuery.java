@@ -1,3 +1,7 @@
+/**
+ * CountryQuery se utiliza para definir los criterios de búsqueda de países en la aplicación.
+ * Permite filtrar por propiedades como id, nombre y nacionalidad.
+ */
 package cl.bennu.assistcontrol.domain.query;
 
 import cl.bennu.commons.domain.base.BaseDomain;

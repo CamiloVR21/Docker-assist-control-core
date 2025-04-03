@@ -1,3 +1,8 @@
+/**
+ * RegisterQuery se utiliza para definir los criterios de búsqueda de registros de asistencia en la aplicación.
+ * Permite filtrar por propiedades como id, empleado, horarios (inicio del día, entrada, salida, descanso, regreso)
+ * y el día.
+ */
 package cl.bennu.assistcontrol.domain.query;
 
 import cl.bennu.commons.domain.base.BaseDomain;
@@ -11,7 +16,6 @@ import java.sql.Time;
 @Data
 @NoArgsConstructor
 @RegisterForReflection(registerFullHierarchy = true)
-
 public class RegisterQuery extends BaseDomain implements Serializable {
 
     private Long id;

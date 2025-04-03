@@ -12,76 +12,74 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.HttpMethod;
 import org.apache.commons.lang3.StringUtils;
-
-
-import java.sql.Date;
 import java.sql.Time;
-import java.util.Base64;
 import java.util.List;
 
 @ApplicationScoped
 public class AssistControlService {
 
+    // Inyección de mappers para operar sobre la base de datos
     @Inject
     private CommuneMapper communeMapper;
-
     @Inject
     private CompanyMapper companyMapper;
-
     @Inject
     private BranchMapper branchMapper;
-
     @Inject
     private CityMapper cityMapper;
-
     @Inject
     private CountryMapper countryMapper;
-
     @Inject
     private RegionMapper regionMapper;
-
     @Inject
     private JobSchedulerMapper jobSchedulerMapper;
-
     @Inject
     private EmployeeMapper employeeMapper;
-
     @Inject
     private JobTypeMapper jobTypeMapper;
-
     @Inject
     private RegisterMapper registerMapper;
-
     @Inject
     private AppUserMapper appUserMapper;
 
+    // ==================== COMUNA ====================
+    /**
+     * Obtiene una comuna a partir de su ID.
+     * Lanza excepción si no se especifica el ID o si no se encuentra la comuna.
+     */
     public Commune getCommuneById(String token, Commune commune) throws NoDataException {
         if (commune == null || commune.getId() == null) {
             throw new NoDataException("No se especificó el ID de la comuna.");
         }
         Long communeId = commune.getId();
         Commune result = communeMapper.get(communeId);
-
         if (result == null) {
             throw new NoDataException("No se encontró la comuna con el ID especificado: " + communeId);
         }
-
         return result;
     }
 
+    /**
+     * Retorna todas las comunas.
+     */
     public List<Commune> getAllCommune(String token) {
         return communeMapper.getAll();
     }
 
+    /**
+     * Busca comunas basadas en los criterios del objeto query.
+     */
     public List<Commune> findCommuneByQuery(String token, CommuneQuery query) {
         return communeMapper.findByQuery(query);
-
     }
 
+    /**
+     * Guarda o actualiza una comuna.
+     * Valida la información antes de realizar la operación.
+     */
     @Transactional
     public void saveCommune(String token, Commune commune, String method) throws NoDataException, UniqueException {
         validateCommune(token, commune, method);
-
         if (commune.getId() == null) {
             communeMapper.insert(commune);
         } else {
@@ -89,19 +87,20 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Valida que la comuna tenga nombre y ciudad, y que el nombre sea único.
+     * Para POST, el ID debe ser nulo; para PUT, el ID debe existir y no colisionar.
+     */
     private void validateCommune(String token, Commune commune, String method) throws NoDataException, UniqueException {
-
         if (commune.getName() == null || StringUtils.isBlank(commune.getName())) {
             throw new NoDataException("No se especificó el campo nombre");
         }
         if (commune.getCity() == null || commune.getCity().getId() == null) {
             throw new NoDataException("No se especificó el campo ciudad");
         }
-
         CommuneQuery query = new CommuneQuery();
         query.setName(commune.getName());
         Commune communeDB = communeMapper.getByQuery(query);
-
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
             if (commune.getId() != null) {
                 throw new NoDataException("El campo id debe ser nulo");
@@ -119,12 +118,18 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Elimina una comuna a partir de su ID.
+     */
     public void deleteCommune(String token, Long communeId) {
         communeMapper.delete(communeId);
     }
 
-    // COMPANY *******************************************************************************************************
-
+    // ==================== COMPAÑÍA ====================
+    /**
+     * Obtiene una compañía a partir de su ID.
+     * Lanza excepción si no se especifica el ID o si no se encuentra la compañía.
+     */
     public Company getCompanyById(String token, Company company) throws NoDataException {
         if (company == null || company.getId() == null) {
             throw new NoDataException("No se especificó el ID de la compañía.");
@@ -134,40 +139,56 @@ public class AssistControlService {
             throw new NoDataException("No se encontró la compañía con el ID especificado: " + company.getId());
         }
         return foundCompany;
-
     }
 
+    /**
+     * Retorna todas las compañías.
+     */
     public List<Company> getAllCompany(String token) {
         return companyMapper.getAll();
     }
 
+    /**
+     * Busca compañías basadas en los criterios del objeto CompanyQuery.
+     */
     public List<Company> findCompanyByQuery(String token, CompanyQuery query) {
         return companyMapper.findByQuery(query);
     }
 
+    /**
+     * Retorna compañías asociadas a un empleado a partir del ID del empleado.
+     */
     public List<Company> getCompanyByEmployeeId(String token, Long employeeId) throws NoDataException {
         return companyMapper.getCompanyByEmployee(employeeId);
     }
 
+    /**
+     * Retorna compañías asociadas a un usuario de la aplicación a partir del ID del usuario.
+     */
     public List<Company> getCompanyByAppUser(String token, Long appUserId) throws NoDataException {
         return companyMapper.getCompanyByAppUser(appUserId);
     }
 
+    /**
+     * Retorna las sucursales asociadas a una compañía a partir del ID de la compañía.
+     * Lanza excepción si no se encuentran sucursales.
+     */
     public List<Branch> getBranchesByCompany(Long companyId) throws NoDataException {
         BranchQuery branchQuery = new BranchQuery();
         CompanyQuery companyQuery = new CompanyQuery();
         companyQuery.setId(companyId);
         branchQuery.setCompanyId(companyQuery);
-
         List<Branch> branches = branchMapper.findByQuery(branchQuery);
-
         if (branches == null || branches.isEmpty()) {
             throw new NoDataException("No se encontraron sucursales para la compañía con ID: " + companyId);
         }
         return branches;
     }
 
-
+    /**
+     * Guarda o actualiza la información de una compañía, junto con su sucursal (si es sede central).
+     * Valida la información de la compañía y de la sucursal antes de la operación.
+     */
     @Transactional
     public void saveCompany(String token, SaveCompanyRequest saveCompanyRequest, String method) throws NoDataException, UniqueException {
         Company company = saveCompanyRequest.getCompany();
@@ -186,6 +207,7 @@ public class AssistControlService {
         if (companyId == null) {
             throw new NoDataException("Error al guardar la compañía: no se pudo generar un ID.");
         }
+        // Manejo de la sucursal si es sede central (hq)
         if (Boolean.TRUE.equals(hq)) {
             if (branch == null || branch.getId() == null) {
                 Branch existingBranch = findBranchByCompany(company);
@@ -216,8 +238,11 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Valida la información de una compañía antes de guardarla o actualizarla.
+     * Verifica campos obligatorios como código, nombre, dirección, comuna y flags de geolocalización, lag y selfie.
+     */
     private void validateCompany(String token, Company company, String method) throws NoDataException, UniqueException {
-
         if (company == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información de la compañía");
         }
@@ -242,13 +267,10 @@ public class AssistControlService {
         if (company.getSelfie() == null) {
             throw new NoDataException("No se especificó el campo selfie");
         }
-
         CompanyQuery query = new CompanyQuery();
         query.setCode(company.getCode());
         Company companyDB = companyMapper.getByQuery(query);
-
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
-
             if (companyDB != null) {
                 throw new UniqueException("La compañía ya existe");
             }
@@ -262,20 +284,23 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Elimina una compañía a partir de su ID, verificando que no tenga sucursales con empleados asociados.
+     */
     public Company deleteCompanyById(String token, Long companyId) throws NoDataException {
         Company company = companyMapper.get(companyId);
         if (company == null) {
             throw new NoDataException("No se encontró la compañía con el ID especificado: " + companyId);
         }
-
+        // Verifica si existen sucursales asociadas a la compañía
         BranchQuery branchQuery = new BranchQuery();
         CompanyQuery companyQuery = new CompanyQuery();
         companyQuery.setId(companyId);
         branchQuery.setCompanyId(companyQuery);
-
         List<Branch> branches = findBranchByQuery(token, branchQuery);
         if (branches != null && !branches.isEmpty()) {
             for (Branch branch : branches) {
+                // Verifica si la sucursal tiene empleados asociados
                 EmployeeQuery employeeQuery = new EmployeeQuery();
                 BranchQuery branchQueryForEmployee = new BranchQuery();
                 branchQueryForEmployee.setId(branch.getId());
@@ -285,20 +310,20 @@ public class AssistControlService {
                     throw new NoDataException("No se puede eliminar la compañía porque la sucursal " + branch.getName() + " tiene empleados asociados.");
                 }
             }
-
             if (branches.size() == 1) {
                 branchMapper.delete(branches.get(0).getId());
             } else {
                 throw new NoDataException("No se puede eliminar la compañía porque tiene sucursales asociadas.");
             }
         }
-
         companyMapper.delete(companyId);
         return company;
     }
 
-    // BRANCH *******************************************************************************************************
-
+    // ==================== SUCURSAL (BRANCH) ====================
+    /**
+     * Obtiene una sucursal a partir de su ID.
+     */
     public Branch getBranchById(String token, Branch branch) throws NoDataException {
         if (branch == null || branch.getId() == null) {
             throw new NoDataException("No se especificó el ID de la sucursal.");
@@ -310,18 +335,26 @@ public class AssistControlService {
         return foundBranch;
     }
 
+    /**
+     * Retorna todas las sucursales.
+     */
     public List<Branch> getAllBranch(String token) {
         return branchMapper.getAll();
     }
 
+    /**
+     * Busca sucursales basadas en criterios definidos en BranchQuery.
+     */
     public List<Branch> findBranchByQuery(String token, BranchQuery query) {
         return branchMapper.findByQuery(query);
     }
 
+    /**
+     * Guarda o actualiza una sucursal, validando primero su información.
+     */
     @Transactional
     public void saveBranch(String token, Branch branch, String method) throws NoDataException, UniqueException {
         validateBranch(token, branch, method);
-
         if (branch.getId() == null) {
             branchMapper.insert(branch);
         } else {
@@ -329,11 +362,14 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Valida la información de la sucursal, asegurando que los campos obligatorios estén presentes
+     * y que el nombre sea único según la compañía.
+     */
     private void validateBranch(String token, Branch branch, String method) throws NoDataException, UniqueException {
         if (branch == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información de la sucursal");
         }
-
         if (Boolean.TRUE.equals(branch.getActive())) {
             if (branch.getName() == null || StringUtils.isBlank(branch.getName())) {
                 throw new NoDataException("No se especificó el campo nombre de la sucursal");
@@ -345,14 +381,12 @@ public class AssistControlService {
                 throw new NoDataException("No se especificó el campo compañía de la sucursal");
             }
         }
-
         BranchQuery query = new BranchQuery();
         CompanyQuery companyQuery = new CompanyQuery();
         companyQuery.setId(branch.getCompany().getId());
         query.setName(branch.getName());
         query.setCompanyId(companyQuery);
         List<Branch> branchDBList = branchMapper.findByQuery(query);
-
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
             if (branch.getId() != null) {
                 throw new NoDataException("El campo ID debe ser nulo para insertar una nueva sucursal");
@@ -374,32 +408,34 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Elimina una sucursal a partir de su ID, verificando que no tenga empleados asociados.
+     */
     public Branch deleteBranchById(String token, Long branchId) throws NoDataException {
         Branch branch = branchMapper.get(branchId);
         if (branch == null) {
             throw new NoDataException("No se encontró la sucursal con el ID especificado");
         }
-
         EmployeeQuery employeeQuery = new EmployeeQuery();
         BranchQuery branchQuery = new BranchQuery();
         branchQuery.setId(branchId);
         employeeQuery.setBranch(branchQuery);
-
         List<Employee> employees = findEmployeesByQuery(token, employeeQuery);
         if (employees != null && !employees.isEmpty()) {
             throw new NoDataException("No se puede eliminar la sucursal porque tiene empleados asociados.");
         }
-
         branchMapper.delete(branchId);
         return branch;
     }
 
+    /**
+     * Busca y retorna la primera sucursal asociada a una compañía.
+     */
     private Branch findBranchByCompany(Company company) throws NoDataException {
         BranchQuery branchQuery = new BranchQuery();
         CompanyQuery companyQuery = new CompanyQuery();
         companyQuery.setId(company.getId());
         branchQuery.setCompanyId(companyQuery);
-
         List<Branch> branches = findBranchByQuery("", branchQuery);
         if (branches != null && !branches.isEmpty()) {
             return branches.get(0);
@@ -407,8 +443,10 @@ public class AssistControlService {
         return null;
     }
 
-    // CITY *******************************************************************************************************
-
+    // ==================== CIUDAD (CITY) ====================
+    /**
+     * Obtiene una ciudad a partir de su ID.
+     */
     public City getCityById(String token, City city) throws NoDataException {
         if (city == null || city.getId() == null) {
             throw new NoDataException("No se especificó el ID de la ciudad.");
@@ -420,18 +458,26 @@ public class AssistControlService {
         return foundCity;
     }
 
+    /**
+     * Retorna todas las ciudades.
+     */
     public List<City> getAllCity(String token) {
         return cityMapper.getAll();
     }
 
+    /**
+     * Busca ciudades según criterios definidos en CityQuery.
+     */
     public List<City> findCityByQuery(String token, CityQuery query) {
         return cityMapper.findByQuery(query);
     }
 
+    /**
+     * Guarda o actualiza una ciudad, validando previamente la información.
+     */
     @Transactional
     public void saveCity(String token, City city, String method) throws NoDataException, UniqueException {
         validateCity(token, city, method);
-
         if (city.getId() == null) {
             cityMapper.insert(city);
         } else {
@@ -439,21 +485,20 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Valida la información de la ciudad, asegurándose de que tenga nombre y región, y que el nombre sea único.
+     */
     private void validateCity(String token, City city, String method) throws NoDataException, UniqueException {
-
         if (city.getName() == null || StringUtils.isBlank(city.getName())) {
             throw new NoDataException("No se especificó el campo nombre");
         }
         if (city.getRegion() == null || city.getRegion().getId() == null) {
             throw new NoDataException("No se especificó el campo region");
         }
-
         CityQuery query = new CityQuery();
         query.setName(city.getName());
         City cityDB = cityMapper.getByQuery(query);
-
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
-
             if (city.getId() != null) {
                 throw new NoDataException("El campo id debe ser nulo");
             }
@@ -461,7 +506,6 @@ public class AssistControlService {
                 throw new UniqueException("El tramo de riesgo ya existe");
             }
         } else {
-
             if (city.getId() == null) {
                 throw new NoDataException("No se especificó el campo id");
             }
@@ -471,8 +515,10 @@ public class AssistControlService {
         }
     }
 
-    // COUNTRY *******************************************************************************************************
-
+    // ==================== PAÍS (COUNTRY) ====================
+    /**
+     * Obtiene un país a partir de su ID.
+     */
     public Country getCountryById(String token, Country country) throws NoDataException {
         if (country == null || country.getId() == null) {
             throw new NoDataException("No se especificó el ID del país.");
@@ -484,18 +530,26 @@ public class AssistControlService {
         return foundCountry;
     }
 
+    /**
+     * Retorna todos los países.
+     */
     public List<Country> getAllCountry(String token) {
         return countryMapper.getAll();
     }
 
+    /**
+     * Busca países según los criterios definidos en CountryQuery.
+     */
     public List<Country> findCountryByQuery(String token, CountryQuery query) {
         return countryMapper.findByQuery(query);
     }
 
+    /**
+     * Guarda o actualiza la información de un país, validando previamente la información.
+     */
     @Transactional
     public void saveCountry(String token, Country country, String method) throws NoDataException, UniqueException {
         validateCountry(token, country, method);
-
         if (country.getId() == null) {
             countryMapper.insert(country);
         } else {
@@ -503,21 +557,20 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Valida la información del país, asegurándose de que tenga nombre y nacionalidad, y que el nombre sea único.
+     */
     private void validateCountry(String token, Country country, String method) throws NoDataException, UniqueException {
-
         if (country.getName() == null || StringUtils.isBlank(country.getName())) {
             throw new NoDataException("No se especificó el campo nombre");
         }
         if (country.getNationality() == null) {
             throw new NoDataException("No se especificó el campo nacionalidad");
         }
-
         CountryQuery query = new CountryQuery();
         query.setName(country.getName());
         Country countryDB = countryMapper.getByQuery(query);
-
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
-
             if (country.getId() != null) {
                 throw new NoDataException("El campo id debe ser nulo");
             }
@@ -525,7 +578,6 @@ public class AssistControlService {
                 throw new UniqueException("El tramo de riesgo ya existe");
             }
         } else {
-
             if (country.getId() == null) {
                 throw new NoDataException("No se especificó el campo id");
             }
@@ -535,8 +587,10 @@ public class AssistControlService {
         }
     }
 
-    // Region *******************************************************************************************************
-
+    // ==================== REGIÓN (REGION) ====================
+    /**
+     * Obtiene una región a partir de su ID.
+     */
     public Region getRegionById(String token, Region region) throws NoDataException {
         if (region == null || region.getId() == null) {
             throw new NoDataException("No se especificó el ID de la región.");
@@ -548,18 +602,26 @@ public class AssistControlService {
         return foundRegion;
     }
 
+    /**
+     * Retorna todas las regiones.
+     */
     public List<Region> getAllRegion(String token) {
         return regionMapper.getAll();
     }
 
+    /**
+     * Busca regiones según los criterios definidos en RegionQuery.
+     */
     public List<Region> findRegionByQuery(String token, RegionQuery query) {
         return regionMapper.findByQuery(query);
     }
 
+    /**
+     * Guarda o actualiza la información de una región, validando previamente la información.
+     */
     @Transactional
     public void saveRegion(String token, Region region, String method) throws NoDataException, UniqueException {
         validateRegion(token, region, method);
-
         if (region.getId() == null) {
             regionMapper.insert(region);
         } else {
@@ -567,21 +629,20 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Valida la información de la región, asegurándose de que tenga nombre y país, y que el nombre sea único.
+     */
     private void validateRegion(String token, Region region, String method) throws NoDataException, UniqueException {
-
         if (region.getName() == null || StringUtils.isBlank(region.getName())) {
             throw new NoDataException("No se especificó el campo nombre");
         }
         if (region.getCountry() == null) {
             throw new NoDataException("No se especificó el campo pais");
         }
-
         RegionQuery query = new RegionQuery();
         query.setName(region.getName());
         Region regionDB = regionMapper.getByQuery(query);
-
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
-
             if (region.getId() != null) {
                 throw new NoDataException("El campo id debe ser nulo");
             }
@@ -589,7 +650,6 @@ public class AssistControlService {
                 throw new UniqueException("El tramo de riesgo ya existe");
             }
         } else {
-
             if (region.getId() == null) {
                 throw new NoDataException("No se especificó el campo id");
             }
@@ -599,8 +659,10 @@ public class AssistControlService {
         }
     }
 
-    // JobScheduler *******************************************************************************************************
-
+    // ==================== PROGRAMADOR DE TRABAJOS (JOB SCHEDULER) ====================
+    /**
+     * Obtiene un programador de trabajos a partir de su ID.
+     */
     public JobScheduler getJobSchedulerById(String token, JobScheduler jobScheduler) throws NoDataException {
         if (jobScheduler == null || jobScheduler.getId() == null) {
             throw new NoDataException("No se especificó el ID del programador de trabajos.");
@@ -612,18 +674,40 @@ public class AssistControlService {
         return foundJobScheduler;
     }
 
+    /**
+     * Retorna todos los programadores de trabajos.
+     */
     public List<JobScheduler> getAllJobScheduler(String token) {
         return jobSchedulerMapper.getAll();
     }
 
+    // ... (La parte correspondiente a Employee, Register y demás se encuentra en la siguiente entrega)
+
+
+// ==================== PROGRAMADOR DE TRABAJOS (JOB SCHEDULER) ====================
+    /**
+     * Busca programadores de trabajos basados en los criterios definidos en el objeto JobSchedulerQuery.
+     *
+     * @param token Token de autorización.
+     * @param query Objeto que contiene los criterios de búsqueda.
+     * @return Lista de JobScheduler que coinciden con los criterios.
+     */
     public List<JobScheduler> findJobSchedulerByQuery(String token, JobSchedulerQuery query) {
         return jobSchedulerMapper.findByQuery(query);
     }
 
+    /**
+     * Guarda o actualiza un programador de trabajos después de validar su información.
+     *
+     * @param token Token de autorización.
+     * @param jobScheduler Objeto JobScheduler a guardar o actualizar.
+     * @param method Método HTTP (POST para insertar, PUT para actualizar).
+     * @throws NoDataException Si faltan datos requeridos.
+     * @throws UniqueException Si se viola una restricción de unicidad.
+     */
     @Transactional
     public void saveJobScheduler(String token, JobScheduler jobScheduler, String method) throws NoDataException, UniqueException {
         validateJobScheduler(token, jobScheduler, method);
-
         if (jobScheduler.getId() == null) {
             jobSchedulerMapper.insert(jobScheduler);
         } else {
@@ -631,11 +715,21 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Valida la información de un programador de trabajos.
+     * Verifica que se especifiquen el nombre y los indicadores de cada día (lunes a domingo).
+     * Además, se asegura de que el nombre sea único.
+     *
+     * @param token Token de autorización.
+     * @param jobScheduler Objeto JobScheduler a validar.
+     * @param method Método HTTP (POST o PUT).
+     * @throws NoDataException Si falta información obligatoria.
+     * @throws UniqueException Si ya existe otro programador de trabajos con el mismo nombre.
+     */
     private void validateJobScheduler(String token, JobScheduler jobScheduler, String method) throws NoDataException, UniqueException {
         if (jobScheduler == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información del programador de trabajos");
         }
-
         if (StringUtils.isBlank(jobScheduler.getName())) {
             throw new NoDataException("No se especificó el nombre del programador de trabajos");
         }
@@ -660,11 +754,9 @@ public class AssistControlService {
         if (jobScheduler.getSunday() == null) {
             throw new NoDataException("No se especificó el campo domingo");
         }
-
         JobSchedulerQuery query = new JobSchedulerQuery();
         query.setName(jobScheduler.getName());
         List<JobScheduler> jobSchedulerDBList = jobSchedulerMapper.findByQuery(query);
-
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
             if (jobScheduler.getId() != null) {
                 throw new NoDataException("El campo ID debe ser nulo para insertar un nuevo programador de trabajos");
@@ -686,17 +778,24 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Elimina un programador de trabajos a partir de su ID.
+     * Antes de eliminar, verifica que no tenga empleados asociados.
+     *
+     * @param token Token de autorización.
+     * @param jobSchedulerId ID del programador de trabajos a eliminar.
+     * @return El objeto JobScheduler eliminado.
+     * @throws NoDataException Si no se encuentra o tiene empleados asociados.
+     */
     public JobScheduler deleteJobSchedulerById(String token, Long jobSchedulerId) throws NoDataException {
         JobScheduler jobScheduler = jobSchedulerMapper.get(jobSchedulerId);
         if (jobScheduler == null) {
             throw new NoDataException("No se encontró el horario de trabajo con el ID especificado: " + jobSchedulerId);
         }
-
         EmployeeQuery employeeQuery = new EmployeeQuery();
         JobSchedulerQuery jobSchedulerQuery = new JobSchedulerQuery();
         jobSchedulerQuery.setId(jobSchedulerId);
         employeeQuery.setJobScheduler(jobSchedulerQuery);
-
         List<Employee> employees = findEmployeesByQuery(token, employeeQuery);
         if (employees != null && !employees.isEmpty()) {
             throw new NoDataException("No se puede eliminar el horario de trabajos porque tiene empleados asociados.");
@@ -705,14 +804,27 @@ public class AssistControlService {
         return jobScheduler;
     }
 
+    /**
+     * Retorna los programadores de trabajos asociados a una compañía.
+     *
+     * @param companyId ID de la compañía.
+     * @return Lista de JobScheduler asociados.
+     * @throws NoDataException Si no se especifica el ID.
+     */
     public List<JobScheduler> findJobSchedulersByCompanyId(Long companyId) throws NoDataException {
         if (companyId == null) {
             throw new NoDataException("El ID de la compañía es requerido.");
         }
-
         return jobSchedulerMapper.findByCompanyId(companyId);
     }
 
+    /**
+     * Retorna los programadores de trabajos asociados a una sucursal.
+     *
+     * @param branchId ID de la sucursal.
+     * @return Lista de JobScheduler asociados.
+     * @throws NoDataException Si no se especifica el ID.
+     */
     public List<JobScheduler> findJobSchedulersByBranchId(Long branchId) throws NoDataException {
         if (branchId == null) {
             throw new NoDataException("El ID de la sucursal es requerido.");
@@ -720,9 +832,15 @@ public class AssistControlService {
         return jobSchedulerMapper.findByBranchId(branchId);
     }
 
-
-    // EMPLOYEEE *******************************************************************************************************
-
+    // ==================== EMPLEADO (EMPLOYEE) ====================
+    /**
+     * Obtiene un empleado a partir de su ID.
+     *
+     * @param token Token de autorización.
+     * @param employeeId ID del empleado.
+     * @return Objeto Employee encontrado.
+     * @throws NoDataException Si no se especifica el ID o no se encuentra el empleado.
+     */
     public Employee getEmployeeById(String token, Long employeeId) throws NoDataException {
         if (employeeId == null) {
             throw new NoDataException("No se especificó el ID del empleado.");
@@ -734,14 +852,28 @@ public class AssistControlService {
         return employee;
     }
 
+    /**
+     * Retorna todos los empleados.
+     */
     public List<Employee> getAllEmployees(String token) {
         return employeeMapper.getAll();
     }
 
+    /**
+     * Busca empleados basados en los criterios definidos en EmployeeQuery.
+     */
     public List<Employee> findEmployeesByQuery(String token, EmployeeQuery query) {
         return employeeMapper.findByQuery(query);
     }
 
+    /**
+     * Retorna los empleados asociados a una compañía.
+     *
+     * @param token Token de autorización.
+     * @param companyId ID de la compañía.
+     * @return Lista de empleados.
+     * @throws NoDataException Si no se especifica el ID o no se encuentran empleados.
+     */
     public List<Employee> findEmployeesByCompany(String token, Long companyId) throws NoDataException {
         if (companyId == null) {
             throw new NoDataException("No se especificó el ID de la compañía.");
@@ -753,10 +885,13 @@ public class AssistControlService {
         return employees;
     }
 
+    /**
+     * Guarda o actualiza la información de un empleado.
+     * Valida los datos del empleado antes de insertarlo o actualizarlo.
+     */
     @Transactional
     public void saveEmployee(String token, Employee employee, String method) throws NoDataException, UniqueException {
         validateEmployee(token, employee, method);
-
         if (employee.getId() == null) {
             employeeMapper.insert(employee);
         } else {
@@ -764,11 +899,14 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Valida que el empleado tenga la información obligatoria (nombre, apellido, género, comuna, sucursal, horario, etc.)
+     * y que el empleado sea único (en POST, no debe existir; en PUT, el ID debe existir y ser el mismo).
+     */
     private void validateEmployee(String token, Employee employee, String method) throws NoDataException, UniqueException {
         if (employee == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información del empleado");
         }
-
         if (StringUtils.isBlank(employee.getName())) {
             throw new NoDataException("No se especificó el nombre del empleado");
         }
@@ -808,12 +946,10 @@ public class AssistControlService {
         if (employee.getCode() == null) {
             throw new NoDataException("No se especificó el codigo del empleado");
         }
-
         EmployeeQuery query = new EmployeeQuery();
         query.setName(employee.getName());
         query.setLastName(employee.getLastName());
         List<Employee> employeeDBList = employeeMapper.findByQuery(query);
-
         if ("POST".equalsIgnoreCase(method)) {
             if (employee.getId() != null) {
                 throw new NoDataException("El campo ID debe ser nulo para insertar un nuevo empleado");
@@ -836,6 +972,10 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Elimina un empleado a partir de su ID.
+     * Verifica que el empleado no tenga registros de asistencia asociados antes de eliminarlo.
+     */
     public Employee deleteEmployeeById(String token, Long employeeId) throws NoDataException {
         Employee employee = employeeMapper.get(employeeId);
         if (employee == null) {
@@ -848,18 +988,18 @@ public class AssistControlService {
         EmployeeQuery employeeQuery = new EmployeeQuery();
         employeeQuery.setId(employeeId);
         registerQuery.setEmployee(employeeQuery);
-
         List<Register> registries = registerMapper.findByQuery(registerQuery);
         if (registries != null && !registries.isEmpty()) {
             throw new NoDataException("No se puede eliminar el empleado porque tiene registros asociados.");
         }
-
         employeeMapper.delete(employeeId);
         return employee;
     }
 
-    //JOBTYPEEEEEE
-
+    // ==================== ROL (JOB TYPE) ====================
+    /**
+     * Obtiene un rol a partir de su ID.
+     */
     public JobType getJobTypeById(String token, JobType jobType) throws NoDataException {
         if (jobType == null || jobType.getId() == null) {
             throw new NoDataException("No se especificó el ID de rol.");
@@ -871,18 +1011,26 @@ public class AssistControlService {
         return foundJobType;
     }
 
+    /**
+     * Retorna todos los roles.
+     */
     public List<JobType> getAllJobType(String token) {
         return jobTypeMapper.getAll();
     }
 
+    /**
+     * Busca roles basados en los criterios definidos en JobTypeQuery.
+     */
     public List<JobType> findJobTypeByQuery(String token, JobTypeQuery query) {
         return jobTypeMapper.findByQuery(query);
     }
 
+    /**
+     * Guarda o actualiza un rol, validando su información.
+     */
     @Transactional
     public void saveJobType(String token, JobType jobType, String method) throws NoDataException, UniqueException {
         validateJobType(token, jobType, method);
-
         if (jobType.getId() == null) {
             jobTypeMapper.insert(jobType);
         } else {
@@ -890,12 +1038,18 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Retorna los roles asociados a una compañía.
+     *
+     * @param companyId ID de la compañía.
+     * @return Lista de JobType.
+     * @throws NoDataException Si no se encuentran roles.
+     */
     public List<JobType> getJobTypesByCompany(Long companyId) throws NoDataException {
         JobTypeQuery query = new JobTypeQuery();
         CompanyQuery companyQuery = new CompanyQuery();
         companyQuery.setId(companyId);
         query.setCompany(companyQuery);
-
         List<JobType> jobTypes = jobTypeMapper.findByQuery(query);
         if (jobTypes == null || jobTypes.isEmpty()) {
             throw new NoDataException("No se encontraron roles para la compañía con ID: " + companyId);
@@ -903,12 +1057,13 @@ public class AssistControlService {
         return jobTypes;
     }
 
-
+    /**
+     * Valida la información del rol, asegurándose de que tenga nombre y compañía, y que el nombre sea único.
+     */
     private void validateJobType(String token, JobType jobType, String method) throws NoDataException, UniqueException {
         if (jobType == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información del rol");
         }
-
         if (Boolean.TRUE.equals(jobType.getActive())) {
             if (jobType.getName() == null || StringUtils.isBlank(jobType.getName())) {
                 throw new NoDataException("No se especificó el campo nombre del rol");
@@ -917,11 +1072,9 @@ public class AssistControlService {
                 throw new NoDataException("No se especificó el campo compañía de la sucursal");
             }
         }
-
         JobTypeQuery query = new JobTypeQuery();
         query.setName(jobType.getName());
         List<JobType> jobTypeDBList = jobTypeMapper.findByQuery(query);
-
         if (HttpMethod.POST.equalsIgnoreCase(method)) {
             if (jobType.getId() != null) {
                 throw new NoDataException("El campo ID debe ser nulo para un rol");
@@ -943,28 +1096,31 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Elimina un rol a partir de su ID.
+     * Verifica que no tenga empleados asociados antes de eliminarlo.
+     */
     public JobType deleteJobTypeById(String token, Long jobTypeId) throws NoDataException {
         JobType jobType = jobTypeMapper.get(jobTypeId);
         if (jobType == null) {
             throw new NoDataException("No se encontró el rol con el ID especificado");
         }
-
         EmployeeQuery employeeQuery = new EmployeeQuery();
         JobTypeQuery jobTypeQuery = new JobTypeQuery();
         jobTypeQuery.setId(jobTypeId);
         employeeQuery.setJobType(jobTypeQuery);
-
         List<Employee> employees = findEmployeesByQuery(token, employeeQuery);
         if (employees != null && !employees.isEmpty()) {
             throw new NoDataException("No se puede eliminar el rol  porque tiene empleados asociados.");
         }
-
         jobTypeMapper.delete(jobTypeId);
         return jobType;
     }
 
-    //REGISTRYYYYYYYYYYYYYYYY
-
+    // ==================== REGISTRO (REGISTER) ====================
+    /**
+     * Obtiene un registro de asistencia a partir de su ID.
+     */
     public Register getRegistryById(String token, Register register) throws NoDataException {
         if (register == null || register.getId() == null) {
             throw new NoDataException("No se especificó el ID del registro.");
@@ -976,14 +1132,23 @@ public class AssistControlService {
         return foundRegister;
     }
 
+    /**
+     * Retorna todos los registros de asistencia.
+     */
     public List<Register> getAllRegistry(String token) {
         return registerMapper.getAll();
     }
 
+    /**
+     * Busca registros de asistencia según los criterios definidos en RegisterQuery.
+     */
     public List<Register> findRegistryByQuery(String token, RegisterQuery query) {
         return registerMapper.findByQuery(query);
     }
 
+    /**
+     * Guarda o actualiza un registro de asistencia, validando previamente la información.
+     */
     @Transactional
     public void saveRegistry(String token, Register register, String method) throws NoDataException, UniqueException {
         validateRegistry(token, register, method);
@@ -994,6 +1159,10 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Valida la información del registro de asistencia, asegurándose de que los campos obligatorios (inicio del día, día, entrada y salida) estén presentes
+     * y que no exista ya un registro con el mismo tiempo.
+     */
     private void validateRegistry(String token, Register register, String method) throws NoDataException, UniqueException {
         if (register == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información del registro");
@@ -1039,6 +1208,14 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Elimina un registro de asistencia a partir de su ID.
+     *
+     * @param token Token de autorización.
+     * @param registryId ID del registro a eliminar.
+     * @return El registro eliminado.
+     * @throws NoDataException Si no se encuentra el registro.
+     */
     public Register deleteRegistryById(String token, Long registryId) throws NoDataException {
         Register register = registerMapper.get(registryId);
         if (register == null) {
@@ -1050,6 +1227,13 @@ public class AssistControlService {
         return register;
     }
 
+    /**
+     * Retorna registros asociados a una compañía a partir del ID de la compañía.
+     *
+     * @param companyId ID de la compañía.
+     * @return Lista de registros.
+     * @throws NoDataException Si el ID es nulo o no se encuentran registros.
+     */
     public List<Register> findByCompanyId(Long companyId) throws NoDataException {
         if (companyId == null) {
             throw new NoDataException("El ID de la compañía no puede ser nulo.");
@@ -1061,6 +1245,13 @@ public class AssistControlService {
         return registries;
     }
 
+    /**
+     * Retorna registros asociados a una sucursal a partir del ID de la sucursal.
+     *
+     * @param branchId ID de la sucursal.
+     * @return Lista de registros.
+     * @throws NoDataException Si el ID es nulo o no se encuentran registros.
+     */
     public List<Register> findByBranchId(Long branchId) throws NoDataException {
         if (branchId == null) {
             throw new NoDataException("El ID de la sucursal no puede ser nulo.");
@@ -1072,15 +1263,16 @@ public class AssistControlService {
         return registries;
     }
 
-    public Register saveRegister(String token, SaveRegisterRequest request) throws NoDataException, UniqueException {
-        if (request == null || request.getRegister() == null) {
-            throw new NoDataException("La solicitud de registro está vacía");
-        }
-        registerMapper.mergeRegister(request);
-        return request.getRegister();
-    }
-
-    @Transactional
+    /**
+     * Procesa y guarda un registro de asistencia basado en el tipo de registro.
+     * Los tipos definen si se trata de entrada, inicio de break, fin de break o salida.
+     *
+     * @param token Token de autorización.
+     * @param request Objeto SaveRegisterRequest que contiene el registro y el tipo de registro.
+     * @return El registro procesado.
+     * @throws NoDataException Si la solicitud o el registro están vacíos o el tipo no es válido.
+     * @throws UniqueException Si se viola alguna restricción de unicidad.
+     */
     public Register processRegister(String token, SaveRegisterRequest request) throws NoDataException, UniqueException {
         if (request == null || request.getRegister() == null) {
             throw new NoDataException("La solicitud de registro está vacía");
@@ -1127,34 +1319,41 @@ public class AssistControlService {
         return reg;
     }
 
-
-    //APP USEEEEEEEEEEEEEEEEER
-
+    // ==================== USUARIO DE LA APLICACIÓN (APP USER) ====================
+    /**
+     * Obtiene un usuario de la aplicación a partir de su ID.
+     */
     public AppUser getAppUserById(String token, AppUser appUser) throws NoDataException {
         if (appUser == null || appUser.getId() == null) {
             throw new NoDataException("No se especificó el ID del usuario de la aplicación.");
         }
-
         AppUser foundAppUser = appUserMapper.get(appUser.getId());
         if (foundAppUser == null) {
             throw new NoDataException("No se encontró el usuario con el ID especificado: " + appUser.getId());
         }
-
         return foundAppUser;
     }
 
+    /**
+     * Retorna todos los usuarios de la aplicación.
+     */
     public List<AppUser> getAllAppUser(String token) {
         return appUserMapper.getAll();
     }
 
+    /**
+     * Busca usuarios de la aplicación basados en los criterios definidos en AppUserQuery.
+     */
     public List<AppUser> findAppUserByQuery(String token, AppUserQuery query) {
         return appUserMapper.findByQuery(query);
     }
 
+    /**
+     * Guarda o actualiza un usuario de la aplicación, validando la información antes de la operación.
+     */
     @Transactional
     public void saveAppUser(String token, AppUser appUser, String method) throws NoDataException, UniqueException {
         validateAppUser(token, appUser, method);
-
         if (appUser.getId() == null) {
             appUserMapper.insert(appUser);
         } else {
@@ -1162,6 +1361,10 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Valida que el usuario de la aplicación tenga nombre, contraseña y un empleado asociado.
+     * También verifica que el usuario sea único.
+     */
     private void validateAppUser(String token, AppUser appUser, String method) throws NoDataException, UniqueException {
         if (appUser == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información del usuario.");
@@ -1175,11 +1378,9 @@ public class AssistControlService {
         if (appUser.getEmployee() == null || appUser.getEmployee().getId() == null) {
             throw new NoDataException("No se especificó el empleado asociada al usuario.");
         }
-
         AppUserQuery query = new AppUserQuery();
         query.setName(appUser.getName());
         List<AppUser> appUserDBList = appUserMapper.findByQuery(query);
-
         if ("POST".equalsIgnoreCase(method)) {
             if (appUser.getId() != null) {
                 throw new NoDataException("El campo ID debe ser nulo para insertar un nuevo usuario.");
@@ -1199,29 +1400,35 @@ public class AssistControlService {
         }
     }
 
+    /**
+     * Elimina un usuario de la aplicación a partir de su ID.
+     */
     public AppUser deleteAppUserById(String token, Long appUserId) throws NoDataException {
         AppUser appUser = appUserMapper.get(appUserId);
         if (appUser == null) {
             throw new NoDataException("No se encontró el usuario con el ID especificado.");
         }
-
         appUserMapper.delete(appUserId);
         return appUser;
     }
 
+    /**
+     * Obtiene la información de la compañía asociada a un usuario de la aplicación.
+     */
     public Company getCompanyInfoByUser(String token, Long userId) throws NoDataException {
         if (userId == null) {
             throw new NoDataException("El ID del usuario es requerido.");
         }
-
         Company companyInfo = appUserMapper.getCompanyInfoByUser(userId);
         if (companyInfo == null) {
             throw new NoDataException("No se encontró información de la compañía asociada al usuario.");
         }
-
         return companyInfo;
     }
 
+    /**
+     * Realiza el proceso de login del usuario verificando sus credenciales.
+     */
     public AppUser login(String code, String password) throws NoDataException {
         AppUser appUser = appUserMapper.findByCodeAndPassword(code, password);
         if (appUser == null) {
@@ -1229,6 +1436,7 @@ public class AssistControlService {
         }
         return appUser;
     }
+
 
 
 }
