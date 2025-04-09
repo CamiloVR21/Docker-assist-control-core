@@ -4,6 +4,7 @@ import cl.bennu.assistcontrol.enums.TypeUserEnum;
 import cl.bennu.commons.domain.base.BaseDomain;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
@@ -18,6 +19,7 @@ import java.util.Base64;
 
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @RegisterForReflection(registerFullHierarchy = true)
 public class AppUserQuery extends BaseDomain implements Serializable {

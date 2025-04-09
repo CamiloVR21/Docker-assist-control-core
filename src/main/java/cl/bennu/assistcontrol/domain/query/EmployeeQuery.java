@@ -12,11 +12,13 @@ import cl.bennu.assistcontrol.enums.MaritalStatusEnum;
 import cl.bennu.commons.domain.base.BaseDomain;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.sql.Time;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @RegisterForReflection(registerFullHierarchy = true)
 public class EmployeeQuery extends BaseDomain implements Serializable {

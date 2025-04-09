@@ -4,6 +4,7 @@ import cl.bennu.assistcontrol.domain.*;
 import cl.bennu.assistcontrol.domain.query.*;
 import cl.bennu.assistcontrol.mapper.*;
 import cl.bennu.assistcontrol.request.SaveCompanyRequest;
+import cl.bennu.assistcontrol.request.SaveEmployeeRequest;
 import cl.bennu.assistcontrol.request.SaveRegisterRequest;
 import cl.bennu.commons.exception.NoDataException;
 import cl.bennu.commons.exception.UniqueException;
@@ -886,16 +887,33 @@ public class AssistControlService {
     }
 
     /**
-     * Guarda o actualiza la información de un empleado.
-     * Valida los datos del empleado antes de insertarlo o actualizarlo.
+     * Guarda o actualiza un empleado junto con la información del usuario de la aplicación.
+     * Se reciben ambos conjuntos de datos en un objeto SaveEmployeeRequest.
+     * Primero se guarda el empleado y, a continuación, se guarda el AppUser asociado.
      */
     @Transactional
-    public void saveEmployee(String token, Employee employee, String method) throws NoDataException, UniqueException {
+    public void saveEmployee(String token, SaveEmployeeRequest request, String method) throws NoDataException, UniqueException {
+        Employee employee = request.getEmployee();
+        AppUser appUser = request.getAppUser();
+        if (employee == null) {
+            throw new NoDataException("La solicitud no contiene la información del empleado.");
+        }
         validateEmployee(token, employee, method);
         if (employee.getId() == null) {
             employeeMapper.insert(employee);
         } else {
             employeeMapper.update(employee);
+        }
+
+        if (appUser == null) {
+            throw new NoDataException("La solicitud no contiene la información del usuario de la aplicación.");
+        }
+        appUser.setEmployee(employee);
+        validateAppUser(token, appUser, method);
+        if (appUser.getId() == null) {
+            appUserMapper.insert(appUser);
+        } else {
+            appUserMapper.update(appUser);
         }
     }
 

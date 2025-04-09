@@ -4,7 +4,9 @@ import cl.bennu.assistcontrol.api.base.BaseResource;
 import cl.bennu.assistcontrol.domain.Employee;
 import cl.bennu.assistcontrol.domain.query.EmployeeQuery;
 import cl.bennu.assistcontrol.domain.query.JobTypeQuery;
+import cl.bennu.assistcontrol.request.SaveEmployeeRequest;
 import cl.bennu.assistcontrol.service.AssistControlService;
+import cl.bennu.commons.exception.NoDataException;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -130,15 +132,17 @@ public class EmployeeResource extends BaseResource {
      * Requiere un token de autorización en la cabecera y un objeto Employee en el cuerpo de la solicitud.
      *
      * @param token Token de autorización.
-     * @param employee Objeto Employee a insertar.
+     * @param request Objeto Employee a insertar.
      * @return Response con el empleado insertado y estado CREATED.
      */
-    @SneakyThrows
     @POST
-    public Response insert(@HeaderParam("Authorization") String token, Employee employee) {
-        assistControlService.saveEmployee(token, employee, HttpMethod.POST);
-        return Response.status(Response.Status.CREATED).entity(employee).build();
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response insert(@HeaderParam("Authorization") String token, SaveEmployeeRequest request) throws Exception {
+        assistControlService.saveEmployee(token, request,HttpMethod.POST);
+        return Response.status(Response.Status.CREATED).entity(request.getEmployee()).build();
     }
+
+
 
     /**
      * Función: update
@@ -146,20 +150,21 @@ public class EmployeeResource extends BaseResource {
      * Requiere que el objeto Employee contenga un id válido y un token de autorización en la cabecera.
      *
      * @param token Token de autorización.
-     * @param employee Objeto Employee con la información a actualizar.
+     * @param request Objeto Employee con la información a actualizar.
      * @return Response con el empleado actualizado.
      * @throws BadRequestException si no se proporciona el id del empleado.
      */
     @SneakyThrows
     @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response update(@HeaderParam("Authorization") String token, Employee employee) {
-        if (employee.getId() == null) {
-            throw new BadRequestException("El ID del empleado es obligatorio");
+    public Response update(@HeaderParam("Authorization") String token, SaveEmployeeRequest request) {
+        Employee employee = request.getEmployee();
+        if (employee == null) {
+            throw new NoDataException("El cuerpo de la solicitud no contiene la información del empleado");
         }
-        assistControlService.saveEmployee(token, employee, HttpMethod.PUT);
-        return Response.ok(employee).build();
+        assistControlService.saveEmployee(token, request, HttpMethod.PUT);
+        return Response.ok(request).build();
     }
+
 
     /**
      * Función: delete
