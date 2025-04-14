@@ -4,7 +4,6 @@ import cl.bennu.assistcontrol.api.base.BaseResource;
 import cl.bennu.assistcontrol.domain.Employee;
 import cl.bennu.assistcontrol.domain.query.EmployeeQuery;
 import cl.bennu.assistcontrol.domain.query.JobTypeQuery;
-import cl.bennu.assistcontrol.request.SaveEmployeeRequest;
 import cl.bennu.assistcontrol.service.AssistControlService;
 import cl.bennu.commons.exception.NoDataException;
 import jakarta.inject.Inject;
@@ -137,9 +136,9 @@ public class EmployeeResource extends BaseResource {
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response insert(@HeaderParam("Authorization") String token, SaveEmployeeRequest request) throws Exception {
+    public Response insert(@HeaderParam("Authorization") String token, Employee request) throws Exception {
         assistControlService.saveEmployee(token, request,HttpMethod.POST);
-        return Response.status(Response.Status.CREATED).entity(request.getEmployee()).build();
+        return Response.ok(request).status(Response.Status.CREATED).build();
     }
 
 
@@ -156,9 +155,8 @@ public class EmployeeResource extends BaseResource {
      */
     @SneakyThrows
     @PUT
-    public Response update(@HeaderParam("Authorization") String token, SaveEmployeeRequest request) {
-        Employee employee = request.getEmployee();
-        if (employee == null) {
+    public Response update(@HeaderParam("Authorization") String token, Employee request) {
+        if (request == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información del empleado");
         }
         assistControlService.saveEmployee(token, request, HttpMethod.PUT);

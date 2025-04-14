@@ -7,7 +7,7 @@
 
     <groupId>cl.bennu</groupId>
     <artifactId>control-assist</artifactId>
-    <version>0.0.1</version>
+    <version>1.2.0</version>
     <name>control-assist</name>
     <description>microservicio - control de asistencia</description>
 
@@ -23,8 +23,8 @@
         <quarkus.platform.version>3.18.0.CR1</quarkus.platform.version>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.5.2</surefire-plugin.version>
-        <kotlin.version>2.0.21</kotlin.version>
-        <mockito.version>5.15.2</mockito.version>
+        <kotlin.version>2.1.20</kotlin.version>
+        <mockito.version>5.17.0</mockito.version>
     </properties>
 
     <dependencyManagement>
@@ -43,59 +43,69 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest</artifactId>
+            <version>3.21.2</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-jackson</artifactId>
+            <version>3.21.2</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-client</artifactId>
+            <version>3.21.2</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-client-jackson</artifactId>
+            <version>3.21.2</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-cache</artifactId>
+            <version>3.21.2</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-jdbc-postgresql</artifactId>
+            <version>3.21.2</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-arc</artifactId>
+            <version>3.21.2</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-health</artifactId>
+            <version>3.21.2</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-openapi</artifactId>
+            <version>3.21.2</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-narayana-jta</artifactId>
+            <version>3.21.2</version>
         </dependency>
         <dependency>
             <groupId>cl.bennu</groupId>
             <artifactId>commons</artifactId>
-            <version>0.1.0</version>
+            <version>1.2.0</version>
         </dependency>
 
         <dependency>
             <groupId>io.quarkiverse.mybatis</groupId>
             <artifactId>quarkus-mybatis</artifactId>
-            <version>2.3.1</version>
+            <version>2.3.2</version>
         </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.36</version>
+            <version>1.18.38</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -106,7 +116,7 @@
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>1.9.4</version>
+            <version>1.10.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>commons-collections</groupId>
@@ -122,18 +132,20 @@
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>4.4.0</version>
+            <version>4.5.0</version>
         </dependency>
 
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5</artifactId>
             <scope>test</scope>
+            <version>3.21.2</version>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
             <scope>test</scope>
+            <version>5.5.1</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -151,6 +163,7 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-jacoco</artifactId>
             <scope>test</scope>
+            <version>3.21.2</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -166,7 +179,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.8.1</version>
+            <version>5.12.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -256,7 +269,7 @@
                         </goals>
                         <configuration>
                             <sourceDirs>
-                                <source>src/main/java</source>
+                                <source>src/src/main/java</source>
                                 <source>target/generated-sources/annotations</source>
                             </sourceDirs>
                         </configuration>

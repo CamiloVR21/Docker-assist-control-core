@@ -160,6 +160,7 @@ CREATE TABLE job_scheduler (
 
 CREATE TABLE employee (
     id SERIAL NOT NULL
+    , UUID VARCHAR(50) NOT NULL
     , branch_id INTEGER NOT NULL
 	, job_scheduler_id INTEGER NOT NULL
     , commune_id INTEGER NOT NULL
@@ -211,29 +212,6 @@ CREATE TABLE register (
  	, FOREIGN KEY (employee_id) REFERENCES employee(id)
 );
 
-CREATE TABLE type_user (
-	id INTEGER  NOT null
-	, name VARCHAR(500) NOT NULL
- 	, PRIMARY KEY (id)
- 	, UNIQUE(id)
- 	, UNIQUE(name)
 
-);
 
-CREATE TABLE app_user (
-	id SERIAL  NOT null
-	, name VARCHAR(500) NOT NULL
-	, employee_id INTEGER NOT NULL
-	, email VARCHAR(500) NOT null
-	, code VARCHAR(500) NOT NULL
-	, password VARCHAR(500) NOT null
-	, img bytea  null
-	, type_user_id INTEGER NOT NULL
-/*	PREGUNTAR	*/
- 	, PRIMARY KEY (id)
- 	, UNIQUE(id)
- 	, UNIQUE(code)
- 	, FOREIGN KEY (employee_id) REFERENCES employee(id)
- 	, FOREIGN KEY (type_user_id) REFERENCES type_user(id)
-);
 

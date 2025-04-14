@@ -4,7 +4,6 @@ import cl.bennu.assistcontrol.domain.*;
 import cl.bennu.assistcontrol.domain.query.*;
 import cl.bennu.assistcontrol.mapper.*;
 import cl.bennu.assistcontrol.request.SaveCompanyRequest;
-import cl.bennu.assistcontrol.request.SaveEmployeeRequest;
 import cl.bennu.assistcontrol.request.SaveRegisterRequest;
 import cl.bennu.commons.exception.NoDataException;
 import cl.bennu.commons.exception.UniqueException;
@@ -40,8 +39,6 @@ public class AssistControlService {
     private JobTypeMapper jobTypeMapper;
     @Inject
     private RegisterMapper registerMapper;
-    @Inject
-    private AppUserMapper appUserMapper;
 
     // ==================== COMUNA ====================
     /**
@@ -892,28 +889,15 @@ public class AssistControlService {
      * Primero se guarda el empleado y, a continuación, se guarda el AppUser asociado.
      */
     @Transactional
-    public void saveEmployee(String token, SaveEmployeeRequest request, String method) throws NoDataException, UniqueException {
-        Employee employee = request.getEmployee();
-        AppUser appUser = request.getAppUser();
-        if (employee == null) {
+    public void saveEmployee(String token, Employee emplo, String method) throws NoDataException, UniqueException {
+        if (emplo == null) {
             throw new NoDataException("La solicitud no contiene la información del empleado.");
         }
-        validateEmployee(token, employee, method);
-        if (employee.getId() == null) {
-            employeeMapper.insert(employee);
+        validateEmployee(token, emplo, method);
+        if (emplo.getId() == null) {
+            employeeMapper.insert(emplo);
         } else {
-            employeeMapper.update(employee);
-        }
-
-        if (appUser == null) {
-            throw new NoDataException("La solicitud no contiene la información del usuario de la aplicación.");
-        }
-        appUser.setEmployee(employee);
-        validateAppUser(token, appUser, method);
-        if (appUser.getId() == null) {
-            appUserMapper.insert(appUser);
-        } else {
-            appUserMapper.update(appUser);
+            employeeMapper.update(emplo);
         }
     }
 
@@ -1337,123 +1321,7 @@ public class AssistControlService {
         return reg;
     }
 
-    // ==================== USUARIO DE LA APLICACIÓN (APP USER) ====================
-    /**
-     * Obtiene un usuario de la aplicación a partir de su ID.
-     */
-    public AppUser getAppUserById(String token, AppUser appUser) throws NoDataException {
-        if (appUser == null || appUser.getId() == null) {
-            throw new NoDataException("No se especificó el ID del usuario de la aplicación.");
-        }
-        AppUser foundAppUser = appUserMapper.get(appUser.getId());
-        if (foundAppUser == null) {
-            throw new NoDataException("No se encontró el usuario con el ID especificado: " + appUser.getId());
-        }
-        return foundAppUser;
-    }
 
-    /**
-     * Retorna todos los usuarios de la aplicación.
-     */
-    public List<AppUser> getAllAppUser(String token) {
-        return appUserMapper.getAll();
-    }
-
-    /**
-     * Busca usuarios de la aplicación basados en los criterios definidos en AppUserQuery.
-     */
-    public List<AppUser> findAppUserByQuery(String token, AppUserQuery query) {
-        return appUserMapper.findByQuery(query);
-    }
-
-    /**
-     * Guarda o actualiza un usuario de la aplicación, validando la información antes de la operación.
-     */
-    @Transactional
-    public void saveAppUser(String token, AppUser appUser, String method) throws NoDataException, UniqueException {
-        validateAppUser(token, appUser, method);
-        if (appUser.getId() == null) {
-            appUserMapper.insert(appUser);
-        } else {
-            appUserMapper.update(appUser);
-        }
-    }
-
-    /**
-     * Valida que el usuario de la aplicación tenga nombre, contraseña y un empleado asociado.
-     * También verifica que el usuario sea único.
-     */
-    private void validateAppUser(String token, AppUser appUser, String method) throws NoDataException, UniqueException {
-        if (appUser == null) {
-            throw new NoDataException("El cuerpo de la solicitud no contiene la información del usuario.");
-        }
-        if (StringUtils.isBlank(appUser.getName())) {
-            throw new NoDataException("No se especificó el nombre de usuario.");
-        }
-        if (StringUtils.isBlank(appUser.getPassword())) {
-            throw new NoDataException("No se especificó la contraseña.");
-        }
-        if (appUser.getEmployee() == null || appUser.getEmployee().getId() == null) {
-            throw new NoDataException("No se especificó el empleado asociada al usuario.");
-        }
-        AppUserQuery query = new AppUserQuery();
-        query.setName(appUser.getName());
-        List<AppUser> appUserDBList = appUserMapper.findByQuery(query);
-        if ("POST".equalsIgnoreCase(method)) {
-            if (appUser.getId() != null) {
-                throw new NoDataException("El campo ID debe ser nulo para insertar un nuevo usuario.");
-            }
-            if (appUserDBList != null && !appUserDBList.isEmpty()) {
-                throw new UniqueException("El usuario ya existe.");
-            }
-        } else if ("PUT".equalsIgnoreCase(method)) {
-            if (appUser.getId() == null) {
-                throw new NoDataException("El campo ID es requerido para actualizar un usuario.");
-            }
-            for (AppUser existingAppUser : appUserDBList) {
-                if (!existingAppUser.getId().equals(appUser.getId())) {
-                    throw new UniqueException("Ya existe otro usuario con el mismo nombre.");
-                }
-            }
-        }
-    }
-
-    /**
-     * Elimina un usuario de la aplicación a partir de su ID.
-     */
-    public AppUser deleteAppUserById(String token, Long appUserId) throws NoDataException {
-        AppUser appUser = appUserMapper.get(appUserId);
-        if (appUser == null) {
-            throw new NoDataException("No se encontró el usuario con el ID especificado.");
-        }
-        appUserMapper.delete(appUserId);
-        return appUser;
-    }
-
-    /**
-     * Obtiene la información de la compañía asociada a un usuario de la aplicación.
-     */
-    public Company getCompanyInfoByUser(String token, Long userId) throws NoDataException {
-        if (userId == null) {
-            throw new NoDataException("El ID del usuario es requerido.");
-        }
-        Company companyInfo = appUserMapper.getCompanyInfoByUser(userId);
-        if (companyInfo == null) {
-            throw new NoDataException("No se encontró información de la compañía asociada al usuario.");
-        }
-        return companyInfo;
-    }
-
-    /**
-     * Realiza el proceso de login del usuario verificando sus credenciales.
-     */
-    public AppUser login(String code, String password) throws NoDataException {
-        AppUser appUser = appUserMapper.findByCodeAndPassword(code, password);
-        if (appUser == null) {
-            throw new NoDataException("Credenciales inválidas: usuario o contraseña incorrecta.");
-        }
-        return appUser;
-    }
 
 
 

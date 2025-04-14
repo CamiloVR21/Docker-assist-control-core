@@ -11,5 +11,7 @@ DROP TABLE IF EXISTS country;
 DROP TABLE IF EXISTS gender;
 DROP TABLE IF EXISTS marital_status;
 DROP TABLE IF EXISTS register;
+
+!--     borrar cuando lo ocupe el team
 DROP TABLE IF EXISTS app_user;
 DROP TABLE IF EXISTS type_user;

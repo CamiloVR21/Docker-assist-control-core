@@ -11,5 +11,3 @@ INSERT INTO country (id, name, nationality) VALUES (1, 'Chile', 'Chilena');
 INSERT INTO region (id, country_id, name) VALUES (1, 1,'RM');
 INSERT INTO city (id, region_id, name) VALUES (1, 1,'Santiago');
 INSERT INTO commune (id, city_id, name, sii_code, tgr_code) VALUES (1, 1, 'El Bosque', NULL, NULL);
-INSERT INTO type_user (id, name) VALUES (1,'Administrador');
-INSERT INTO type_user (id, name) VALUES (2,'Trabajador');
