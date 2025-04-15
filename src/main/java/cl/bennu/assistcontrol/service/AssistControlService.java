@@ -75,7 +75,7 @@ public class AssistControlService {
      * Guarda o actualiza una comuna.
      * Valida la información antes de realizar la operación.
      */
-    @Transactional
+    @Transactional(rollbackOn = {NoDataException.class, UniqueException.class})
     public void saveCommune(String token, Commune commune, String method) throws NoDataException, UniqueException {
         validateCommune(token, commune, method);
         if (commune.getId() == null) {
@@ -187,15 +187,21 @@ public class AssistControlService {
      * Guarda o actualiza la información de una compañía, junto con su sucursal (si es sede central).
      * Valida la información de la compañía y de la sucursal antes de la operación.
      */
-    @Transactional
-    public void saveCompany(String token, SaveCompanyRequest saveCompanyRequest, String method) throws NoDataException, UniqueException {
+    @Transactional(rollbackOn = {NoDataException.class, UniqueException.class})
+    public void saveCompany(String token, SaveCompanyRequest saveCompanyRequest, String method)
+            throws NoDataException, UniqueException {
+
         Company company = saveCompanyRequest.getCompany();
         Branch branch = saveCompanyRequest.getBranch();
         Boolean hq = saveCompanyRequest.getHq();
+
+        // Validar que se reciba información de la compañía.
         if (company == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información de la compañía");
         }
         validateCompany(token, company, method);
+
+        // Insertar o actualizar la compañía.
         if (company.getId() == null) {
             companyMapper.insert(company);
         } else {
@@ -205,8 +211,10 @@ public class AssistControlService {
         if (companyId == null) {
             throw new NoDataException("Error al guardar la compañía: no se pudo generar un ID.");
         }
-        // Manejo de la sucursal si es sede central (hq)
+
+        // Manejo de la sucursal según el flag hq.
         if (Boolean.TRUE.equals(hq)) {
+            // Si es sede central, se autogeneran (o actualizan) los datos de branch desde company.
             if (branch == null || branch.getId() == null) {
                 Branch existingBranch = findBranchByCompany(company);
                 if (existingBranch == null) {
@@ -230,7 +238,11 @@ public class AssistControlService {
                 branch.setCompany(company);
                 saveBranch(token, branch, branch.getId() == null ? HttpMethod.POST : HttpMethod.PUT);
             }
-        } else if (hq && branch != null) {
+        } else {
+            // Si no es sede central, se requiere que el objeto branch contenga datos obligatorios.
+            if (branch == null || branch.getName() == null || branch.getAddress() == null) {
+                throw new NoDataException("Para compañías que no son sede central se debe proveer la información completa de la sucursal (branch)");
+            }
             branch.setCompany(company);
             saveBranch(token, branch, branch.getId() == null ? HttpMethod.POST : HttpMethod.PUT);
         }
@@ -281,6 +293,7 @@ public class AssistControlService {
             }
         }
     }
+
 
     /**
      * Elimina una compañía a partir de su ID, verificando que no tenga sucursales con empleados asociados.
@@ -350,7 +363,7 @@ public class AssistControlService {
     /**
      * Guarda o actualiza una sucursal, validando primero su información.
      */
-    @Transactional
+    @Transactional(rollbackOn = {NoDataException.class, UniqueException.class})
     public void saveBranch(String token, Branch branch, String method) throws NoDataException, UniqueException {
         validateBranch(token, branch, method);
         if (branch.getId() == null) {
@@ -473,7 +486,7 @@ public class AssistControlService {
     /**
      * Guarda o actualiza una ciudad, validando previamente la información.
      */
-    @Transactional
+    @Transactional(rollbackOn = {NoDataException.class, UniqueException.class})
     public void saveCity(String token, City city, String method) throws NoDataException, UniqueException {
         validateCity(token, city, method);
         if (city.getId() == null) {
@@ -545,7 +558,7 @@ public class AssistControlService {
     /**
      * Guarda o actualiza la información de un país, validando previamente la información.
      */
-    @Transactional
+    @Transactional(rollbackOn = {NoDataException.class, UniqueException.class})
     public void saveCountry(String token, Country country, String method) throws NoDataException, UniqueException {
         validateCountry(token, country, method);
         if (country.getId() == null) {
@@ -617,7 +630,7 @@ public class AssistControlService {
     /**
      * Guarda o actualiza la información de una región, validando previamente la información.
      */
-    @Transactional
+    @Transactional(rollbackOn = {NoDataException.class, UniqueException.class})
     public void saveRegion(String token, Region region, String method) throws NoDataException, UniqueException {
         validateRegion(token, region, method);
         if (region.getId() == null) {
@@ -703,7 +716,7 @@ public class AssistControlService {
      * @throws NoDataException Si faltan datos requeridos.
      * @throws UniqueException Si se viola una restricción de unicidad.
      */
-    @Transactional
+    @Transactional(rollbackOn = {NoDataException.class, UniqueException.class})
     public void saveJobScheduler(String token, JobScheduler jobScheduler, String method) throws NoDataException, UniqueException {
         validateJobScheduler(token, jobScheduler, method);
         if (jobScheduler.getId() == null) {
@@ -888,7 +901,7 @@ public class AssistControlService {
      * Se reciben ambos conjuntos de datos en un objeto SaveEmployeeRequest.
      * Primero se guarda el empleado y, a continuación, se guarda el AppUser asociado.
      */
-    @Transactional
+    @Transactional(rollbackOn = {NoDataException.class, UniqueException.class})
     public void saveEmployee(String token, Employee emplo, String method) throws NoDataException, UniqueException {
         if (emplo == null) {
             throw new NoDataException("La solicitud no contiene la información del empleado.");
@@ -1030,7 +1043,7 @@ public class AssistControlService {
     /**
      * Guarda o actualiza un rol, validando su información.
      */
-    @Transactional
+    @Transactional(rollbackOn = {NoDataException.class, UniqueException.class})
     public void saveJobType(String token, JobType jobType, String method) throws NoDataException, UniqueException {
         validateJobType(token, jobType, method);
         if (jobType.getId() == null) {
@@ -1151,7 +1164,7 @@ public class AssistControlService {
     /**
      * Guarda o actualiza un registro de asistencia, validando previamente la información.
      */
-    @Transactional
+    @Transactional(rollbackOn = {NoDataException.class, UniqueException.class})
     public void saveRegistry(String token, Register register, String method) throws NoDataException, UniqueException {
         validateRegistry(token, register, method);
         if (register.getId() == null) {
