@@ -6,6 +6,9 @@ import cl.bennu.assistcontrol.domain.query.EmployeeQuery;
 import cl.bennu.assistcontrol.domain.query.JobTypeQuery;
 import cl.bennu.assistcontrol.service.AssistControlService;
 import cl.bennu.commons.exception.NoDataException;
+import cl.bennu.commons.utils.TokenUtil;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -19,6 +22,26 @@ public class EmployeeResource extends BaseResource {
 
     private @Inject AssistControlService assistControlService;
 
+
+    private String extractEmployeeUUID(String token) {
+        try {
+            if (token != null && token.startsWith("Bearer ")) {
+                token = token.substring("Bearer ".length());
+            }
+            token = token.trim();
+
+            DecodedJWT decodedJWT = JWT.decode(token);
+            String uuid = decodedJWT.getClaim("uuid").asString();
+            if (uuid == null || uuid.isEmpty()) {
+                throw new IllegalArgumentException("El token no contiene el claim 'uuid'");
+            }
+            return uuid;
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error extrayendo el UUID del token", e);
+        }
+    }
+
+
     /**
      * Función: getAll
      * Descripción: Retorna la lista completa de empleados registrados en la aplicación.
@@ -30,7 +53,8 @@ public class EmployeeResource extends BaseResource {
     @SneakyThrows
     @GET
     public Response getAll(@HeaderParam("Authorization") String token) {
-        List<Employee> employees = assistControlService.getAllEmployees(token);
+        String employeeUUID = extractEmployeeUUID(token);
+        List<Employee> employees = assistControlService.getAllEmployees(employeeUUID);
         return Response.ok(employees).build();
     }
 
@@ -47,7 +71,8 @@ public class EmployeeResource extends BaseResource {
     @GET
     @Path("/{id}")
     public Response get(@HeaderParam("Authorization") String token, @PathParam("id") Long id) {
-        Employee employee = assistControlService.getEmployeeById(token, id);
+        String employeeUUID = extractEmployeeUUID(token);
+        Employee employee = assistControlService.getEmployeeById(employeeUUID, id);
         return Response.ok(employee).build();
     }
 
@@ -65,7 +90,8 @@ public class EmployeeResource extends BaseResource {
     @Path("/-/by-company/{companyId}")
     public Response findByCompany(@HeaderParam("Authorization") String token,
                                   @PathParam("companyId") Long companyId) {
-        List<Employee> employees = assistControlService.findEmployeesByCompany(token, companyId);
+        String employeeUUID = extractEmployeeUUID(token);
+        List<Employee> employees = assistControlService.findEmployeesByCompany(employeeUUID, companyId);
         return Response.ok(employees).build();
     }
 
@@ -92,6 +118,7 @@ public class EmployeeResource extends BaseResource {
                          @QueryParam("lastName") String lastName,
                          @QueryParam("address") String address,
                          @QueryParam("active") Boolean active) {
+        String employeeUUID = extractEmployeeUUID(token);
         EmployeeQuery query = new EmployeeQuery();
         if (jobTypeId != null) {
             JobTypeQuery jobTypeQuery = new JobTypeQuery();
@@ -103,7 +130,7 @@ public class EmployeeResource extends BaseResource {
         query.setAddress(address);
         query.setActive(active);
 
-        List<Employee> employees = assistControlService.findEmployeesByQuery(token, query);
+        List<Employee> employees = assistControlService.findEmployeesByQuery(employeeUUID, query);
         return Response.ok(employees).build();
     }
 
@@ -121,7 +148,8 @@ public class EmployeeResource extends BaseResource {
     @Path("/search")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response searchEmployees(@HeaderParam("Authorization") String token, EmployeeQuery query) {
-        List<Employee> employees = assistControlService.findEmployeesByQuery(token, query);
+        String employeeUUID = extractEmployeeUUID(token);
+        List<Employee> employees = assistControlService.findEmployeesByQuery(employeeUUID, query);
         return Response.ok(employees).build();
     }
 
@@ -137,11 +165,10 @@ public class EmployeeResource extends BaseResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response insert(@HeaderParam("Authorization") String token, Employee request) throws Exception {
-        assistControlService.saveEmployee(token, request,HttpMethod.POST);
-        return Response.ok(request).status(Response.Status.CREATED).build();
+        String employeeUUID = extractEmployeeUUID(token);
+        assistControlService.saveEmployee(employeeUUID, request, HttpMethod.POST);
+        return Response.status(Response.Status.CREATED).entity(request).build();
     }
-
-
 
     /**
      * Función: update
@@ -151,7 +178,7 @@ public class EmployeeResource extends BaseResource {
      * @param token Token de autorización.
      * @param request Objeto Employee con la información a actualizar.
      * @return Response con el empleado actualizado.
-     * @throws BadRequestException si no se proporciona el id del empleado.
+     * @throws NoDataException si el cuerpo de la solicitud no contiene la información del empleado.
      */
     @SneakyThrows
     @PUT
@@ -159,10 +186,10 @@ public class EmployeeResource extends BaseResource {
         if (request == null) {
             throw new NoDataException("El cuerpo de la solicitud no contiene la información del empleado");
         }
-        assistControlService.saveEmployee(token, request, HttpMethod.PUT);
+        String employeeUUID = extractEmployeeUUID(token);
+        assistControlService.saveEmployee(employeeUUID, request, HttpMethod.PUT);
         return Response.ok(request).build();
     }
-
 
     /**
      * Función: delete
@@ -177,7 +204,8 @@ public class EmployeeResource extends BaseResource {
     @DELETE
     @Path("/{id}")
     public Response delete(@HeaderParam("Authorization") String token, @PathParam("id") Long id) {
-        Employee employee = assistControlService.deleteEmployeeById(token, id);
+        String employeeUUID = extractEmployeeUUID(token);
+        Employee employee = assistControlService.deleteEmployeeById(employeeUUID, id);
         return Response.ok(employee).build();
     }
 }
