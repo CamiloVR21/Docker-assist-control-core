@@ -5,6 +5,7 @@
 
     <resultMap id="employeeMap" type="cl.bennu.assistcontrol.domain.Employee">
         <id property="id" column="id"/>
+        <result property="uuid" column="uuid"/>
         <result property="code" column="code"/>
         <result property="name" column="name"/>
         <result property="lastName" column="last_name"/>
@@ -48,7 +49,7 @@
 
     <sql id="sqlEmployee">
         <!-- @formatter:off -->
-        SELECT e.id, e.branch_id, e.job_scheduler_id, e.commune_id, e.nationality_id, e.gender_id,
+        SELECT e.id, e.uuid, e.branch_id, e.job_scheduler_id, e.commune_id, e.nationality_id, e.gender_id,
         e.marital_status_id, e.contract_type_id, e.job_type_id, e.code, e.name, e.last_name, e.mother_last_name,
         e.birth_date, e.phone, e.email, e.address, e.contract_date, e.contract_end_date, e.active,
         b.id as branch_id, b.name as branch_name,
@@ -80,6 +81,10 @@
         <include refid="sqlEmployee"/>
         <!-- @formatter:off -->
         WHERE 1 = 1
+        <if test="uuid != null">
+            <bind name="_uuid" value="'%' + name + '%'"/>
+            AND UPPER(e.uuid) LIKE UPPER(#{_uuid})
+        </if>
         <if test="branch != null and branch.id != null">
             AND b.id = #{branch.id}
         </if>
@@ -146,11 +151,11 @@
     </select>
 
     <insert id="insert" parameterType="cl.bennu.assistcontrol.domain.Employee" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO employee (branch_id, job_scheduler_id, commune_id, nationality_id, gender_id, marital_status_id,
+        INSERT INTO employee (uuid, branch_id, job_scheduler_id, commune_id, nationality_id, gender_id, marital_status_id,
         contract_type_id,
         job_type_id, code, name, last_name, mother_last_name, birth_date, phone, email, address, contract_date,
         contract_end_date, active)
-        VALUES (#{branch.id}, #{jobScheduler.id}, #{commune.id}, #{country.id}, #{gender.id}, #{maritalStatus.id},
+        VALUES (#{uuid}, #{branch.id}, #{jobScheduler.id}, #{commune.id}, #{country.id}, #{gender.id}, #{maritalStatus.id},
         #{contractType.id},
         #{jobType.id}, #{code}, #{name}, #{lastName}, #{motherLastName}, #{birthDate}, #{phone}, #{email}, #{address},
         #{contractDate}, #{contractEndDate}, #{active})
@@ -159,7 +164,8 @@
 
     <update id="update" parameterType="cl.bennu.assistcontrol.domain.Employee">
         UPDATE employee
-        SET branch_id = #{branch.id},
+        SET uuid = #{uuid},
+        branch_id = #{branch.id},
         job_scheduler_id = #{jobScheduler.id},
         commune_id = #{commune.id},
         nationality_id = #{country.id},

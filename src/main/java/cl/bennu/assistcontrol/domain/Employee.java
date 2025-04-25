@@ -19,6 +19,7 @@ import java.time.LocalDate;
 
 public class Employee extends BaseDomain implements Serializable {
 
+    private String uuid;
     private Branch branch;
     private JobScheduler jobScheduler;
     private Commune commune;

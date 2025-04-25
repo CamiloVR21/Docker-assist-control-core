@@ -24,6 +24,7 @@ import java.sql.Time;
 public class EmployeeQuery extends BaseDomain implements Serializable {
 
     private Long id;
+    private String uuid;
     private BranchQuery branch;
     private JobSchedulerQuery jobScheduler;
     private CommuneQuery commune;

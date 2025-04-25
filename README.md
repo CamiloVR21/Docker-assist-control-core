@@ -10,7 +10,7 @@ Microservicio de control de Asistencia
 
 Tecnologias del proyecto
 
-- [JDK 17](https://adoptium.net/temurin/releases/) - Java
+- [JDK 21](https://adoptium.net/temurin/releases/) - Java
 - [JRE 17](https://www.graalvm.org/downloads/) - GraalVM
 - [Quarkus 3.13](https://quarkus.io/) - Quarkus
 - [myBatis 3](https://github.com/quarkiverse/quarkus-mybatis) - MyBatis
